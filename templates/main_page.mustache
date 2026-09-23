@@ -1,0 +1,32 @@
+{{!
+    @template local_upgradeassistant/main_page
+    Minimal four-step interface for Smart Upgrade Assistant.
+}}
+<div class="local-upgradeassistant">
+    {{> local_upgradeassistant/header_summary}}
+
+    <nav class="ua-view-tabs" aria-label="{{#str}} mainnavigation, local_upgradeassistant {{/str}}">
+        <a class="ua-view-tab {{#view.wizard}}is-active{{/view.wizard}}" href="{{wizardurl}}">
+            <i class="fa fa-magic" aria-hidden="true"></i>
+            {{#str}} assistanttab, local_upgradeassistant {{/str}}
+        </a>
+        {{#capabilities.canviewreports}}
+        <a class="ua-view-tab {{#view.reports}}is-active{{/view.reports}}" href="{{reportsurl}}">
+            <i class="fa fa-file-text-o" aria-hidden="true"></i>
+            {{#str}} reportstab, local_upgradeassistant {{/str}}
+        </a>
+        {{/capabilities.canviewreports}}
+    </nav>
+
+    {{#view.wizard}}
+        {{> local_upgradeassistant/stepper}}
+        {{#dashboard.showstep1}}{{> local_upgradeassistant/step_diagnostics}}{{/dashboard.showstep1}}
+        {{#dashboard.showstep2}}{{> local_upgradeassistant/step_target}}{{/dashboard.showstep2}}
+        {{#dashboard.showstep3}}{{> local_upgradeassistant/step_preparation}}{{/dashboard.showstep3}}
+        {{#dashboard.showstep4}}{{> local_upgradeassistant/step_execution}}{{/dashboard.showstep4}}
+    {{/view.wizard}}
+
+    {{#view.reports}}
+        {{> local_upgradeassistant/reports}}
+    {{/view.reports}}
+</div>

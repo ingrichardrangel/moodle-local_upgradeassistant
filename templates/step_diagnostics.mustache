@@ -1,0 +1,78 @@
+<section class="ua-stage" aria-labelledby="ua-diagnosis-title">
+    <div class="ua-stage-header">
+        <div>
+            <span class="ua-eyebrow">{{#str}} steponeof, local_upgradeassistant {{/str}}</span>
+            <h3 id="ua-diagnosis-title">{{#str}} diagnosisheading, local_upgradeassistant {{/str}}</h3>
+            <p>{{#str}} diagnosisintro, local_upgradeassistant {{/str}}</p>
+        </div>
+        <span class="ua-status-pill ua-badge-ok"><i class="fa fa-check-circle" aria-hidden="true"></i> {{#str}} environmentdetected, local_upgradeassistant {{/str}}</span>
+    </div>
+
+    <div class="ua-status-list">
+        <div><span><i class="fa fa-graduation-cap" aria-hidden="true"></i> Moodle</span><strong>{{env.release}}</strong></div>
+        <div><span><i class="fa fa-code" aria-hidden="true"></i> PHP</span><strong>{{env.phpversion}}</strong></div>
+        <div><span><i class="fa fa-database" aria-hidden="true"></i> {{#str}} database, local_upgradeassistant {{/str}}</span><strong>{{env.dbtype}}</strong></div>
+        <div><span><i class="fa fa-paint-brush" aria-hidden="true"></i> {{#str}} currenttheme, local_upgradeassistant {{/str}}</span><strong>{{env.theme}}</strong></div>
+        <div><span><i class="fa fa-life-ring" aria-hidden="true"></i> {{#str}} lifecyclecurrentstatus, local_upgradeassistant {{/str}}</span><strong><span class="ua-badge {{lifecycle.current.statusclass}}">{{lifecycle.current.statuslabel}}</span></strong></div>
+    </div>
+
+    <details class="ua-details">
+        <summary><i class="fa fa-server" aria-hidden="true"></i> {{#str}} viewtechnicalserverinfo, local_upgradeassistant {{/str}}</summary>
+        <div class="ua-details-body">
+            <dl class="ua-definition-list">
+                <div><dt>{{#str}} codedir, local_upgradeassistant {{/str}}</dt><dd><code>{{env.dirroot}}</code></dd></div>
+                <div><dt>{{#str}} moodledataroot, local_upgradeassistant {{/str}}</dt><dd><code>{{env.dataroot}}</code></dd></div>
+                <div><dt>{{#str}} wwwroot, local_upgradeassistant {{/str}}</dt><dd><code>{{env.wwwroot}}</code></dd></div>
+                <div><dt>{{#str}} databaseversion, local_upgradeassistant {{/str}}</dt><dd>{{env.dbdesc}}</dd></div>
+            </dl>
+        </div>
+    </details>
+
+    <details class="ua-details">
+        <summary><i class="fa fa-calendar-check-o" aria-hidden="true"></i> {{#str}} lifecycleandtimeline, local_upgradeassistant {{/str}}</summary>
+        <div class="ua-details-body">
+            <div class="ua-lifecycle-summary">
+                <article>
+                    <span>{{#str}} current, local_upgradeassistant {{/str}}</span>
+                    <strong>{{lifecycle.current.label}}</strong>
+                    <span class="ua-badge {{lifecycle.current.statusclass}}">{{lifecycle.current.statuslabel}}</span>
+                    <small>{{#str}} lifecyclesecurityuntil, local_upgradeassistant {{/str}} {{lifecycle.current.securityend}}</small>
+                </article>
+                {{#lifecycle.hastarget}}
+                <article>
+                    <span>{{#str}} targetversion, local_upgradeassistant {{/str}}</span>
+                    <strong>{{lifecycle.target.label}}</strong>
+                    <span class="ua-badge {{lifecycle.target.statusclass}}">{{lifecycle.target.statuslabel}}</span>
+                    <small>{{#str}} lifecyclesecurityuntil, local_upgradeassistant {{/str}} {{lifecycle.target.securityend}}</small>
+                </article>
+                {{/lifecycle.hastarget}}
+                <article>
+                    <span>{{#str}} recommendation, local_upgradeassistant {{/str}}</span>
+                    <strong>{{#str}} lifecycleltspriority, local_upgradeassistant {{/str}}</strong>
+                    <small>{{lifecycle.recommendation}}</small>
+                </article>
+            </div>
+            <div class="ua-lifecycle-chart">
+                {{#lifecycle.rows}}
+                <div class="ua-lifecycle-row">
+                    <div class="ua-lifecycle-version"><strong>{{label}}</strong><span class="ua-badge {{statusclass}}">{{statuslabel}}</span></div>
+                    <div class="ua-lifecycle-track" aria-label="{{label}}">
+                        <span class="ua-lifecycle-bar ua-lifecycle-general" style="{{generalstyle}}"></span>
+                        <span class="ua-lifecycle-bar ua-lifecycle-security" style="{{securitystyle}}"></span>
+                    </div>
+                    <div class="ua-lifecycle-dates"><span>{{releasedate}}</span><span>{{generalend}}</span><span>{{securityend}}</span></div>
+                </div>
+                {{/lifecycle.rows}}
+            </div>
+            <p class="ua-muted">{{#str}} lifecyclesource, local_upgradeassistant {{/str}}: <a href="{{lifecycle.sourceurl}}" target="_blank" rel="noopener">{{lifecycle.source}}</a> · {{lifecycle.lastsync}}</p>
+        </div>
+    </details>
+
+    <footer class="ua-stage-footer">
+        <span></span>
+        <a class="btn btn-primary" href="{{dashboard.nexturl}}">
+            {{#str}} selecttargetaction, local_upgradeassistant {{/str}}
+            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+        </a>
+    </footer>
+</section>

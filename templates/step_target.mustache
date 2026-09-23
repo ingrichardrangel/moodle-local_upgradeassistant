@@ -1,0 +1,116 @@
+<section class="ua-stage" aria-labelledby="ua-target-title">
+    <div class="ua-stage-header">
+        <div>
+            <span class="ua-eyebrow">{{#str}} steptwoof, local_upgradeassistant {{/str}}</span>
+            <h3 id="ua-target-title">{{#str}} targetheading, local_upgradeassistant {{/str}}</h3>
+            <p>{{#str}} targetintro, local_upgradeassistant {{/str}}</p>
+        </div>
+    </div>
+
+    {{#selectedtarget.available}}
+    <div class="ua-selection-summary">
+        <div class="ua-selection-icon"><i class="fa fa-check" aria-hidden="true"></i></div>
+        <div>
+            <span>{{#str}} selectedtarget, local_upgradeassistant {{/str}}</span>
+            <strong>{{selectedtarget.release}}</strong>
+            <small>{{selectedtarget.path}}</small>
+        </div>
+        {{#analysis.available}}<span class="ua-badge {{analysis.statusclass}}">{{analysis.statuslabel}}</span>{{/analysis.available}}
+    </div>
+    {{/selectedtarget.available}}
+
+    {{#capabilities.canmanage}}{{#capabilities.canviewsensitive}}
+    <form method="post" action="{{actionurl}}" class="ua-scan-controls">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="action" value="setscanpath">
+        <input type="hidden" name="returnview" value="wizard">
+        <input type="hidden" name="returnstep" value="2">
+        <label for="scanpath">{{#str}} scanpathlabel, local_upgradeassistant {{/str}}</label>
+        <select id="scanpath" name="scanpath" class="custom-select form-control">
+            {{#scan.roots}}<option value="{{path}}" {{#selected}}selected{{/selected}}>{{path}}</option>{{/scan.roots}}
+        </select>
+        <button class="btn btn-outline-primary" type="submit"><i class="fa fa-search" aria-hidden="true"></i> {{#str}} scan, local_upgradeassistant {{/str}}</button>
+    </form>
+    {{/capabilities.canviewsensitive}}{{/capabilities.canmanage}}
+
+    {{#scan.sensitivehidden}}
+        <div class="ua-inline-note"><i class="fa fa-lock" aria-hidden="true"></i> {{#str}} sensitivehidden, local_upgradeassistant {{/str}}</div>
+    {{/scan.sensitivehidden}}
+    {{^scan.sensitivehidden}}{{^scan.hasinstallations}}
+        <div class="alert alert-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{#str}} noinstallations, local_upgradeassistant {{/str}}</div>
+    {{/scan.hasinstallations}}{{/scan.sensitivehidden}}
+
+    {{#scan.hasinstallations}}
+    <div class="ua-target-list">
+        {{#scan.installations}}
+        <article class="ua-target-option {{#iscurrent}}is-current{{/iscurrent}}">
+            <div class="ua-target-option-main">
+                <span class="ua-target-icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span>
+                <div>
+                    <h4>{{folder}}</h4>
+                    <p>{{release}} · Moodle {{branchlabel}}</p>
+                    <small>{{path}}</small>
+                    {{#hasroute}}<small><strong>{{#str}} recommendedroute, local_upgradeassistant {{/str}}:</strong> {{route}}</small>{{/hasroute}}
+                </div>
+            </div>
+            <div class="ua-target-option-actions">
+                <span class="ua-badge {{statusclass}}">{{statuslabel}}</span>
+                {{#canselect}}
+                <form method="post" action="{{actionurl}}">
+                    <input type="hidden" name="sesskey" value="{{sesskey}}">
+                    <input type="hidden" name="action" value="settarget">
+                    <input type="hidden" name="targetpath" value="{{pathvalue}}">
+                    <input type="hidden" name="returnview" value="wizard">
+                    <input type="hidden" name="returnstep" value="2">
+                    <button type="submit" class="btn btn-primary">{{#str}} selectthisversion, local_upgradeassistant {{/str}}</button>
+                </form>
+                {{/canselect}}
+            </div>
+        </article>
+        {{/scan.installations}}
+    </div>
+    {{/scan.hasinstallations}}
+
+    {{#capabilities.canmanage}}{{#capabilities.canviewsensitive}}
+    <details class="ua-details ua-manual-target">
+        <summary><i class="fa fa-keyboard-o" aria-hidden="true"></i> {{#str}} manualtargetnew, local_upgradeassistant {{/str}}</summary>
+        <div class="ua-details-body">
+            <p>{{#str}} manualtargetdescnew, local_upgradeassistant {{/str}}</p>
+            <form method="post" action="{{actionurl}}" class="ua-inline-input-form">
+                <input type="hidden" name="sesskey" value="{{sesskey}}">
+                <input type="hidden" name="action" value="settarget">
+                <input type="hidden" name="returnview" value="wizard">
+                <input type="hidden" name="returnstep" value="2">
+                <label class="sr-only visually-hidden" for="targetpath">{{#str}} targetpathlabel, local_upgradeassistant {{/str}}</label>
+                <input id="targetpath" type="text" name="targetpath" class="form-control" placeholder="{{#str}} targetpathplaceholder, local_upgradeassistant {{/str}}">
+                <button type="submit" class="btn btn-primary">{{#str}} validateandselect, local_upgradeassistant {{/str}}</button>
+            </form>
+        </div>
+    </details>
+    {{/capabilities.canviewsensitive}}{{/capabilities.canmanage}}
+
+    {{#selectedtarget.available}}{{#analysis.available}}
+    <div class="ua-result-panel">
+        <h4><i class="fa fa-random" aria-hidden="true"></i> {{#str}} selectionresult, local_upgradeassistant {{/str}}</h4>
+        <p>{{analysis.message}}</p>
+        {{#analysis.hasroute}}<p><strong>{{#str}} recommendedroute, local_upgradeassistant {{/str}}:</strong> <code>{{analysis.route}}</code></p>{{/analysis.hasroute}}
+        {{^analysis.directallowed}}{{#analysis.nextlabel}}<div class="alert alert-warning">{{analysis.notnextwarning}}</div>{{/analysis.nextlabel}}{{/analysis.directallowed}}
+        <details class="ua-details ua-details-nested">
+            <summary>{{#str}} viewtargettechnicaldetails, local_upgradeassistant {{/str}}</summary>
+            <div class="ua-details-body">
+                <dl class="ua-definition-list">
+                    <div><dt>{{#str}} path, local_upgradeassistant {{/str}}</dt><dd><code>{{selectedtarget.path}}</code></dd></div>
+                    <div><dt>{{#str}} targetpublicstructure, local_upgradeassistant {{/str}}</dt><dd>{{#selectedtarget.haspublic}}{{#str}} detected, local_upgradeassistant {{/str}}{{/selectedtarget.haspublic}}{{^selectedtarget.haspublic}}{{#str}} notdetected, local_upgradeassistant {{/str}}{{/selectedtarget.haspublic}}</dd></div>
+                    {{#selectedtarget.haspublic}}<div><dt>{{#str}} targetpublicpath, local_upgradeassistant {{/str}}</dt><dd><code>{{selectedtarget.publicpath}}</code></dd></div>{{/selectedtarget.haspublic}}
+                </dl>
+            </div>
+        </details>
+    </div>
+    {{/analysis.available}}{{/selectedtarget.available}}
+
+    <footer class="ua-stage-footer">
+        <a class="btn btn-outline-secondary" href="{{dashboard.previousurl}}"><i class="fa fa-arrow-left" aria-hidden="true"></i> {{#str}} back, local_upgradeassistant {{/str}}</a>
+        {{#selectedtarget.available}}<a class="btn btn-primary" href="{{dashboard.nexturl}}">{{#str}} analysecompatibility, local_upgradeassistant {{/str}} <i class="fa fa-arrow-right" aria-hidden="true"></i></a>{{/selectedtarget.available}}
+        {{^selectedtarget.available}}<button class="btn btn-primary" type="button" disabled>{{#str}} analysecompatibility, local_upgradeassistant {{/str}}</button>{{/selectedtarget.available}}
+    </footer>
+</section>

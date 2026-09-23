@@ -1,0 +1,85 @@
+<header class="ua-header" aria-labelledby="ua-main-title">
+    <div class="ua-header-main">
+        <div>
+            <div class="ua-title-row">
+                <h2 id="ua-main-title">{{#str}} pluginname, local_upgradeassistant {{/str}}</h2>
+                {{#capabilities.canviewsensitive}}
+                    <span class="ua-data-label" title="{{#str}} technicaldatavisibledesc, local_upgradeassistant {{/str}}">
+                        <i class="fa fa-shield" aria-hidden="true"></i>
+                        {{#str}} technicaldatavisible, local_upgradeassistant {{/str}}
+                    </span>
+                {{/capabilities.canviewsensitive}}
+            </div>
+            <p class="ua-version-flow">
+                <strong>{{dashboard.currentversion}}</strong>
+                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+                <strong>{{dashboard.targetversion}}</strong>
+            </p>
+            <p class="ua-header-help">{{#str}} headerhelp, local_upgradeassistant {{/str}}</p>
+        </div>
+
+        <div class="ua-header-actions">
+            {{#view.wizard}}
+            <a class="btn btn-primary" href="{{dashboard.continueurl}}">
+                <i class="fa fa-play" aria-hidden="true"></i>
+                {{#str}} continuepreparation, local_upgradeassistant {{/str}}
+            </a>
+            {{/view.wizard}}
+            <details class="ua-options-menu">
+                <summary class="btn btn-outline-secondary" aria-label="{{#str}} moreoptions, local_upgradeassistant {{/str}}">
+                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                </summary>
+                <div class="ua-options-panel">
+                    {{#capabilities.canconfigure}}
+                    <a href="{{settingsurl}}">
+                        <i class="fa fa-cog" aria-hidden="true"></i>
+                        {{#str}} settingspage, local_upgradeassistant {{/str}}
+                    </a>
+                    {{/capabilities.canconfigure}}
+                    {{#capabilities.canlifecyclesync}}
+                    <form method="post" action="{{actionurl}}">
+                        <input type="hidden" name="sesskey" value="{{sesskey}}">
+                        <input type="hidden" name="action" value="synclifecycle">
+                        <input type="hidden" name="returnview" value="{{#view.reports}}reports{{/view.reports}}{{#view.wizard}}wizard{{/view.wizard}}">
+                        <input type="hidden" name="returnstep" value="{{dashboard.activestep}}">
+                        <button type="submit">
+                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                            {{#str}} lifecyclerefresh, local_upgradeassistant {{/str}}
+                        </button>
+                    </form>
+                    {{/capabilities.canlifecyclesync}}
+                    {{#capabilities.canmanage}}
+                    <form method="post" action="{{actionurl}}">
+                        <input type="hidden" name="sesskey" value="{{sesskey}}">
+                        <input type="hidden" name="action" value="reset">
+                        <button type="submit" class="ua-danger-link">
+                            <i class="fa fa-undo" aria-hidden="true"></i>
+                            {{#str}} resetwizard, local_upgradeassistant {{/str}}
+                        </button>
+                    </form>
+                    {{/capabilities.canmanage}}
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <div class="ua-header-metrics" aria-label="{{#str}} overview, local_upgradeassistant {{/str}}">
+        <div>
+            <span>{{#str}} preparationprogress, local_upgradeassistant {{/str}}</span>
+            <strong>{{dashboard.progress}}%</strong>
+        </div>
+        <div>
+            <span>{{#str}} pendingtasks, local_upgradeassistant {{/str}}</span>
+            <strong>{{dashboard.pending}}</strong>
+        </div>
+        <div>
+            <span>{{#str}} blockers, local_upgradeassistant {{/str}}</span>
+            <strong>{{dashboard.blockers}}</strong>
+        </div>
+        <div class="{{dashboard.riskclass}}">
+            <span>{{#str}} risklevel, local_upgradeassistant {{/str}}</span>
+            {{#dashboard.riskavailable}}<strong>{{dashboard.riskscore}}/100 · {{dashboard.risklevel}}</strong>{{/dashboard.riskavailable}}
+            {{^dashboard.riskavailable}}<strong>{{dashboard.risklevel}}</strong>{{/dashboard.riskavailable}}
+        </div>
+    </div>
+</header>

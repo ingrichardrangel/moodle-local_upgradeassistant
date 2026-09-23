@@ -1,0 +1,66 @@
+<section class="ua-stage" aria-labelledby="ua-execution-title">
+    <div class="ua-stage-header">
+        <div>
+            <span class="ua-eyebrow">{{#str}} stepfourof, local_upgradeassistant {{/str}}</span>
+            <h3 id="ua-execution-title">{{#str}} executionheading, local_upgradeassistant {{/str}}</h3>
+            <p>{{#str}} executionintro, local_upgradeassistant {{/str}}</p>
+        </div>
+    </div>
+
+    {{#dashboard.blockers}}
+    <div class="alert alert-danger"><i class="fa fa-ban" aria-hidden="true"></i> {{#str}} executionblocked, local_upgradeassistant {{/str}}</div>
+    {{/dashboard.blockers}}
+
+    <div class="ua-final-summary">
+        <div><span>{{#str}} currentversion, local_upgradeassistant {{/str}}</span><strong>{{dashboard.currentversion}}</strong></div>
+        <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+        <div><span>{{#str}} targetversion, local_upgradeassistant {{/str}}</span><strong>{{dashboard.targetversion}}</strong></div>
+        <div><span>{{#str}} preparationprogress, local_upgradeassistant {{/str}}</span><strong>{{dashboard.progress}}%</strong></div>
+    </div>
+
+    <article class="ua-report-cta">
+        <div>
+            <span class="ua-report-icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+            <div><h4>{{#str}} preparationreport, local_upgradeassistant {{/str}}</h4><p>{{#str}} preparationreportdesc, local_upgradeassistant {{/str}}</p></div>
+        </div>
+        {{#capabilities.cangeneratecompletereport}}{{#selectedtarget.available}}
+        <form method="post" action="{{actionurl}}">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="action" value="generatereport">
+            <input type="hidden" name="returnview" value="wizard">
+            <input type="hidden" name="returnstep" value="4">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-file-text" aria-hidden="true"></i> {{#str}} generatepreparationreport, local_upgradeassistant {{/str}}</button>
+        </form>
+        {{/selectedtarget.available}}{{/capabilities.cangeneratecompletereport}}
+    </article>
+
+    {{#proreport.available}}
+    <div class="ua-latest-report {{proreport.riskclass}}">
+        <div><span>{{#str}} latestreport, local_upgradeassistant {{/str}} #{{proreport.id}}</span><strong>{{proreport.riskscore}}/100 · {{proreport.risklevel}}</strong><small>{{proreport.timecreated}}</small></div>
+        <a class="btn btn-outline-primary" href="{{reportsurl}}">{{#str}} viewfullreport, local_upgradeassistant {{/str}}</a>
+    </div>
+    {{/proreport.available}}
+
+    <div class="ua-critical-panel">
+        <div class="ua-critical-heading">
+            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            <div><h4>{{#str}} manualexecution, local_upgradeassistant {{/str}}</h4><p>{{#str}} manualexecutiondesc, local_upgradeassistant {{/str}}</p></div>
+        </div>
+        {{#instructions.message}}<div class="alert {{#instructions.blocked}}alert-danger{{/instructions.blocked}}{{^instructions.blocked}}alert-info{{/instructions.blocked}}">{{instructions.message}}</div>{{/instructions.message}}
+        {{#instructions.warning}}<div class="alert alert-warning">{{instructions.warning}}</div>{{/instructions.warning}}
+        {{#instructions.available}}
+        <details class="ua-details ua-instructions">
+            <summary><i class="fa fa-list-ol" aria-hidden="true"></i> {{#str}} viewmanualinstructions, local_upgradeassistant {{/str}}</summary>
+            <div class="ua-details-body">
+                <div class="alert alert-danger"><strong>{{#str}} criticalzonedescstrong, local_upgradeassistant {{/str}}</strong> {{#str}} criticalzonedesc, local_upgradeassistant {{/str}}</div>
+                <ol class="ua-instruction-list">{{#instructions.steps}}<li><span>{{text}}</span>{{#codes}}<code>{{value}}</code>{{/codes}}</li>{{/instructions.steps}}</ol>
+            </div>
+        </details>
+        {{/instructions.available}}
+    </div>
+
+    <footer class="ua-stage-footer">
+        <a class="btn btn-outline-secondary" href="{{dashboard.previousurl}}"><i class="fa fa-arrow-left" aria-hidden="true"></i> {{#str}} back, local_upgradeassistant {{/str}}</a>
+        {{#capabilities.canviewreports}}<a class="btn btn-outline-primary" href="{{reportsurl}}"><i class="fa fa-history" aria-hidden="true"></i> {{#str}} openreports, local_upgradeassistant {{/str}}</a>{{/capabilities.canviewreports}}
+    </footer>
+</section>

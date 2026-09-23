@@ -1,0 +1,128 @@
+<section class="ua-stage" aria-labelledby="ua-preparation-title">
+    <div class="ua-stage-header">
+        <div>
+            <span class="ua-eyebrow">{{#str}} stepthreeof, local_upgradeassistant {{/str}}</span>
+            <h3 id="ua-preparation-title">{{#str}} preparationheading, local_upgradeassistant {{/str}}</h3>
+            <p>{{#str}} preparationintro, local_upgradeassistant {{/str}}</p>
+        </div>
+        <strong>{{dashboard.completed}} / {{dashboard.total}}</strong>
+    </div>
+
+    <div class="ua-progress-block">
+        <div><span>{{#str}} preparationprogress, local_upgradeassistant {{/str}}</span><strong>{{dashboard.progress}}%</strong></div>
+        <div class="progress" role="progressbar" aria-valuenow="{{dashboard.progress}}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" style="width: {{dashboard.progress}}%"></div>
+        </div>
+    </div>
+
+    {{#dashboard.blockers}}
+    <div class="alert alert-danger"><i class="fa fa-ban" aria-hidden="true"></i> {{#str}} blockersremaining, local_upgradeassistant, {{dashboard.blockers}} {{/str}}</div>
+    {{/dashboard.blockers}}
+    {{^dashboard.blockers}}{{#dashboard.warnings}}
+    <div class="alert alert-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{#str}} warningsremaining, local_upgradeassistant, {{dashboard.warnings}} {{/str}}</div>
+    {{/dashboard.warnings}}{{/dashboard.blockers}}
+
+    {{#nexttask.available}}
+    <article class="ua-next-task">
+        <span class="ua-next-task-icon"><i class="fa {{nexttask.icon}}" aria-hidden="true"></i></span>
+        <div>
+            <span>{{#str}} nexttask, local_upgradeassistant {{/str}}</span>
+            <h4>{{nexttask.title}}</h4>
+            <p>{{nexttask.description}}</p>
+        </div>
+        {{#nexttask.button}}
+        <form method="post" action="{{actionurl}}">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="action" value="{{action}}">
+            <input type="hidden" name="returnview" value="wizard">
+            <input type="hidden" name="returnstep" value="3">
+            {{#params}}<input type="hidden" name="{{name}}" value="{{value}}">{{/params}}
+            <button type="submit" class="{{class}}">{{label}}</button>
+        </form>
+        {{/nexttask.button}}
+    </article>
+    {{/nexttask.available}}
+
+    <div class="ua-compat-summary">
+        <article><i class="fa fa-check-circle" aria-hidden="true"></i><span>{{#str}} compatiblechecks, local_upgradeassistant {{/str}}</span><strong>{{validation.passes}}</strong></article>
+        <article><i class="fa fa-exclamation-circle" aria-hidden="true"></i><span>{{#str}} attentionchecks, local_upgradeassistant {{/str}}</span><strong>{{validation.warnings}}</strong></article>
+        <article><i class="fa fa-times-circle" aria-hidden="true"></i><span>{{#str}} blockedchecks, local_upgradeassistant {{/str}}</span><strong>{{validation.failures}}</strong></article>
+        <article><i class="fa fa-puzzle-piece" aria-hidden="true"></i><span>{{#str}} pluginsreviewcount, local_upgradeassistant {{/str}}</span><strong>{{plugins.reviewcount}}</strong></article>
+    </div>
+
+    <details class="ua-details" open>
+        <summary><i class="fa fa-check-square-o" aria-hidden="true"></i> {{#str}} preparationchecks, local_upgradeassistant {{/str}}</summary>
+        <div class="ua-details-body ua-checklist">
+            {{#checklist}}
+            <article class="ua-checkitem {{#completed}}is-complete{{/completed}}">
+                <span class="ua-check-icon"><i class="fa {{icon}}" aria-hidden="true"></i></span>
+                <div>
+                    <h4>{{title}}</h4>
+                    <p>{{description}}</p>
+                    {{#code}}<code>{{code}}</code>{{/code}}
+                    {{#extrabadge}}<span class="ua-badge ua-badge-ok">{{extrabadge}}</span>{{/extrabadge}}
+                </div>
+                <div class="ua-check-action">
+                    {{#completed}}<span class="ua-badge ua-badge-ok"><i class="fa fa-check" aria-hidden="true"></i> {{#str}} completed, local_upgradeassistant {{/str}}</span>{{/completed}}
+                    {{^completed}}
+                        {{#button}}
+                        <form method="post" action="{{actionurl}}">
+                            <input type="hidden" name="sesskey" value="{{sesskey}}">
+                            <input type="hidden" name="action" value="{{action}}">
+                            <input type="hidden" name="returnview" value="wizard">
+                            <input type="hidden" name="returnstep" value="3">
+                            {{#params}}<input type="hidden" name="{{name}}" value="{{value}}">{{/params}}
+                            <button type="submit" class="{{class}}">{{label}}</button>
+                        </form>
+                        {{/button}}
+                        {{^button}}<span class="ua-badge ua-badge-warn">{{#str}} pending, local_upgradeassistant {{/str}}</span>{{/button}}
+                    {{/completed}}
+                </div>
+            </article>
+            {{/checklist}}
+        </div>
+    </details>
+
+    <details class="ua-details">
+        <summary><i class="fa fa-server" aria-hidden="true"></i> {{#str}} technicalcompatibility, local_upgradeassistant {{/str}}</summary>
+        <div class="ua-details-body">
+            <h4>{{#str}} compatibilitywithtarget, local_upgradeassistant, {{validation.targetlabel}} {{/str}}</h4>
+            <div class="ua-status-list">
+                {{#validation.rows}}
+                <div><span>{{label}}</span><span>{{current}} / {{required}}</span><strong><span class="ua-badge {{statusclass}}">{{statuslabel}}</span></strong></div>
+                {{/validation.rows}}
+            </div>
+            <details class="ua-details ua-details-nested">
+                <summary>{{#str}} referencerules, local_upgradeassistant {{/str}}</summary>
+                <div class="ua-tablewrap">
+                    <table class="generaltable table">
+                        <thead><tr><th>{{#str}} moodleversion, local_upgradeassistant {{/str}}</th><th>{{#str}} minimumfrom, local_upgradeassistant {{/str}}</th><th>{{#str}} minimumphp, local_upgradeassistant {{/str}}</th></tr></thead>
+                        <tbody>{{#rules.rows}}<tr><td>{{label}}</td><td>{{minimumfrom}}</td><td>{{minimumphp}}</td></tr>{{/rules.rows}}</tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+    </details>
+
+    <details class="ua-details">
+        <summary><i class="fa fa-puzzle-piece" aria-hidden="true"></i> {{#str}} plugincompatibility, local_upgradeassistant {{/str}} <span class="ua-badge {{#plugins.reviewcount}}ua-badge-warn{{/plugins.reviewcount}}{{^plugins.reviewcount}}ua-badge-ok{{/plugins.reviewcount}}">{{plugins.reviewcount}}</span></summary>
+        <div class="ua-details-body">
+            {{^plugins.hascustomplugins}}<p><span class="ua-badge ua-badge-ok">{{#str}} nodifferences, local_upgradeassistant {{/str}}</span> {{#str}} nodifferencesdesc, local_upgradeassistant {{/str}}</p>{{/plugins.hascustomplugins}}
+            {{#plugins.hascustomplugins}}
+            <div class="ua-tablewrap"><table class="generaltable table"><thead><tr><th>{{#str}} component, local_upgradeassistant {{/str}}</th><th>{{#str}} status, local_upgradeassistant {{/str}}</th><th>{{#str}} requires, local_upgradeassistant {{/str}}</th></tr></thead><tbody>
+                {{#plugins.rows}}<tr><td><strong>{{component}}</strong><br><small>{{release}}</small></td><td><span class="ua-badge {{statusclass}}">{{status}}</span></td><td>{{requires}}</td></tr>{{/plugins.rows}}
+            </tbody></table></div>
+            {{/plugins.hascustomplugins}}
+        </div>
+    </details>
+
+    <details class="ua-details">
+        <summary><i class="fa fa-lightbulb-o" aria-hidden="true"></i> {{#str}} serverrecommendationstitle, local_upgradeassistant {{/str}}</summary>
+        <div class="ua-details-body"><p><strong>{{#str}} serverprofile, local_upgradeassistant {{/str}}:</strong> {{serverrecommendations.profile}}</p><ul>{{#serverrecommendations.rows}}<li>{{text}}</li>{{/serverrecommendations.rows}}</ul></div>
+    </details>
+
+    <footer class="ua-stage-footer">
+        <a class="btn btn-outline-secondary" href="{{dashboard.previousurl}}"><i class="fa fa-arrow-left" aria-hidden="true"></i> {{#str}} back, local_upgradeassistant {{/str}}</a>
+        <a class="btn btn-primary" href="{{dashboard.nexturl}}">{{#str}} reviewexecution, local_upgradeassistant {{/str}} <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+    </footer>
+</section>

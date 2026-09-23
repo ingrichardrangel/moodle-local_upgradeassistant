@@ -1,0 +1,142 @@
+name: Moodle plugin CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  javascript:
+    name: Documented review JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check js/report_review.js
+      - run: node tests/js/report_review_test.js
+      - run: node tests/js/report_review_success_test.js
+
+  moodle:
+    name: Moodle ${{ matrix.release }} / PHP ${{ matrix.php }} / ${{ matrix.database }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {release: '4.1', branch: MOODLE_401_STABLE, php: '8.1', database: mariadb, behat: false}
+          - {release: '4.2', branch: MOODLE_402_STABLE, php: '8.1', database: mariadb, behat: false}
+          - {release: '4.3', branch: MOODLE_403_STABLE, php: '8.1', database: mariadb, behat: false}
+          - {release: '4.4', branch: MOODLE_404_STABLE, php: '8.2', database: mariadb, behat: false}
+          - {release: '4.5', branch: MOODLE_405_STABLE, php: '8.3', database: mariadb, behat: true}
+          - {release: '5.0', branch: MOODLE_500_STABLE, php: '8.3', database: mariadb, behat: false}
+          - {release: '5.1', branch: MOODLE_501_STABLE, php: '8.3', database: mariadb, behat: false}
+          - {release: '5.2', branch: MOODLE_502_STABLE, php: '8.3', database: mariadb, behat: true}
+          - {release: '5.2', branch: MOODLE_502_STABLE, php: '8.3', database: pgsql, behat: false}
+          # Moodle 5.3 is in beta on the main branch as of September 2026.
+          - {release: '5.3 beta', branch: main, php: '8.4', database: mariadb, behat: false}
+          - {release: '5.3 beta', branch: main, php: '8.4', database: pgsql, behat: false}
+    services:
+      mariadb:
+        image: ${{ matrix.database == 'mariadb' && 'mariadb:11.4' || '' }}
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+          MYSQL_CHARACTER_SET_SERVER: utf8mb4
+          MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=5
+      postgres:
+        image: ${{ matrix.database == 'pgsql' && 'postgres:16' || '' }}
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - name: Check out plugin
+        uses: actions/checkout@v4
+        with:
+          path: plugin
+          persist-credentials: false
+
+      - name: Configure PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, gd, intl, mbstring, mysqli, pgsql, sodium, soap, xml, zip
+          ini-values: max_input_vars=5000, opcache.enable_cli=1
+          coverage: none
+
+      - name: Install Moodle plugin CI
+        run: |
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci '^4'
+          echo "$(pwd)/ci/bin" >> "$GITHUB_PATH"
+          echo "$(pwd)/ci/vendor/bin" >> "$GITHUB_PATH"
+          sudo locale-gen en_AU.UTF-8
+          echo "NVM_DIR=$HOME/.nvm" >> "$GITHUB_ENV"
+
+      - name: Install Moodle and plugin
+        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+        env:
+          DB: ${{ matrix.database }}
+          MOODLE_BRANCH: ${{ matrix.branch }}
+
+      - name: Check installed Moodle branch
+        run: |
+          expected="${{ matrix.release }}"
+          expected="${expected%% *}"
+          php -r '
+            define("MOODLE_INTERNAL", true);
+            $file = is_file("moodle/public/version.php") ? "moodle/public/version.php" : "moodle/version.php";
+            require $file;
+            if (strpos($release, $argv[1]) !== 0) {
+                fwrite(STDERR, "Expected Moodle " . $argv[1] . ", got " . $release . "\n");
+                exit(1);
+            }
+          ' "$expected"
+
+      - name: PHP syntax
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phplint
+
+      - name: Plugin validation
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci validate
+
+      - name: Upgrade savepoints
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci savepoints
+
+      - name: Moodle code checker
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpcs --max-warnings 0
+
+      - name: Mustache templates
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci mustache
+
+      - name: PHPUnit
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpunit
+
+      - name: Behat
+        id: behat
+        if: ${{ !cancelled() && matrix.behat }}
+        run: moodle-plugin-ci behat --profile chrome
+
+      - name: Upload Behat failure details
+        if: ${{ failure() && steps.behat.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: behat-faildump-${{ matrix.branch }}
+          path: moodledata/behat_dump
+          if-no-files-found: ignore

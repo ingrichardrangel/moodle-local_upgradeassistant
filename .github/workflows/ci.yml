@@ -36,10 +36,10 @@ jobs:
           - {release: '5.0', branch: MOODLE_500_STABLE, php: '8.3', database: mariadb, behat: false}
           - {release: '5.1', branch: MOODLE_501_STABLE, php: '8.3', database: mariadb, behat: false}
           - {release: '5.2', branch: MOODLE_502_STABLE, php: '8.3', database: mariadb, behat: true}
-          - {release: '5.2', branch: MOODLE_502_STABLE, php: '8.3', database: pgsql, behat: false}
+          - {release: '5.2', branch: MOODLE_502_STABLE, php: '8.3', database: pgsql, postgres: '16', behat: false}
           # Moodle 5.3 is in beta on the main branch as of September 2026.
           - {release: '5.3 beta', branch: main, php: '8.4', database: mariadb, behat: false}
-          - {release: '5.3 beta', branch: main, php: '8.4', database: pgsql, behat: false}
+          - {release: '5.3 beta', branch: main, php: '8.4', database: pgsql, postgres: '17', behat: false}
     services:
       mariadb:
         image: ${{ matrix.database == 'mariadb' && 'mariadb:11.4' || '' }}
@@ -53,7 +53,7 @@ jobs:
           --health-cmd="healthcheck.sh --connect --innodb_initialized"
           --health-interval=10s --health-timeout=5s --health-retries=5
       postgres:
-        image: ${{ matrix.database == 'pgsql' && 'postgres:16' || '' }}
+        image: ${{ matrix.database == 'pgsql' && format('postgres:{0}', matrix.postgres) || '' }}
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
@@ -92,17 +92,21 @@ jobs:
 
       - name: Check installed Moodle branch
         run: |
-          expected="${{ matrix.release }}"
-          expected="${expected%% *}"
-          php -r '
-            define("MOODLE_INTERNAL", true);
-            $file = is_file("moodle/public/version.php") ? "moodle/public/version.php" : "moodle/version.php";
-            require $file;
-            if (strpos($release, $argv[1]) !== 0) {
-                fwrite(STDERR, "Expected Moodle " . $argv[1] . ", got " . $release . "\n");
-                exit(1);
-            }
-          ' "$expected"
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          expected = os.environ['EXPECTED_RELEASE'].split()[0].replace('.', '0')
+          file = Path('moodle/public/version.php')
+          if not file.is_file():
+              file = Path('moodle/version.php')
+          match = re.search(r"\$branch\s*=\s*['\"](\d{3})['\"]", file.read_text())
+          if not match or match.group(1) != expected:
+              raise SystemExit(f'Expected Moodle branch {expected} in {file}; found {match.group(1) if match else "none"}')
+          PY
+        env:
+          EXPECTED_RELEASE: ${{ matrix.release }}
 
       - name: PHP syntax
         if: ${{ !cancelled() }}

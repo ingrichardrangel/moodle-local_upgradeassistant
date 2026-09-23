@@ -16,7 +16,6 @@
 
 namespace local_upgradeassistant\event;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Maintenance Mode Disabled event.

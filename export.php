@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * PDF export endpoint for Smart Upgrade Assistant Pro reports.
+ * PDF export endpoint for Smart Upgrade Assistant reports.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel

@@ -42,39 +42,13 @@ if ($hassiteconfig || $canviewassistant || $canconfigureassistant) {
         'local/upgradeassistant:configure'
     );
 
-    $licensestatus = \local_upgradeassistant\local\license_manager::status_for_template();
-    $settings->add(new admin_setting_heading(
-        'local_upgradeassistant/licensestatusheading',
-        get_string('licensetitle', 'local_upgradeassistant'),
-        get_string('settingslicensestatus', 'local_upgradeassistant', (object)[
-            'status' => $licensestatus['status'],
-            'mode' => $licensestatus['mode'],
-            'key' => $licensestatus['maskedkey'],
-        ])
-    ));
-
-    $settings->add(new admin_setting_configtext(
-        'local_upgradeassistant/licenseemail',
-        get_string('licenseemail', 'local_upgradeassistant'),
-        get_string('licenseemail_desc', 'local_upgradeassistant'),
-        '',
-        PARAM_EMAIL
-    ));
-
-    $settings->add(new admin_setting_configpasswordunmask(
-        'local_upgradeassistant/licensekey',
-        get_string('licensekey', 'local_upgradeassistant'),
-        get_string('licensekey_desc', 'local_upgradeassistant'),
-        '',
-        PARAM_ALPHANUMEXT
-    ));
-
-
     $settings->add(new admin_setting_configcheckbox(
         'local_upgradeassistant/enablelifecyclesync',
         get_string('enablelifecyclesync', 'local_upgradeassistant'),
         get_string('enablelifecyclesync_desc', 'local_upgradeassistant'),
         1
     ));
-    $ADMIN->add('localplugins', $settings);
+    if ($hassiteconfig) {
+        $ADMIN->add('localplugins', $settings);
+    }
 }

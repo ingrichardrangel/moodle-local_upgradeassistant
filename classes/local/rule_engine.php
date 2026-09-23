@@ -17,9 +17,9 @@
 namespace local_upgradeassistant\local;
 
 /**
- * Local version-rule engine used by Smart Upgrade Assistant Pro.
+ * Local version-rule engine used by Smart Upgrade Assistant.
  *
- * The first Pro release ships with local rules so the assistant remains useful
+ * The first release ships with local rules so the assistant remains useful
  * without an external SaaS API. Future paid plans can synchronise these rows
  * from a signed compatibility API while keeping this class as the offline
  * fallback.
@@ -30,7 +30,7 @@ namespace local_upgradeassistant\local;
  */
 class rule_engine {
     /** Rule table. */
-    private const TABLE = 'local_ua_rules';
+    private const TABLE = 'local_upgradeassistant_rules';
 
     /**
      * Built-in Moodle rules.
@@ -179,7 +179,7 @@ class rule_engine {
                 'dbminimums' => [
                     'mariadb' => '10.11.0',
                     'mysqli' => '8.4.0',
-                    'pgsql' => '16.0',
+                    'pgsql' => '17.0',
                     'sqlsrv' => '2019',
                 ],
             ],
@@ -229,8 +229,10 @@ class rule_engine {
      * @return array|null
      */
     private static function rule_from_target(int $branch, ?array $targetinfo): ?array {
-        if (empty($targetinfo['versionfile']) || !is_file($targetinfo['versionfile'])
-            || upgrade_path::branch_to_int($targetinfo['branch'] ?? '') !== $branch) {
+        if (
+            empty($targetinfo['versionfile']) || !is_file($targetinfo['versionfile'])
+            || upgrade_path::branch_to_int($targetinfo['branch'] ?? '') !== $branch
+        ) {
             return null;
         }
         $file = dirname($targetinfo['versionfile']) . '/admin/environment.xml';

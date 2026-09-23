@@ -77,17 +77,17 @@ final class rule_engine_test extends \advanced_testcase {
         $this->resetAfterTest();
         $oldrule = rule_engine::builtin_rules()[401];
         $oldrule['dbminimums']['mariadb'] = '10.2.29';
-        $record = $DB->get_record('local_ua_rules', ['targetbranch' => '401',
+        $record = $DB->get_record('local_upgradeassistant_rules', ['targetbranch' => '401',
             'ruletype' => 'requirements', 'rulekey' => 'moodle_401']);
         $this->assertNotFalse($record);
         $record->source = 'builtin';
         $record->rulesjson = json_encode($oldrule);
-        $DB->update_record('local_ua_rules', $record);
+        $DB->update_record('local_upgradeassistant_rules', $record);
 
         $this->assertSame('10.4.0', rule_engine::get_rule(401)['dbminimums']['mariadb']);
 
         $record->source = 'custom';
-        $DB->update_record('local_ua_rules', $record);
+        $DB->update_record('local_upgradeassistant_rules', $record);
         $this->assertSame('10.2.29', rule_engine::get_rule(401)['dbminimums']['mariadb']);
     }
 

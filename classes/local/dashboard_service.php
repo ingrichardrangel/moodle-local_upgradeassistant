@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace local_upgradeassistant\local;
 
@@ -42,22 +50,22 @@ class dashboard_service {
         \moodle_url $baseurl
     ): array {
         $total = count($checklist);
-        $completed = count(array_filter($checklist, static function(array $item): bool {
+        $completed = count(array_filter($checklist, static function (array $item): bool {
             return !empty($item['completed']);
         }));
         $pending = max(0, $total - $completed);
         $progress = $total > 0 ? (int)round(($completed / $total) * 100) : 0;
 
-        $validationfailures = count(array_filter($validationrows, static function(array $row): bool {
+        $validationfailures = count(array_filter($validationrows, static function (array $row): bool {
             return ($row['status'] ?? '') === 'fail';
         }));
-        $validationwarnings = count(array_filter($validationrows, static function(array $row): bool {
+        $validationwarnings = count(array_filter($validationrows, static function (array $row): bool {
             return ($row['status'] ?? '') === 'warning';
         }));
-        $pluginreview = count(array_filter($plugins, static function(array $plugin): bool {
+        $pluginreview = count(array_filter($plugins, static function (array $plugin): bool {
             return !in_array(($plugin['compatibility'] ?? ''), ['compatible', 'core_removed'], true);
         }));
-        $pluginblockers = count(array_filter($plugins, static function(array $plugin): bool {
+        $pluginblockers = count(array_filter($plugins, static function (array $plugin): bool {
             return in_array(($plugin['compatibility'] ?? ''), ['incompatible', 'dependency_missing', 'dependency_outdated'], true);
         }));
         $routeblocked = $analysis !== null && ($analysis['status'] ?? '') === 'error';

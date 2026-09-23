@@ -88,7 +88,7 @@ final class upgrade_path_test extends \advanced_testcase {
         $rule = rule_engine::get_rule(503);
         $this->assertSame(405, $rule['minimumfrombranch']);
         $this->assertSame('8.3.0', $rule['minimumphp']);
-        $this->assertSame('16.0', $rule['dbminimums']['pgsql']);
+        $this->assertSame('17.0', $rule['dbminimums']['pgsql']);
 
         $direct = upgrade_path::analyze(405, 503);
         $this->assertSame('success', $direct['status']);
@@ -105,8 +105,10 @@ final class upgrade_path_test extends \advanced_testcase {
      * @return void
      */
     public function test_all_moodle_4_sources_have_valid_routes_to_moodle_5(): void {
-        foreach ([402 => '4.2.3', 403 => '4.3.0',
-                404 => '4.4.0', 405 => '4.5.0'] as $branch => $release) {
+        foreach (
+            [402 => '4.2.3', 403 => '4.3.0',
+                404 => '4.4.0', 405 => '4.5.0'] as $branch => $release
+        ) {
             $target = upgrade_path::analyze($branch, 500, null, $release);
             $this->assertSame('success', $target['status'], $release);
             $this->assertTrue($target['directallowed'], $release);
@@ -130,8 +132,10 @@ final class upgrade_path_test extends \advanced_testcase {
         $chained = upgrade_path::analyze(401, 503, null, '4.1.0');
         $this->assertSame([401, 405, 503], $chained['route']);
         $this->assertSame('4.1.2', $chained['nextrelease']);
-        $this->assertSame('4.1 → 4.1.2 → 4.5 → 5.3',
-            upgrade_path::route_text(401, $chained['route'], $chained['nextrelease']));
+        $this->assertSame(
+            '4.1 → 4.1.2 → 4.5 → 5.3',
+            upgrade_path::route_text(401, $chained['route'], $chained['nextrelease'])
+        );
 
         $this->assertFalse(upgrade_path::analyze(402, 500, null, '4.2.0')['directallowed']);
         $this->assertTrue(upgrade_path::analyze(402, 500, null, '4.2.3')['directallowed']);
@@ -149,20 +153,20 @@ final class upgrade_path_test extends \advanced_testcase {
     public function test_server_validation_checks_source_patch_release(): void {
         $baseenv = ['branch' => '401', 'dbtype' => 'mysqli', 'dbinfo' => 'MySQL 8.4.0'];
         $checks = requirements_validator::validate(405, $baseenv + ['release' => '4.1.0']);
-        $source = array_values(array_filter($checks, static function(array $check): bool {
+        $source = array_values(array_filter($checks, static function (array $check): bool {
             return $check['key'] === 'moodle_source_branch';
         }))[0];
         $this->assertSame('fail', $source['status']);
         $this->assertSame('4.1.2', $source['required']);
 
         $checks = requirements_validator::validate(405, $baseenv + ['release' => '4.1.2+ (Build: 2023)']);
-        $source = array_values(array_filter($checks, static function(array $check): bool {
+        $source = array_values(array_filter($checks, static function (array $check): bool {
             return $check['key'] === 'moodle_source_branch';
         }))[0];
         $this->assertSame('pass', $source['status']);
 
         $checks = requirements_validator::validate(405, $baseenv);
-        $source = array_values(array_filter($checks, static function(array $check): bool {
+        $source = array_values(array_filter($checks, static function (array $check): bool {
             return $check['key'] === 'moodle_source_branch';
         }))[0];
         $this->assertSame('warning', $source['status']);

@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace local_upgradeassistant\local;
 
@@ -33,7 +41,7 @@ final class evaluation_fixes_test extends \advanced_testcase {
         $reportone = $this->create_report((int)$userone->id, 'user-one-report');
         $reporttwo = $this->create_report((int)$usertwo->id, 'user-two-report');
 
-        $DB->insert_record('local_ua_items', (object)[
+        $DB->insert_record('local_upgradeassistant_item', (object)[
             'reportid' => $reportone,
             'category' => 'checklist',
             'code' => 'test_item',
@@ -48,9 +56,9 @@ final class evaluation_fixes_test extends \advanced_testcase {
         ]);
 
         $this->assertSame(1, report_builder::delete_reports_for_user((int)$userone->id));
-        $this->assertFalse($DB->record_exists('local_ua_reports', ['id' => $reportone]));
-        $this->assertFalse($DB->record_exists('local_ua_items', ['reportid' => $reportone]));
-        $this->assertTrue($DB->record_exists('local_ua_reports', ['id' => $reporttwo]));
+        $this->assertFalse($DB->record_exists('local_upgradeassistant_rep', ['id' => $reportone]));
+        $this->assertFalse($DB->record_exists('local_upgradeassistant_item', ['reportid' => $reportone]));
+        $this->assertTrue($DB->record_exists('local_upgradeassistant_rep', ['id' => $reporttwo]));
     }
 
     /**
@@ -65,7 +73,7 @@ final class evaluation_fixes_test extends \advanced_testcase {
         $this->setAdminUser();
         set_config('maintenance_enabled', 1);
         $reportid = $this->create_report((int)$USER->id, 'maintenance-sync-report');
-        $checklistid = $DB->insert_record('local_ua_checklist', (object)[
+        $checklistid = $DB->insert_record('local_upgradeassistant_check', (object)[
             'reportid' => $reportid,
             'stepkey' => 'maintenance',
             'title' => 'Maintenance mode',
@@ -81,7 +89,7 @@ final class evaluation_fixes_test extends \advanced_testcase {
         ]);
 
         checklist_manager::synchronise_environment_steps($reportid);
-        $row = $DB->get_record('local_ua_checklist', ['id' => $checklistid], '*', MUST_EXIST);
+        $row = $DB->get_record('local_upgradeassistant_check', ['id' => $checklistid], '*', MUST_EXIST);
         $this->assertSame('completed', $row->status);
         $this->assertGreaterThan(0, (int)$row->completedat);
     }
@@ -98,7 +106,7 @@ final class evaluation_fixes_test extends \advanced_testcase {
         $this->resetAfterTest();
         $this->setAdminUser();
         $reportid = $this->create_report((int)$USER->id, 'manual-plugin-review');
-        $findingid = (int)$DB->insert_record('local_ua_items', (object)[
+        $findingid = (int)$DB->insert_record('local_upgradeassistant_item', (object)[
             'reportid' => $reportid,
             'category' => 'plugins',
             'code' => 'plugin_review_local_example',
@@ -115,10 +123,10 @@ final class evaluation_fixes_test extends \advanced_testcase {
             'sortorder' => 10,
             'timecreated' => time(),
         ]);
-        $report = $DB->get_record('local_ua_reports', ['id' => $reportid], '*', MUST_EXIST);
+        $report = $DB->get_record('local_upgradeassistant_rep', ['id' => $reportid], '*', MUST_EXIST);
         $report->riskscore = 12;
         $report->risklevel = 'low';
-        $DB->update_record('local_ua_reports', $report);
+        $DB->update_record('local_upgradeassistant_rep', $report);
 
         report_builder::review_plugin_finding(
             $reportid,
@@ -126,12 +134,12 @@ final class evaluation_fixes_test extends \advanced_testcase {
             'Verified that the component is not used and is intentionally excluded from the target.'
         );
 
-        $finding = $DB->get_record('local_ua_items', ['id' => $findingid], '*', MUST_EXIST);
-        $updatedreport = $DB->get_record('local_ua_reports', ['id' => $reportid], '*', MUST_EXIST);
+        $finding = $DB->get_record('local_upgradeassistant_item', ['id' => $findingid], '*', MUST_EXIST);
+        $updatedreport = $DB->get_record('local_upgradeassistant_rep', ['id' => $reportid], '*', MUST_EXIST);
 
         $this->assertSame('reviewed', $finding->status);
         $this->assertSame(0, (int)$updatedreport->riskscore);
-        $audit = $DB->get_record('local_ua_audit', [
+        $audit = $DB->get_record('local_upgradeassistant_audit', [
             'reportid' => $reportid,
             'action' => 'finding_reviewed',
             'targetid' => $findingid,
@@ -152,7 +160,7 @@ final class evaluation_fixes_test extends \advanced_testcase {
     private function create_report(int $userid, string $uuid): int {
         global $DB;
 
-        return (int)$DB->insert_record('local_ua_reports', (object)[
+        return (int)$DB->insert_record('local_upgradeassistant_rep', (object)[
             'uuid' => $uuid,
             'userid' => $userid,
             'currentrelease' => '4.5',

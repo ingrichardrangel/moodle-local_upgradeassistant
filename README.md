@@ -1,4 +1,4 @@
-# Smart Upgrade Assistant 1.6.0-beta-moodle-41-to-53
+# Smart Upgrade Assistant 1.6.0-beta2-ci-free
 
 Smart Upgrade Assistant is a local Moodle plugin that guides authorised administrators through safer manual Moodle upgrade preparation. It does **not** replace Moodle files automatically and it does **not** execute Moodle upgrades invisibly.
 
@@ -19,7 +19,6 @@ Smart Upgrade Assistant is a local Moodle plugin that guides authorised administ
 - Advanced capabilities.
 - Expanded Privacy API coverage and user data export/delete support.
 - Moodle Events API records for key actions.
-- Basic local license settings.
 
 ## Installation
 

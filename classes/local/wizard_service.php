@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace local_upgradeassistant\local;
 
@@ -38,8 +46,16 @@ class wizard_service {
             self::done($wizardstate, 'maintenance') || $maintenanceactive,
             '',
             $canconfigure ? ($maintenanceactive
-                ? self::button('maintenanceoff', get_string('disablemaintenance', 'local_upgradeassistant'), 'btn btn-outline-secondary')
-                : self::button('maintenanceon', get_string('enablemaintenance', 'local_upgradeassistant'), 'btn btn-primary')) : null,
+                ? self::button(
+                    'maintenanceoff',
+                    get_string('disablemaintenance', 'local_upgradeassistant'),
+                    'btn btn-outline-secondary'
+                )
+                : self::button(
+                    'maintenanceon',
+                    get_string('enablemaintenance', 'local_upgradeassistant'),
+                    'btn btn-primary'
+                )) : null,
             $maintenanceactive ? get_string('maintenanceactive', 'local_upgradeassistant') : ''
         );
 
@@ -48,14 +64,25 @@ class wizard_service {
         $items[] = self::item(
             'boosttheme',
             get_string('checkboosttheme', 'local_upgradeassistant'),
-            get_string('checkboostthemedesc', 'local_upgradeassistant',
-                $currenttheme ?: get_string('notdetected', 'local_upgradeassistant')),
+            get_string(
+                'checkboostthemedesc',
+                'local_upgradeassistant',
+                $currenttheme ?: get_string('notdetected', 'local_upgradeassistant')
+            ),
             self::done($wizardstate, 'boosttheme') || $boostactive,
             get_string('currenttheme', 'local_upgradeassistant') . ': '
                 . ($currenttheme ?: get_string('notdetected', 'local_upgradeassistant')),
             $canconfigure ? ($boostactive
-                ? self::button('confirmboosttheme', get_string('verifyboosttheme', 'local_upgradeassistant'), 'btn btn-outline-success')
-                : self::button('switchtoboosttheme', get_string('switchtoboosttheme', 'local_upgradeassistant'), 'btn btn-primary')) : null,
+                ? self::button(
+                    'confirmboosttheme',
+                    get_string('verifyboosttheme', 'local_upgradeassistant'),
+                    'btn btn-outline-success'
+                )
+                : self::button(
+                    'switchtoboosttheme',
+                    get_string('switchtoboosttheme', 'local_upgradeassistant'),
+                    'btn btn-primary'
+                )) : null,
             $boostactive ? get_string('boostthemeactive', 'local_upgradeassistant') : ''
         );
 
@@ -65,8 +92,12 @@ class wizard_service {
             get_string('checkbackupdbdesc', 'local_upgradeassistant'),
             self::done($wizardstate, 'backupdb'),
             get_string('backupdbfilename', 'local_upgradeassistant'),
-            $canmanage ? self::button('completestep', get_string('markcomplete', 'local_upgradeassistant'),
-                'btn btn-outline-success', ['stepid' => 'backupdb']) : null
+            $canmanage ? self::button(
+                'completestep',
+                get_string('markcomplete', 'local_upgradeassistant'),
+                'btn btn-outline-success',
+                ['stepid' => 'backupdb']
+            ) : null
         );
         $items[] = self::item(
             'backupcode',
@@ -74,8 +105,12 @@ class wizard_service {
             get_string('checkbackupcodedesc', 'local_upgradeassistant'),
             self::done($wizardstate, 'backupcode'),
             (string)($env['dirroot'] ?? ''),
-            $canmanage ? self::button('completestep', get_string('markcomplete', 'local_upgradeassistant'),
-                'btn btn-outline-success', ['stepid' => 'backupcode']) : null
+            $canmanage ? self::button(
+                'completestep',
+                get_string('markcomplete', 'local_upgradeassistant'),
+                'btn btn-outline-success',
+                ['stepid' => 'backupcode']
+            ) : null
         );
         $items[] = self::item(
             'backupdata',
@@ -83,8 +118,12 @@ class wizard_service {
             get_string('checkbackupdatadesc', 'local_upgradeassistant'),
             self::done($wizardstate, 'backupdata'),
             (string)($env['dataroot'] ?? ''),
-            $canmanage ? self::button('completestep', get_string('markcomplete', 'local_upgradeassistant'),
-                'btn btn-outline-success', ['stepid' => 'backupdata']) : null
+            $canmanage ? self::button(
+                'completestep',
+                get_string('markcomplete', 'local_upgradeassistant'),
+                'btn btn-outline-success',
+                ['stepid' => 'backupdata']
+            ) : null
         );
         $items[] = self::item(
             'purgecaches',
@@ -92,8 +131,11 @@ class wizard_service {
             get_string('checkpurgecachesdesc', 'local_upgradeassistant'),
             self::done($wizardstate, 'purgecaches'),
             '',
-            $canconfigure ? self::button('purgecaches', get_string('purgecaches', 'local_upgradeassistant'),
-                'btn btn-outline-primary') : null
+            $canconfigure ? self::button(
+                'purgecaches',
+                get_string('purgecaches', 'local_upgradeassistant'),
+                'btn btn-outline-primary'
+            ) : null
         );
         $items[] = self::item(
             'confirmtarget',
@@ -101,18 +143,29 @@ class wizard_service {
             get_string('checkconfirmtargetdesc', 'local_upgradeassistant'),
             self::done($wizardstate, 'confirmtarget'),
             '',
-            $canmanage ? self::button('completestep', get_string('markcomplete', 'local_upgradeassistant'),
-                'btn btn-outline-success', ['stepid' => 'confirmtarget']) : null
+            $canmanage ? self::button(
+                'completestep',
+                get_string('markcomplete', 'local_upgradeassistant'),
+                'btn btn-outline-success',
+                ['stepid' => 'confirmtarget']
+            ) : null
         );
         $items[] = self::item(
             'servercompat',
             get_string('checkservercompat', 'local_upgradeassistant'),
-            get_string('checkservercompatdesc', 'local_upgradeassistant',
-                (string)($env['phpversion'] ?? '') . ' / ' . (string)($env['dbtype'] ?? '')),
+            get_string(
+                'checkservercompatdesc',
+                'local_upgradeassistant',
+                (string)($env['phpversion'] ?? '') . ' / ' . (string)($env['dbtype'] ?? '')
+            ),
             self::done($wizardstate, 'servercompat'),
             '',
-            $canmanage ? self::button('completestep', get_string('markverified', 'local_upgradeassistant'),
-                'btn btn-outline-success', ['stepid' => 'servercompat']) : null
+            $canmanage ? self::button(
+                'completestep',
+                get_string('markverified', 'local_upgradeassistant'),
+                'btn btn-outline-success',
+                ['stepid' => 'servercompat']
+            ) : null
         );
 
         foreach ($items as $index => $item) {
@@ -253,7 +306,8 @@ class wizard_service {
 
         $data['steps'] = [
             ['text' => get_string('instructionopenfilemanager', 'local_upgradeassistant'), 'codes' => []],
-            ['text' => get_string('instructionclassictargetdetected', 'local_upgradeassistant'), 'codes' => [['value' => $targetpath]]],
+            ['text' => get_string('instructionclassictargetdetected', 'local_upgradeassistant'), 'codes' => [['value'
+                => $targetpath]]],
             ['text' => get_string('instructionlocatecurrent', 'local_upgradeassistant'), 'codes' => [['value' => $currentpath]]],
             ['text' => get_string('instructionrenamecurrent', 'local_upgradeassistant'), 'codes' => [['value' => $currentfolder]]],
             ['text' => get_string('instructionnewoldname', 'local_upgradeassistant'), 'codes' => [['value' => $oldfolder]]],
@@ -275,24 +329,36 @@ class wizard_service {
         return $data;
     }
 
-    /** @return bool */
+    /**
+     * Check whether a wizard step is complete.
+     *
+     * @return bool
+     */
     private static function done(array $wizardstate, string $stepid): bool {
         return !empty($wizardstate['completed'][$stepid]);
     }
 
-    /** @return array */
+    /**
+     * Describe an action button for the template.
+     *
+     * @return array
+     */
     private static function button(string $action, string $label, string $class, array $params = []): array {
         return [
             'action' => $action,
             'label' => $label,
             'class' => $class,
-            'params' => array_map(static function($key, $value): array {
+            'params' => array_map(static function ($key, $value): array {
                 return ['name' => $key, 'value' => $value];
             }, array_keys($params), $params),
         ];
     }
 
-    /** @return array */
+    /**
+     * Describe a wizard item for the template.
+     *
+     * @return array
+     */
     private static function item(
         string $id,
         string $title,
@@ -305,7 +371,11 @@ class wizard_service {
         return compact('id', 'title', 'description', 'completed', 'code', 'button', 'extrabadge');
     }
 
-    /** @return string */
+    /**
+     * Get the icon for a wizard item.
+     *
+     * @return string
+     */
     private static function item_icon(string $id): string {
         $icons = [
             'maintenance' => 'fa-wrench',

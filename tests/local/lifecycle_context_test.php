@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace local_upgradeassistant\local;
 
@@ -39,7 +47,7 @@ final class lifecycle_context_test extends \advanced_testcase {
         ]), 'local_upgradeassistant');
 
         $findings = lifecycle_manager::findings('404', '502');
-        $source = array_values(array_filter($findings, static function(array $finding): bool {
+        $source = array_values(array_filter($findings, static function (array $finding): bool {
             return $finding['code'] === 'lifecycle_current_unsupported';
         }));
 
@@ -69,7 +77,7 @@ final class lifecycle_context_test extends \advanced_testcase {
         ]), 'local_upgradeassistant');
 
         $findings = lifecycle_manager::findings('401', '404');
-        $target = array_values(array_filter($findings, static function(array $finding): bool {
+        $target = array_values(array_filter($findings, static function (array $finding): bool {
             return $finding['code'] === 'lifecycle_target_unsupported';
         }));
 

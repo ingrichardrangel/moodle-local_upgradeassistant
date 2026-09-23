@@ -25,7 +25,7 @@ namespace local_upgradeassistant\local;
  */
 class plugin_analyser {
     /** Plugin inventory table. */
-    private const TABLE = 'local_ua_plugins';
+    private const TABLE = 'local_upgradeassistant_plug';
 
     /**
      * Compare current plugins with a target Moodle code tree.
@@ -50,7 +50,7 @@ class plugin_analyser {
             $rows[] = self::classify($plugin, $targetplugin, $targetbranchint, $targetbycomponent);
         }
 
-        usort($rows, static function(array $a, array $b): int {
+        usort($rows, static function (array $a, array $b): int {
             $weight = [
                 'incompatible' => 0,
                 'dependency_missing' => 1,
@@ -263,8 +263,11 @@ class plugin_analyser {
 
             if (!empty($dependencyresult['missing'])) {
                 $row['compatibility'] = 'dependency_missing';
-                $row['status'] = get_string('plugindependenciesmissing', 'local_upgradeassistant',
-                    implode(', ', $dependencyresult['missing']));
+                $row['status'] = get_string(
+                    'plugindependenciesmissing',
+                    'local_upgradeassistant',
+                    implode(', ', $dependencyresult['missing'])
+                );
                 $row['statusclass'] = 'ua-badge-danger';
                 $row['manualreview'] = true;
                 return $row;
@@ -272,8 +275,11 @@ class plugin_analyser {
 
             if (!empty($dependencyresult['outdated'])) {
                 $row['compatibility'] = 'dependency_outdated';
-                $row['status'] = get_string('plugindependenciesoutdated', 'local_upgradeassistant',
-                    implode(', ', $dependencyresult['outdated']));
+                $row['status'] = get_string(
+                    'plugindependenciesoutdated',
+                    'local_upgradeassistant',
+                    implode(', ', $dependencyresult['outdated'])
+                );
                 $row['statusclass'] = 'ua-badge-danger';
                 $row['manualreview'] = true;
                 return $row;

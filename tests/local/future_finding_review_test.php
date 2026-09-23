@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace local_upgradeassistant\local;
 
@@ -13,6 +21,8 @@ namespace local_upgradeassistant\local;
  *
  * @package    local_upgradeassistant
  * @category   test
+ * @copyright  2026 Richard Rangel
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_upgradeassistant\local\report_builder
  */
 final class future_finding_review_test extends \advanced_testcase {
@@ -34,7 +44,7 @@ final class future_finding_review_test extends \advanced_testcase {
                 'releasedate' => '2099-01-01', 'generalend' => '2100-01-01',
                 'securityend' => '2101-01-01'],
         ]]), 'local_upgradeassistant');
-        $reportid = $DB->insert_record('local_ua_reports', (object)[
+        $reportid = $DB->insert_record('local_upgradeassistant_rep', (object)[
             'uuid' => '8c229611-4e30-4444-8888-141917f11111',
             'userid' => $USER->id,
             'currentbranch' => '502',
@@ -46,7 +56,7 @@ final class future_finding_review_test extends \advanced_testcase {
             'timecreated' => time(),
             'timemodified' => time(),
         ]);
-        $findingid = $DB->insert_record('local_ua_items', (object)[
+        $findingid = $DB->insert_record('local_upgradeassistant_item', (object)[
             'reportid' => $reportid,
             'category' => 'lifecycle',
             'code' => 'lifecycle_target_future',
@@ -64,14 +74,14 @@ final class future_finding_review_test extends \advanced_testcase {
         $this->assertContains('lifecycle_target_future', $codes);
 
         report_builder::review_plugin_finding((int)$reportid, (int)$findingid, 'Staging only, approved by admin');
-        $report = $DB->get_record('local_ua_reports', ['id' => $reportid], '*', MUST_EXIST);
+        $report = $DB->get_record('local_upgradeassistant_rep', ['id' => $reportid], '*', MUST_EXIST);
         $reconcile = new \ReflectionMethod(report_builder::class, 'synchronise_lifecycle_context');
         $reconcile->setAccessible(true);
         $reconcile->invoke(null, $report);
 
-        $finding = $DB->get_record('local_ua_items', ['id' => $findingid], '*', MUST_EXIST);
+        $finding = $DB->get_record('local_upgradeassistant_item', ['id' => $findingid], '*', MUST_EXIST);
         $this->assertSame('reviewed', $finding->status);
-        $this->assertTrue($DB->record_exists('local_ua_audit', [
+        $this->assertTrue($DB->record_exists('local_upgradeassistant_audit', [
             'reportid' => $reportid,
             'action' => 'finding_reviewed',
             'targetid' => $findingid,

@@ -83,7 +83,7 @@ final class pdf_exporter_test extends \advanced_testcase {
 
         $this->resetAfterTest();
         $this->setAdminUser();
-        $reportid = (int)$DB->insert_record('local_ua_reports', (object)[
+        $reportid = (int)$DB->insert_record('local_upgradeassistant_rep', (object)[
             'uuid' => 'f23992a1-474e-4a33-b310-b3a195f392a1',
             'userid' => $USER->id,
             'currentrelease' => '4.5.0',
@@ -118,15 +118,14 @@ final class pdf_exporter_test extends \advanced_testcase {
             } else {
                 $this->assertStringContainsString('/var/www/private-moodle-52', $html);
             }
-            $this->assertTrue($DB->record_exists('local_ua_exports', [
+            $this->assertTrue($DB->record_exists('local_upgradeassistant_expt', [
                 'reportid' => $reportid,
                 'exporttype' => $exporttype,
             ]));
-            $this->assertTrue($DB->record_exists('local_ua_audit', [
+            $this->assertTrue($DB->record_exists('local_upgradeassistant_audit', [
                 'reportid' => $reportid,
                 'action' => $redacted ? 'report_html_redacted_downloaded' : 'report_html_downloaded',
             ]));
         }
     }
-
 }

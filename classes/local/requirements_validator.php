@@ -76,7 +76,10 @@ class requirements_validator {
             $checks[] = self::build_check(
                 'php_extension_sodium',
                 get_string('validationsodium', 'local_upgradeassistant'),
-                extension_loaded('sodium') ? get_string('detected', 'local_upgradeassistant') : get_string('notdetected', 'local_upgradeassistant'),
+                extension_loaded('sodium') ? get_string(
+                    'detected',
+                    'local_upgradeassistant'
+                ) : get_string('notdetected', 'local_upgradeassistant'),
                 get_string('required', 'local_upgradeassistant'),
                 extension_loaded('sodium')
             );

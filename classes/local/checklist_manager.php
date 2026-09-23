@@ -17,7 +17,7 @@
 namespace local_upgradeassistant\local;
 
 /**
- * Manages auditable checklist records for Pro reports.
+ * Manages auditable checklist records for reports.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -25,7 +25,7 @@ namespace local_upgradeassistant\local;
  */
 class checklist_manager {
     /** Checklist table name. */
-    private const TABLE = 'local_ua_checklist';
+    private const TABLE = 'local_upgradeassistant_check';
 
     /**
      * Create default checklist rows for a report.
@@ -90,8 +90,10 @@ class checklist_manager {
     public static function synchronise_environment_steps(int $reportid): void {
         global $DB;
 
-        if ($reportid <= 0
-                || !has_capability('local/upgradeassistant:manage', \context_system::instance())) {
+        if (
+            $reportid <= 0
+                || !has_capability('local/upgradeassistant:manage', \context_system::instance())
+        ) {
             return;
         }
 
@@ -180,8 +182,14 @@ class checklist_manager {
             return null;
         }
 
-        $reports = $DB->get_records('local_ua_reports', ['userid' => (int)($USER->id ?? 0)],
-            'timecreated DESC, id DESC', 'id', 0, 1);
+        $reports = $DB->get_records(
+            'local_upgradeassistant_rep',
+            ['userid' => (int)($USER->id ?? 0)],
+            'timecreated DESC, id DESC',
+            'id',
+            0,
+            1
+        );
         $report = reset($reports);
         if (!$report) {
             return null;
@@ -207,7 +215,7 @@ class checklist_manager {
     public static function get_template_rows(int $reportid, bool $redacted = false): array {
         global $DB;
 
-        $report = $DB->get_record('local_ua_reports', ['id' => $reportid], '*');
+        $report = $DB->get_record('local_upgradeassistant_rep', ['id' => $reportid], '*');
         $records = $DB->get_records(self::TABLE, ['reportid' => $reportid], 'sortorder ASC, id ASC');
         $userids = [];
         foreach ($records as $record) {
@@ -218,7 +226,7 @@ class checklist_manager {
 
         $users = [];
         if (!empty($userids)) {
-            list($insql, $params) = $DB->get_in_or_equal(array_values($userids), SQL_PARAMS_NAMED);
+            [$insql, $params] = $DB->get_in_or_equal(array_values($userids), SQL_PARAMS_NAMED);
             $users = $DB->get_records_select(
                 'user',
                 "id $insql",
@@ -292,10 +300,10 @@ class checklist_manager {
             }
         }
 
-        $values = array_filter(array_unique($values), static function(string $value): bool {
+        $values = array_filter(array_unique($values), static function (string $value): bool {
             return $value !== '' && strlen($value) > 2;
         });
-        usort($values, static function(string $a, string $b): int {
+        usort($values, static function (string $a, string $b): int {
             return strlen($b) <=> strlen($a);
         });
         foreach ($values as $value) {
@@ -338,7 +346,7 @@ class checklist_manager {
     }
 
     /**
-     * Default Pro checklist steps.
+     * Default checklist steps.
      *
      * @return array
      */

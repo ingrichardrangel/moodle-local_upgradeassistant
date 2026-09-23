@@ -20,7 +20,7 @@ namespace local_upgradeassistant\local;
  * Moodle lifecycle intelligence based on official Moodle HQ release support data.
  *
  * The manager uses a cached snapshot from Moodle Developer Resources and falls
- * back to a bundled dataset so the assistant and Pro reports continue working
+ * back to a bundled dataset so the assistant and reports continue working
  * when the production server has no outbound internet access.
  *
  * @package    local_upgradeassistant
@@ -93,9 +93,13 @@ class lifecycle_manager {
             'available' => !empty($dataset['versions']),
             'sourceurl' => $dataset['sourceurl'],
             'source' => $dataset['source'],
-            'lastsync' => !empty($dataset['fetchedat']) ? userdate((int)$dataset['fetchedat']) : get_string('notavailable', 'local_upgradeassistant'),
+            'lastsync' => !empty($dataset['fetchedat'])
+                ? userdate((int)$dataset['fetchedat']) : get_string('notavailable', 'local_upgradeassistant'),
             'usingfallback' => !empty($dataset['usingfallback']),
-            'usingfallbacklabel' => !empty($dataset['usingfallback']) ? get_string('lifecyclefallbackmode', 'local_upgradeassistant') : '',
+            'usingfallbacklabel' => !empty($dataset['usingfallback']) ? get_string(
+                'lifecyclefallbackmode',
+                'local_upgradeassistant'
+            ) : '',
             'current' => $current ? self::version_to_template($current) : self::empty_version(),
             'target' => $target ? self::version_to_template($target) : self::empty_version(false),
             'hastarget' => $target !== null,
@@ -130,7 +134,7 @@ class lifecycle_manager {
     }
 
     /**
-     * Build lifecycle findings to include in Pro risk reports.
+     * Build lifecycle findings to include in risk reports.
      *
      * @param string $currentbranch Current branch.
      * @param string $targetbranch Target branch.
@@ -143,66 +147,93 @@ class lifecycle_manager {
         $findings = [];
 
         if ($current === null) {
-            $findings[] = self::finding('lifecycle_current_unknown', 'medium',
+            $findings[] = self::finding(
+                'lifecycle_current_unknown',
+                'medium',
                 get_string('findinglifecyclecurrentunknown', 'local_upgradeassistant'),
                 get_string('findinglifecyclecurrentunknowndesc', 'local_upgradeassistant', $currentbranch),
-                get_string('findinglifecycleunknownrec', 'local_upgradeassistant'));
+                get_string('findinglifecycleunknownrec', 'local_upgradeassistant')
+            );
         } else if ($current['statuskey'] === 'unsupported') {
             if (self::target_mitigates_unsupported_current($current, $target)) {
-                $findings[] = self::finding('lifecycle_current_unsupported', 'info',
+                $findings[] = self::finding(
+                    'lifecycle_current_unsupported',
+                    'info',
                     get_string('findinglifecyclecurrentunsupportedmitigated', 'local_upgradeassistant'),
                     get_string('findinglifecyclecurrentunsupportedmitigateddesc', 'local_upgradeassistant', (object)[
                         'current' => $current['label'],
                         'target' => $target['label'],
                     ]),
-                    get_string('findinglifecyclecurrentunsupportedmitigatedrec', 'local_upgradeassistant'));
+                    get_string('findinglifecyclecurrentunsupportedmitigatedrec', 'local_upgradeassistant')
+                );
             } else {
-                $findings[] = self::finding('lifecycle_current_unsupported', 'high',
+                $findings[] = self::finding(
+                    'lifecycle_current_unsupported',
+                    'high',
                     get_string('findinglifecyclecurrentunsupported', 'local_upgradeassistant'),
                     get_string('findinglifecyclecurrentunsupporteddesc', 'local_upgradeassistant', $current['label']),
-                    get_string('findinglifecyclecurrentunsupportedrec', 'local_upgradeassistant'));
+                    get_string('findinglifecyclecurrentunsupportedrec', 'local_upgradeassistant')
+                );
             }
         } else if ($current['statuskey'] === 'security') {
-            $findings[] = self::finding('lifecycle_current_security', 'info',
+            $findings[] = self::finding(
+                'lifecycle_current_security',
+                'info',
                 get_string('findinglifecyclecurrentsecurity', 'local_upgradeassistant'),
                 get_string('findinglifecyclecurrentsecuritydesc', 'local_upgradeassistant', (object)[
                     'version' => $current['label'],
                     'date' => self::format_date($current['securityend']),
                 ]),
-                get_string('findinglifecyclecurrentsecurityrec', 'local_upgradeassistant'));
+                get_string('findinglifecyclecurrentsecurityrec', 'local_upgradeassistant')
+            );
         }
 
         if ($target === null) {
-            $findings[] = self::finding('lifecycle_target_unknown', 'medium',
+            $findings[] = self::finding(
+                'lifecycle_target_unknown',
+                'medium',
                 get_string('findinglifecycletargetunknown', 'local_upgradeassistant'),
                 get_string('findinglifecycletargetunknowndesc', 'local_upgradeassistant', $targetbranch),
-                get_string('findinglifecycleunknownrec', 'local_upgradeassistant'));
+                get_string('findinglifecycleunknownrec', 'local_upgradeassistant')
+            );
         } else if ($target['statuskey'] === 'unsupported') {
-            $findings[] = self::finding('lifecycle_target_unsupported', 'high',
+            $findings[] = self::finding(
+                'lifecycle_target_unsupported',
+                'high',
                 get_string('findinglifecycletargetunsupported', 'local_upgradeassistant'),
                 get_string('findinglifecycletargetunsupporteddesc', 'local_upgradeassistant', $target['label']),
-                get_string('findinglifecycletargetunsupportedrec', 'local_upgradeassistant'));
+                get_string('findinglifecycletargetunsupportedrec', 'local_upgradeassistant')
+            );
         } else if ($target['statuskey'] === 'future') {
-            $findings[] = self::finding('lifecycle_target_future', 'high',
+            $findings[] = self::finding(
+                'lifecycle_target_future',
+                'high',
                 get_string('findinglifecycletargetfuture', 'local_upgradeassistant'),
                 get_string('findinglifecycletargetfuturedesc', 'local_upgradeassistant', (object)[
                     'version' => $target['label'],
                     'date' => self::format_date($target['releasedate']),
                 ]),
-                get_string('findinglifecycletargetfuturerec', 'local_upgradeassistant'));
+                get_string('findinglifecycletargetfuturerec', 'local_upgradeassistant')
+            );
         } else if (empty($target['lts'])) {
-            $findings[] = self::finding('lifecycle_target_non_lts', 'low',
+            $findings[] = self::finding(
+                'lifecycle_target_non_lts',
+                'low',
                 get_string('findinglifecycletargetnonlts', 'local_upgradeassistant'),
                 get_string('findinglifecycletargetnonltsdesc', 'local_upgradeassistant', $target['label']),
-                get_string('findinglifecycletargetnonltsrec', 'local_upgradeassistant'));
+                get_string('findinglifecycletargetnonltsrec', 'local_upgradeassistant')
+            );
         } else {
-            $findings[] = self::finding('lifecycle_target_lts', 'info',
+            $findings[] = self::finding(
+                'lifecycle_target_lts',
+                'info',
                 get_string('findinglifecycletargetlts', 'local_upgradeassistant'),
                 get_string('findinglifecycletargetltsdesc', 'local_upgradeassistant', (object)[
                     'version' => $target['label'],
                     'date' => self::format_date($target['securityend']),
                 ]),
-                get_string('findinglifecycletargetltsrec', 'local_upgradeassistant'));
+                get_string('findinglifecycletargetltsrec', 'local_upgradeassistant')
+            );
         }
 
         return $findings;
@@ -249,16 +280,22 @@ class lifecycle_manager {
         ];
         $dataset = self::normalise_dataset($dataset);
 
-        $current = !empty($lifecycle['current']) && is_array($lifecycle['current']) ? self::normalise_version($lifecycle['current']) : null;
-        $target = !empty($lifecycle['target']) && is_array($lifecycle['target']) ? self::normalise_version($lifecycle['target']) : null;
+        $current = !empty($lifecycle['current']) && is_array($lifecycle['current'])
+            ? self::normalise_version($lifecycle['current']) : null;
+        $target = !empty($lifecycle['target']) && is_array($lifecycle['target'])
+            ? self::normalise_version($lifecycle['target']) : null;
 
         return [
             'available' => !empty($dataset['versions']),
             'sourceurl' => $dataset['sourceurl'],
             'source' => $dataset['source'],
-            'lastsync' => !empty($dataset['fetchedat']) ? userdate((int)$dataset['fetchedat']) : get_string('notavailable', 'local_upgradeassistant'),
+            'lastsync' => !empty($dataset['fetchedat'])
+                ? userdate((int)$dataset['fetchedat']) : get_string('notavailable', 'local_upgradeassistant'),
             'usingfallback' => !empty($dataset['usingfallback']),
-            'usingfallbacklabel' => !empty($dataset['usingfallback']) ? get_string('lifecyclefallbackmode', 'local_upgradeassistant') : '',
+            'usingfallbacklabel' => !empty($dataset['usingfallback']) ? get_string(
+                'lifecyclefallbackmode',
+                'local_upgradeassistant'
+            ) : '',
             'current' => $current ? self::version_to_template($current) : self::empty_version(),
             'target' => $target ? self::version_to_template($target) : self::empty_version(false),
             'hastarget' => $target !== null,
@@ -399,13 +436,25 @@ class lifecycle_manager {
             'fetchedat' => 0,
             'usingfallback' => true,
             'versions' => [
-                ['branch' => '401', 'version' => '4.1', 'label' => 'Moodle 4.1 LTS', 'lts' => true, 'sourcestatus' => 'Unsupported', 'releasedate' => '2022-11-28', 'generalend' => '2023-12-11', 'securityend' => '2025-12-08'],
-                ['branch' => '404', 'version' => '4.4', 'label' => 'Moodle 4.4', 'lts' => false, 'sourcestatus' => 'Unsupported', 'releasedate' => '2024-04-22', 'generalend' => '2025-04-21', 'securityend' => '2025-12-08'],
-                ['branch' => '405', 'version' => '4.5', 'label' => 'Moodle 4.5 LTS', 'lts' => true, 'sourcestatus' => 'Current security', 'releasedate' => '2024-10-07', 'generalend' => '2025-10-06', 'securityend' => '2027-10-04'],
-                ['branch' => '500', 'version' => '5.0', 'label' => 'Moodle 5.0', 'lts' => false, 'sourcestatus' => 'Current security', 'releasedate' => '2025-04-14', 'generalend' => '2026-04-20', 'securityend' => '2026-10-05'],
-                ['branch' => '501', 'version' => '5.1', 'label' => 'Moodle 5.1', 'lts' => false, 'sourcestatus' => 'Current stable', 'releasedate' => '2025-10-06', 'generalend' => '2026-10-05', 'securityend' => '2027-04-19'],
-                ['branch' => '502', 'version' => '5.2', 'label' => 'Moodle 5.2', 'lts' => false, 'sourcestatus' => 'Current stable', 'releasedate' => '2026-04-20', 'generalend' => '2027-04-19', 'securityend' => '2027-10-04'],
-                ['branch' => '503', 'version' => '5.3', 'label' => 'Moodle 5.3 LTS', 'lts' => true, 'sourcestatus' => 'Future release', 'releasedate' => '2026-10-05', 'generalend' => '2027-10-04', 'securityend' => '2029-10-01'],
+                ['branch' => '401', 'version' => '4.1', 'label' => 'Moodle 4.1 LTS', 'lts' => true, 'sourcestatus'
+                    => 'Unsupported', 'releasedate' => '2022-11-28', 'generalend' => '2023-12-11', 'securityend' => '2025-12-08'],
+                ['branch' => '404', 'version' => '4.4', 'label' => 'Moodle 4.4', 'lts' => false, 'sourcestatus'
+                    => 'Unsupported', 'releasedate' => '2024-04-22', 'generalend' => '2025-04-21', 'securityend' => '2025-12-08'],
+                ['branch' => '405', 'version' => '4.5', 'label' => 'Moodle 4.5 LTS', 'lts' => true, 'sourcestatus'
+                    => 'Current security', 'releasedate' => '2024-10-07', 'generalend' => '2025-10-06', 'securityend'
+                    => '2027-10-04'],
+                ['branch' => '500', 'version' => '5.0', 'label' => 'Moodle 5.0', 'lts' => false, 'sourcestatus'
+                    => 'Current security', 'releasedate' => '2025-04-14', 'generalend' => '2026-04-20', 'securityend'
+                    => '2026-10-05'],
+                ['branch' => '501', 'version' => '5.1', 'label' => 'Moodle 5.1', 'lts' => false, 'sourcestatus'
+                    => 'Current stable', 'releasedate' => '2025-10-06', 'generalend' => '2026-10-05', 'securityend'
+                    => '2027-04-19'],
+                ['branch' => '502', 'version' => '5.2', 'label' => 'Moodle 5.2', 'lts' => false, 'sourcestatus'
+                    => 'Current stable', 'releasedate' => '2026-04-20', 'generalend' => '2027-04-19', 'securityend'
+                    => '2027-10-04'],
+                ['branch' => '503', 'version' => '5.3', 'label' => 'Moodle 5.3 LTS', 'lts' => true, 'sourcestatus'
+                    => 'Future release', 'releasedate' => '2026-10-05', 'generalend' => '2027-10-04', 'securityend'
+                    => '2029-10-01'],
             ],
         ]);
     }
@@ -427,7 +476,7 @@ class lifecycle_manager {
                 $versions[] = $normalised;
             }
         }
-        usort($versions, static function(array $a, array $b): int {
+        usort($versions, static function (array $a, array $b): int {
             return (int)$a['branch'] <=> (int)$b['branch'];
         });
 
@@ -650,16 +699,20 @@ class lifecycle_manager {
         $security = strtotime($version['securityend'] ?? '');
 
         if ($release !== false && $now < $release) {
-            return ['key' => 'future', 'label' => get_string('lifecyclestatusfuture', 'local_upgradeassistant'), 'class' => 'ua-badge-warn'];
+            return ['key' => 'future', 'label' => get_string('lifecyclestatusfuture', 'local_upgradeassistant'),
+                'class' => 'ua-badge-warn'];
         }
         if ($general !== false && $now <= $general) {
-            return ['key' => 'general', 'label' => get_string('lifecyclestatusgeneral', 'local_upgradeassistant'), 'class' => 'ua-badge-ok'];
+            return ['key' => 'general', 'label' => get_string('lifecyclestatusgeneral', 'local_upgradeassistant'),
+                'class' => 'ua-badge-ok'];
         }
         if ($security !== false && $now <= $security) {
-            return ['key' => 'security', 'label' => get_string('lifecyclestatussecurity', 'local_upgradeassistant'), 'class' => 'ua-badge'];
+            return ['key' => 'security', 'label' => get_string('lifecyclestatussecurity', 'local_upgradeassistant'),
+                'class' => 'ua-badge'];
         }
 
-        return ['key' => 'unsupported', 'label' => get_string('lifecyclestatusunsupported', 'local_upgradeassistant'), 'class' => 'ua-badge-danger'];
+        return ['key' => 'unsupported', 'label' => get_string('lifecyclestatusunsupported', 'local_upgradeassistant'),
+            'class' => 'ua-badge-danger'];
     }
 
     /**
@@ -790,7 +843,10 @@ class lifecycle_manager {
      */
     private static function format_date(string $date): string {
         $time = strtotime($date);
-        return $time === false ? get_string('notavailable', 'local_upgradeassistant') : userdate($time, get_string('strftimedatefullshort'));
+        return $time === false ? get_string('notavailable', 'local_upgradeassistant') : userdate(
+            $time,
+            get_string('strftimedatefullshort')
+        );
     }
 
     /**

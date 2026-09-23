@@ -17,7 +17,7 @@
 namespace local_upgradeassistant\local;
 
 /**
- * Exports Pro pre-upgrade reports as professional PDF documents.
+ * Exports pre-upgrade reports as professional PDF documents.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -25,16 +25,16 @@ namespace local_upgradeassistant\local;
  */
 class pdf_exporter {
     /** Reports table. */
-    private const REPORTS_TABLE = 'local_ua_reports';
+    private const REPORTS_TABLE = 'local_upgradeassistant_rep';
 
     /** Findings table. */
-    private const ITEMS_TABLE = 'local_ua_items';
+    private const ITEMS_TABLE = 'local_upgradeassistant_item';
 
     /** Checklist table. */
-    private const CHECKLIST_TABLE = 'local_ua_checklist';
+    private const CHECKLIST_TABLE = 'local_upgradeassistant_check';
 
     /** Audit table. */
-    private const AUDIT_TABLE = 'local_ua_audit';
+    private const AUDIT_TABLE = 'local_upgradeassistant_audit';
 
     /**
      * Stream a report PDF to the browser.
@@ -49,10 +49,11 @@ class pdf_exporter {
 
         $data = self::get_report_data($reportid, $redacted);
         $title = get_string('pdfreporttitle', 'local_upgradeassistant');
-        $filename = clean_filename('smart-upgrade-assistant-pre-upgrade-report-' . $data['report']->id . ($redacted ? '-redacted' : '') . '.pdf');
+        $filename = clean_filename('smart-upgrade-assistant-pre-upgrade-report-' . $data['report']->id
+            . ($redacted ? '-redacted' : '') . '.pdf');
 
         $pdf = new \pdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->SetCreator('Smart Upgrade Assistant Pro');
+        $pdf->SetCreator('Smart Upgrade Assistant');
         $pdf->SetAuthor($data['generatedby']);
         $pdf->SetTitle($title . ' #' . $data['report']->id);
         $pdf->SetSubject(get_string('pdfsubject', 'local_upgradeassistant'));
@@ -87,7 +88,8 @@ class pdf_exporter {
      */
     public static function download_html(int $reportid, bool $redacted = false): void {
         $data = self::get_report_data($reportid, $redacted);
-        $filename = clean_filename('smart-upgrade-assistant-pre-upgrade-report-' . $data['report']->id . ($redacted ? '-redacted' : '') . '.html');
+        $filename = clean_filename('smart-upgrade-assistant-pre-upgrade-report-' . $data['report']->id
+            . ($redacted ? '-redacted' : '') . '.html');
         $html = '<!doctype html><html><head><meta charset="utf-8"><title>' .
             s(get_string('pdfreporttitle', 'local_upgradeassistant')) . '</title>' .
             self::styles() . '</head><body>' . self::build_html($data) . '</body></html>';
@@ -106,11 +108,13 @@ class pdf_exporter {
         ])->trigger();
         // Moodle does not provide a send_content() helper. The report is already
         // rendered in memory, so stream it as an attachment without a temp file.
-        header('Content-Type: text/html; charset=utf-8');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: private, no-store, max-age=0');
-        header('Pragma: no-cache');
-        header('X-Content-Type-Options: nosniff');
+        if (!headers_sent()) {
+            header('Content-Type: text/html; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: private, no-store, max-age=0');
+            header('Pragma: no-cache');
+            header('X-Content-Type-Options: nosniff');
+        }
         echo $html;
     }
 
@@ -125,7 +129,7 @@ class pdf_exporter {
     private static function record_export(int $reportid, string $type, string $hash): void {
         global $DB, $USER;
 
-        if (!$DB->get_manager()->table_exists('local_ua_exports')) {
+        if (!$DB->get_manager()->table_exists('local_upgradeassistant_expt')) {
             return;
         }
         $record = (object)[
@@ -135,7 +139,7 @@ class pdf_exporter {
             'contenthash' => substr(sha1($hash), 0, 64),
             'timecreated' => time(),
         ];
-        $DB->insert_record('local_ua_exports', $record);
+        $DB->insert_record('local_upgradeassistant_expt', $record);
     }
 
     /**
@@ -260,29 +264,45 @@ class pdf_exporter {
 
         $report = $data['report'];
         $html = '<div class="cover">';
-        $html .= '<div class="brand">SMART UPGRADE ASSISTANT PRO</div>';
+        $html .= '<div class="brand">SMART UPGRADE ASSISTANT</div>';
         $html .= '<h1>' . self::clean(get_string('pdfreporttitle', 'local_upgradeassistant')) . '</h1>';
         $html .= '<p class="muted">' . self::clean(get_string('pdfreportintro', 'local_upgradeassistant')) . '</p>';
         $html .= '<br />';
         $html .= '<table class="meta" cellpadding="4">';
-        $html .= '<tr><td width="30%"><strong>' . self::clean(get_string('site')) . '</strong></td><td width="70%">' . self::clean($data['sitename']) . '</td></tr>';
-        $html .= '<tr><td><strong>' . self::clean(get_string('wwwroot', 'local_upgradeassistant')) . '</strong></td><td>' . self::clean(!empty($data['redacted']) ? self::redacted() : ($CFG->wwwroot ?? '')) . '</td></tr>';
-        $html .= '<tr><td><strong>' . self::clean(get_string('reportid', 'local_upgradeassistant')) . '</strong></td><td>#' . (int)$report->id . ' / ' . self::clean($report->uuid) . '</td></tr>';
-        $html .= '<tr><td><strong>' . self::clean(get_string('generatedon', 'local_upgradeassistant')) . '</strong></td><td>' . self::clean(userdate($report->timecreated)) . '</td></tr>';
-        $html .= '<tr><td><strong>' . self::clean(get_string('generatedby', 'local_upgradeassistant')) . '</strong></td><td>' . self::clean($data['generatedby']) . '</td></tr>';
+        $html .= '<tr><td width="30%"><strong>' . self::clean(get_string('site')) . '</strong></td><td width="70%">'
+            . self::clean($data['sitename']) . '</td></tr>';
+        $html .= '<tr><td><strong>' . self::clean(get_string('wwwroot', 'local_upgradeassistant'))
+            . '</strong></td><td>' . self::clean(!empty($data['redacted']) ? self::redacted() : ($CFG->wwwroot ?? ''))
+            . '</td></tr>';
+        $html .= '<tr><td><strong>' . self::clean(get_string('reportid', 'local_upgradeassistant'))
+            . '</strong></td><td>#' . (int)$report->id . ' / ' . self::clean($report->uuid) . '</td></tr>';
+        $html .= '<tr><td><strong>' . self::clean(get_string('generatedon', 'local_upgradeassistant'))
+            . '</strong></td><td>' . self::clean(userdate($report->timecreated)) . '</td></tr>';
+        $html .= '<tr><td><strong>' . self::clean(get_string('generatedby', 'local_upgradeassistant'))
+            . '</strong></td><td>' . self::clean($data['generatedby']) . '</td></tr>';
         $html .= '</table>';
         $html .= '<br />';
         $html .= '<table cellpadding="6">';
         $html .= '<tr>';
-        $html .= '<td width="50%"><h3>' . self::clean(get_string('pdfcurrentplatform', 'local_upgradeassistant')) . '</h3><strong>' . self::clean($report->currentrelease) . '</strong><br />' . self::clean(get_string('branch', 'local_upgradeassistant')) . ': ' . self::clean($report->currentbranch) . '</td>';
-        $html .= '<td width="50%"><h3>' . self::clean(get_string('pdftargetplatform', 'local_upgradeassistant')) . '</h3><strong>' . self::clean($report->targetrelease) . '</strong><br />' . self::clean(get_string('branch', 'local_upgradeassistant')) . ': ' . self::clean($report->targetbranch) . '</td>';
+        $html .= '<td width="50%"><h3>' . self::clean(get_string('pdfcurrentplatform', 'local_upgradeassistant'))
+            . '</h3><strong>' . self::clean($report->currentrelease) . '</strong><br />'
+            . self::clean(get_string('branch', 'local_upgradeassistant')) . ': ' . self::clean($report->currentbranch) . '</td>';
+        $html .= '<td width="50%"><h3>' . self::clean(get_string('pdftargetplatform', 'local_upgradeassistant'))
+            . '</h3><strong>' . self::clean($report->targetrelease) . '</strong><br />'
+            . self::clean(get_string('branch', 'local_upgradeassistant')) . ': ' . self::clean($report->targetbranch) . '</td>';
         $html .= '</tr>';
         $html .= '</table>';
         $html .= '<br />';
         $html .= '<div class="riskbox">';
         $html .= '<table cellpadding="5"><tr>';
-        $html .= '<td width="38%"><span class="muted">' . self::clean(get_string('riskscore', 'local_upgradeassistant')) . '</span><br /><span class="risknumber">' . (int)$report->riskscore . '/100</span><br /><strong class="' . self::risk_class($report->risklevel) . '">' . self::clean($risklabel) . '</strong></td>';
-        $html .= '<td width="62%"><strong>' . self::clean(get_string('pdfseveritysummary', 'local_upgradeassistant')) . '</strong><br />' .
+        $html .= '<td width="38%"><span class="muted">' . self::clean(get_string(
+            'riskscore',
+            'local_upgradeassistant'
+        )) . '</span><br /><span class="risknumber">' . (int)$report->riskscore
+            . '/100</span><br /><strong class="' . self::risk_class($report->risklevel) . '">'
+            . self::clean($risklabel) . '</strong></td>';
+        $html .= '<td width="62%"><strong>' . self::clean(get_string('pdfseveritysummary', 'local_upgradeassistant'))
+            . '</strong><br />' .
             self::clean(get_string('severitycritical', 'local_upgradeassistant')) . ': ' . $counts['critical'] . ' | ' .
             self::clean(get_string('severityhigh', 'local_upgradeassistant')) . ': ' . $counts['high'] . ' | ' .
             self::clean(get_string('severitymedium', 'local_upgradeassistant')) . ': ' . $counts['medium'] . ' | ' .
@@ -293,7 +313,10 @@ class pdf_exporter {
         $html .= '</div>';
         $html .= '<p class="small muted">' . self::clean(get_string('pdfdisclaimer', 'local_upgradeassistant')) . '</p>';
         if (!empty($data['redacted'])) {
-            $html .= '<p class="small muted"><strong>' . self::clean(get_string('redactedexportnotice', 'local_upgradeassistant')) . '</strong></p>';
+            $html .= '<p class="small muted"><strong>' . self::clean(get_string(
+                'redactedexportnotice',
+                'local_upgradeassistant'
+            )) . '</strong></p>';
         }
 
         return $html;
@@ -322,12 +345,20 @@ class pdf_exporter {
         $html = '<h2>' . self::clean(get_string('pdfexecutivesummary', 'local_upgradeassistant')) . '</h2>';
         $html .= '<p>' . self::clean($summary) . '</p>';
         $html .= '<table cellpadding="5">';
-        $html .= '<tr><th width="35%">' . self::clean(get_string('indicator', 'local_upgradeassistant')) . '</th><th width="65%">' . self::clean(get_string('result', 'local_upgradeassistant')) . '</th></tr>';
-        $html .= '<tr><td>' . self::clean(get_string('riskscore', 'local_upgradeassistant')) . '</td><td><strong>' . (int)$report->riskscore . '/100 - ' . self::clean(get_string('risklevel' . $report->risklevel, 'local_upgradeassistant')) . '</strong></td></tr>';
-        $html .= '<tr><td>' . self::clean(get_string('reportfindings', 'local_upgradeassistant')) . '</td><td>' . count($items) . '</td></tr>';
+        $html .= '<tr><th width="35%">' . self::clean(get_string('indicator', 'local_upgradeassistant'))
+            . '</th><th width="65%">' . self::clean(get_string('result', 'local_upgradeassistant')) . '</th></tr>';
+        $html .= '<tr><td>' . self::clean(get_string('riskscore', 'local_upgradeassistant')) . '</td><td><strong>'
+            . (int)$report->riskscore . '/100 - ' . self::clean(get_string(
+                'risklevel' . $report->risklevel,
+                'local_upgradeassistant'
+            )) . '</strong></td></tr>';
+        $html .= '<tr><td>' . self::clean(get_string('reportfindings', 'local_upgradeassistant')) . '</td><td>'
+            . count($items) . '</td></tr>';
         $serverprofile = $redacted ? self::redacted() : $report->serverprofile;
-        $html .= '<tr><td>' . self::clean(get_string('serverprofile', 'local_upgradeassistant')) . '</td><td>' . self::clean($serverprofile) . '</td></tr>';
-        $html .= '<tr><td>' . self::clean(get_string('status', 'local_upgradeassistant')) . '</td><td>' . self::clean($report->status) . '</td></tr>';
+        $html .= '<tr><td>' . self::clean(get_string('serverprofile', 'local_upgradeassistant')) . '</td><td>'
+            . self::clean($serverprofile) . '</td></tr>';
+        $html .= '<tr><td>' . self::clean(get_string('status', 'local_upgradeassistant')) . '</td><td>'
+            . self::clean($report->status) . '</td></tr>';
         $html .= '</table>';
 
         return $html;
@@ -345,7 +376,8 @@ class pdf_exporter {
         $report = $data['report'];
         $html = '<h2>' . self::clean(get_string('pdftechnicalprofile', 'local_upgradeassistant')) . '</h2>';
         $html .= '<table class="soft" cellpadding="5">';
-        $html .= '<tr><th width="32%">' . self::clean(get_string('field', 'local_upgradeassistant')) . '</th><th width="68%">' . self::clean(get_string('value', 'local_upgradeassistant')) . '</th></tr>';
+        $html .= '<tr><th width="32%">' . self::clean(get_string('field', 'local_upgradeassistant'))
+            . '</th><th width="68%">' . self::clean(get_string('value', 'local_upgradeassistant')) . '</th></tr>';
         $summary = json_decode($report->summary ?? '', true);
         if (!is_array($summary)) {
             $summary = [];
@@ -359,10 +391,13 @@ class pdf_exporter {
             get_string('targetpathlabel', 'local_upgradeassistant') => $redacted ? self::redacted() : $report->targetpath,
             get_string('targetpublicstructure', 'local_upgradeassistant') => !empty($targetsummary['haspublic'])
                 ? get_string('detected', 'local_upgradeassistant') : get_string('notdetected', 'local_upgradeassistant'),
-            get_string('targetpublicpath', 'local_upgradeassistant') => $redacted ? self::redacted() : ($targetsummary['publicpath'] ?? ''),
-            get_string('targetconfigpath', 'local_upgradeassistant') => $redacted ? self::redacted() : ($targetsummary['configpath'] ?? ''),
+            get_string('targetpublicpath', 'local_upgradeassistant')
+                => $redacted ? self::redacted() : ($targetsummary['publicpath'] ?? ''),
+            get_string('targetconfigpath', 'local_upgradeassistant')
+                => $redacted ? self::redacted() : ($targetsummary['configpath'] ?? ''),
             get_string('phpversion', 'local_upgradeassistant') => $report->phpversion,
-            get_string('database', 'local_upgradeassistant') => $redacted ? self::redacted() : ($report->dbtype . ' - ' . $report->dbversion),
+            get_string('database', 'local_upgradeassistant') => $redacted ? self::redacted() : ($report->dbtype . ' - '
+                . $report->dbversion),
             get_string('serverprofile', 'local_upgradeassistant') => $redacted ? self::redacted() : $report->serverprofile,
             get_string('moodledataroot', 'local_upgradeassistant') => $redacted ? self::redacted() : ($CFG->dataroot ?? ''),
         ];
@@ -388,18 +423,23 @@ class pdf_exporter {
         $html = '<h2>' . self::clean(get_string('lifecyclepdfsectiontitle', 'local_upgradeassistant')) . '</h2>';
         $html .= '<p class="muted">' . self::clean(get_string('lifecyclepdfsectiondesc', 'local_upgradeassistant')) . '</p>';
         $html .= '<table class="soft" cellpadding="5">';
-        $html .= '<tr><th width="25%">' . self::clean(get_string('indicator', 'local_upgradeassistant')) . '</th><th width="75%">' . self::clean(get_string('result', 'local_upgradeassistant')) . '</th></tr>';
+        $html .= '<tr><th width="25%">' . self::clean(get_string('indicator', 'local_upgradeassistant'))
+            . '</th><th width="75%">' . self::clean(get_string('result', 'local_upgradeassistant')) . '</th></tr>';
         $html .= '<tr><td><strong>' . self::clean(get_string('current', 'local_upgradeassistant')) . '</strong></td><td>' .
-            self::clean($lifecycle['current']['label'] ?? '') . ' - ' . self::clean($lifecycle['current']['statuslabel'] ?? '') . '</td></tr>';
+            self::clean($lifecycle['current']['label'] ?? '') . ' - '
+                . self::clean($lifecycle['current']['statuslabel'] ?? '') . '</td></tr>';
         if (!empty($lifecycle['hastarget'])) {
-            $html .= '<tr><td><strong>' . self::clean(get_string('targetversion', 'local_upgradeassistant')) . '</strong></td><td>' .
-                self::clean($lifecycle['target']['label'] ?? '') . ' - ' . self::clean($lifecycle['target']['statuslabel'] ?? '') . '</td></tr>';
+            $html .= '<tr><td><strong>' . self::clean(get_string('targetversion', 'local_upgradeassistant'))
+                . '</strong></td><td>' .
+                self::clean($lifecycle['target']['label'] ?? '') . ' - '
+                    . self::clean($lifecycle['target']['statuslabel'] ?? '') . '</td></tr>';
         }
         $html .= '<tr><td><strong>' . self::clean(get_string('recommendation', 'local_upgradeassistant')) . '</strong></td><td>' .
             self::clean($lifecycle['recommendation'] ?? '') . '</td></tr>';
         $html .= '<tr><td><strong>' . self::clean(get_string('lifecyclesource', 'local_upgradeassistant')) . '</strong></td><td>' .
             self::clean(($lifecycle['source'] ?? '') . ' - ' . ($lifecycle['sourceurl'] ?? '')) . '</td></tr>';
-        $html .= '<tr><td><strong>' . self::clean(get_string('lifecyclelastsync', 'local_upgradeassistant')) . '</strong></td><td>' .
+        $html .= '<tr><td><strong>' . self::clean(get_string('lifecyclelastsync', 'local_upgradeassistant'))
+            . '</strong></td><td>' .
             self::clean($lifecycle['lastsync'] ?? '') . '</td></tr>';
         $html .= '</table>';
 
@@ -532,7 +572,8 @@ class pdf_exporter {
             }
             $html .= '<tr>';
             $html .= '<td>' . self::clean(get_string('reportcategory' . $item->category, 'local_upgradeassistant')) . '</td>';
-            $html .= '<td><strong class="' . self::risk_class($item->severity) . '">' . self::clean(get_string('severity' . $item->severity, 'local_upgradeassistant')) . '</strong></td>';
+            $html .= '<td><strong class="' . self::risk_class($item->severity) . '">'
+                . self::clean(get_string('severity' . $item->severity, 'local_upgradeassistant')) . '</strong></td>';
             $evidence = json_decode((string)$item->evidence, true);
             if (!is_array($evidence)) {
                 $evidence = [];
@@ -566,9 +607,13 @@ class pdf_exporter {
             }
 
             $html .= '<td>' . self::clean($statuslabel) . '</td>';
-            $html .= '<td><strong>' . self::clean($item->title) . '</strong><br /><span class="small muted">' . self::clean($description) . '</span>';
+            $html .= '<td><strong>' . self::clean($item->title) . '</strong><br /><span class="small muted">'
+                . self::clean($description) . '</span>';
             if ($reviewtext !== '') {
-                $html .= '<br /><br /><strong>' . self::clean(get_string('administratorcriterion', 'local_upgradeassistant')) . ':</strong> ' . self::clean($reviewtext);
+                $html .= '<br /><br /><strong>' . self::clean(get_string(
+                    'administratorcriterion',
+                    'local_upgradeassistant'
+                )) . ':</strong> ' . self::clean($reviewtext);
                 if ($reviewmeta !== '') {
                     $html .= '<br /><span class="small muted">' . self::clean($reviewmeta) . '</span>';
                 }
@@ -594,10 +639,15 @@ class pdf_exporter {
             return $html . '<p>' . self::clean(get_string('notavailable', 'local_upgradeassistant')) . '</p>';
         }
         $html .= '<table cellpadding="4">';
-        $html .= '<tr><th width="31%">' . self::clean(get_string('component', 'local_upgradeassistant')) . '</th><th width="12%">' . self::clean(get_string('type', 'local_upgradeassistant')) . '</th><th width="17%">' . self::clean(get_string('version', 'local_upgradeassistant')) . '</th><th width="17%">' . self::clean(get_string('targetversion', 'local_upgradeassistant')) . '</th><th width="23%">' . self::clean(get_string('compatibility', 'local_upgradeassistant')) . '</th></tr>';
+        $html .= '<tr><th width="31%">' . self::clean(get_string('component', 'local_upgradeassistant'))
+            . '</th><th width="12%">' . self::clean(get_string('type', 'local_upgradeassistant'))
+            . '</th><th width="17%">' . self::clean(get_string('version', 'local_upgradeassistant'))
+            . '</th><th width="17%">' . self::clean(get_string('targetversion', 'local_upgradeassistant'))
+            . '</th><th width="23%">' . self::clean(get_string('compatibility', 'local_upgradeassistant')) . '</th></tr>';
         foreach ($plugins as $plugin) {
             $html .= '<tr>';
-            $html .= '<td><strong>' . self::clean($plugin['component']) . '</strong><br /><span class="small muted">' . self::clean($plugin['release']) . '</span></td>';
+            $html .= '<td><strong>' . self::clean($plugin['component']) . '</strong><br /><span class="small muted">'
+                . self::clean($plugin['release']) . '</span></td>';
             $html .= '<td>' . self::clean($plugin['type']) . '</td>';
             $html .= '<td>' . self::clean($plugin['version']) . '</td>';
             $html .= '<td>' . self::clean($plugin['targetversion']) . '</td>';
@@ -618,7 +668,11 @@ class pdf_exporter {
         $html = '<h2>' . self::clean(get_string('auditablechecklist', 'local_upgradeassistant')) . '</h2>';
         $html .= '<p class="muted">' . self::clean(get_string('pdfchecklistintro', 'local_upgradeassistant')) . '</p>';
         $html .= '<table cellpadding="4">';
-        $html .= '<tr><th width="28%">' . self::clean(get_string('action', 'local_upgradeassistant')) . '</th><th width="14%">' . self::clean(get_string('status', 'local_upgradeassistant')) . '</th><th width="22%">' . self::clean(get_string('completedby', 'local_upgradeassistant')) . '</th><th width="18%">' . self::clean(get_string('date')) . '</th><th width="18%">' . self::clean(get_string('note', 'local_upgradeassistant')) . '</th></tr>';
+        $html .= '<tr><th width="28%">' . self::clean(get_string('action', 'local_upgradeassistant'))
+            . '</th><th width="14%">' . self::clean(get_string('status', 'local_upgradeassistant'))
+            . '</th><th width="22%">' . self::clean(get_string('completedby', 'local_upgradeassistant'))
+            . '</th><th width="18%">' . self::clean(get_string('date')) . '</th><th width="18%">'
+            . self::clean(get_string('note', 'local_upgradeassistant')) . '</th></tr>';
         foreach ($checklist as $step) {
             $completed = $step->status === 'completed';
             $classname = $completed ? 'okrow' : 'warnrow';
@@ -627,10 +681,12 @@ class pdf_exporter {
                 $completedby = fullname($users[(int)$step->completedby]);
             }
             $html .= '<tr class="' . $classname . '">';
-            $html .= '<td><strong>' . self::clean($step->title) . '</strong><br /><span class="small muted">' . self::clean($step->description) . '</span></td>';
+            $html .= '<td><strong>' . self::clean($step->title) . '</strong><br /><span class="small muted">'
+                . self::clean($step->description) . '</span></td>';
             $html .= '<td>' . self::clean(get_string('auditstatus' . $step->status, 'local_upgradeassistant')) . '</td>';
             $html .= '<td>' . self::clean($completedby) . '</td>';
-            $html .= '<td>' . ($completed && !empty($step->completedat) ? self::clean(userdate($step->completedat)) : '-') . '</td>';
+            $html .= '<td>' . ($completed && !empty($step->completedat)
+                ? self::clean(userdate($step->completedat)) : '-') . '</td>';
             $note = (string)$step->note;
             if ($redacted) {
                 $note = self::redact_sensitive_text($note, $report);
@@ -657,7 +713,14 @@ class pdf_exporter {
         }
 
         $html .= '<table cellpadding="4">';
-        $html .= '<tr><th width="25%">' . self::clean(get_string('date')) . '</th><th width="25%">' . self::clean(get_string('user')) . '</th><th width="22%">' . self::clean(get_string('action', 'local_upgradeassistant')) . '</th><th width="28%">' . self::clean(get_string('note', 'local_upgradeassistant')) . '</th></tr>';
+        $html .= '<tr><th width="25%">' . self::clean(get_string('date')) . '</th><th width="25%">'
+            . self::clean(get_string('user')) . '</th><th width="22%">' . self::clean(get_string(
+                'action',
+                'local_upgradeassistant'
+            )) . '</th><th width="28%">' . self::clean(get_string(
+                'note',
+                'local_upgradeassistant'
+            )) . '</th></tr>';
         foreach ($audit as $entry) {
             $html .= '<tr>';
             $html .= '<td>' . self::clean(userdate($entry->timecreated)) . '</td>';
@@ -693,7 +756,11 @@ class pdf_exporter {
         $html .= '<li>' . self::clean(get_string('pdfnextstepstaging', 'local_upgradeassistant')) . '</li>';
         $html .= '<li>' . self::clean(get_string('pdfnextstepnative', 'local_upgradeassistant')) . '</li>';
         $html .= '</ol>';
-        $html .= '<p class="small muted">' . self::clean(get_string('pdffinalnote', 'local_upgradeassistant', $report->uuid)) . '</p>';
+        $html .= '<p class="small muted">' . self::clean(get_string(
+            'pdffinalnote',
+            'local_upgradeassistant',
+            $report->uuid
+        )) . '</p>';
 
         return $html;
     }
@@ -762,7 +829,7 @@ class pdf_exporter {
             return [];
         }
 
-        list($insql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         return $DB->get_records_select(
             'user',
             "id $insql",
@@ -803,10 +870,10 @@ class pdf_exporter {
             }
         }
 
-        $values = array_filter(array_unique($values), static function(string $value): bool {
+        $values = array_filter(array_unique($values), static function (string $value): bool {
             return $value !== '' && strlen($value) > 2;
         });
-        usort($values, static function(string $a, string $b): int {
+        usort($values, static function (string $a, string $b): int {
             return strlen($b) <=> strlen($a);
         });
         foreach ($values as $value) {

@@ -89,8 +89,12 @@ class upgrade_path {
      * @param string|null $currentrelease Exact installed Moodle release (including patch number).
      * @return array
      */
-    public static function analyze($currentbranch, $targetbranch, ?array $targetinfo = null,
-            ?string $currentrelease = null): array {
+    public static function analyze(
+        $currentbranch,
+        $targetbranch,
+        ?array $targetinfo = null,
+        ?string $currentrelease = null
+    ): array {
         $current = self::branch_to_int($currentbranch);
         $target = self::branch_to_int($targetbranch);
 
@@ -154,9 +158,11 @@ class upgrade_path {
                 $nextrelease = $minimumrelease;
                 if ($current < $minimumfrom) {
                     $intermediate = rule_engine::get_rule($minimumfrom);
-                    if ($intermediate !== null
+                    if (
+                        $intermediate !== null
                         && self::source_meets_minimum($current, $currentrelease, $intermediate) !== true
-                        && (int)$intermediate['minimumfrombranch'] === $current) {
+                        && (int)$intermediate['minimumfrombranch'] === $current
+                    ) {
                         array_unshift($route, $current);
                         $nextrelease = (string)$intermediate['minimumfrom'];
                     }

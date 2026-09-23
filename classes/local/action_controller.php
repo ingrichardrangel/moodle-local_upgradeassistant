@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace local_upgradeassistant\local;
 
@@ -51,8 +59,10 @@ class action_controller {
             case 'reset':
                 $deletedreports = report_builder::delete_reports_for_user((int)($USER->id ?? 0));
                 state::reset();
-                self::success(self::return_url($baseurl, 'wizard', 1),
-                    get_string('statecleared', 'local_upgradeassistant', $deletedreports));
+                self::success(
+                    self::return_url($baseurl, 'wizard', 1),
+                    get_string('statecleared', 'local_upgradeassistant', $deletedreports)
+                );
                 break;
 
             case 'maintenanceon':
@@ -91,8 +101,10 @@ class action_controller {
                     $currenttheme = (string)($CFG->theme ?? 'boost');
                 }
                 if ($currenttheme !== 'boost') {
-                    self::error($returnurl,
-                        get_string('boostthemenotactive', 'local_upgradeassistant', $currenttheme));
+                    self::error(
+                        $returnurl,
+                        get_string('boostthemenotactive', 'local_upgradeassistant', $currenttheme)
+                    );
                 }
                 state::complete_step('boosttheme');
                 checklist_manager::complete_latest_step_by_key(
@@ -128,15 +140,21 @@ class action_controller {
 
             case 'generatereport':
                 $currentstate = state::get();
-                if (empty($currentstate['targetpath'])
-                    || !detector::is_allowed_path($currentstate['targetpath'], $allowedroots)) {
-                    self::error(self::return_url($baseurl, 'wizard', 2),
-                        get_string('selecttargetfirst', 'local_upgradeassistant'));
+                if (
+                    empty($currentstate['targetpath'])
+                    || !detector::is_allowed_path($currentstate['targetpath'], $allowedroots)
+                ) {
+                    self::error(
+                        self::return_url($baseurl, 'wizard', 2),
+                        get_string('selecttargetfirst', 'local_upgradeassistant')
+                    );
                 }
                 $targetinfo = detector::read_moodle_version($currentstate['targetpath']);
                 if ($targetinfo === null) {
-                    self::error(self::return_url($baseurl, 'wizard', 2),
-                        get_string('targetnotfound', 'local_upgradeassistant'));
+                    self::error(
+                        self::return_url($baseurl, 'wizard', 2),
+                        get_string('targetnotfound', 'local_upgradeassistant')
+                    );
                 }
                 $env = detector::environment();
                 $analysis = upgrade_path::analyze($env['branch'], $targetinfo['branch'], $targetinfo, $env['release']);
@@ -144,8 +162,10 @@ class action_controller {
                     ? $targetinfo['publicpath'] : $targetinfo['path'];
                 $plugins = plugin_analyser::compare($CFG->dirroot, $targetcoderoot, $targetinfo['branch']);
                 $reportid = report_builder::create_report($targetinfo, $analysis, $plugins, $currentstate);
-                self::success(self::return_url($baseurl, 'wizard', 4),
-                    get_string('reportgenerated', 'local_upgradeassistant', $reportid));
+                self::success(
+                    self::return_url($baseurl, 'wizard', 4),
+                    get_string('reportgenerated', 'local_upgradeassistant', $reportid)
+                );
                 break;
 
             case 'reviewfinding':
@@ -159,15 +179,19 @@ class action_controller {
                     if (!empty($params['ajaxreview'])) {
                         self::review_response(false, get_string('reviewnoterequired', 'local_upgradeassistant'));
                     }
-                    self::error(self::return_url($baseurl, 'reports', 1, $reportid),
-                        get_string('reviewnoterequired', 'local_upgradeassistant'));
+                    self::error(
+                        self::return_url($baseurl, 'reports', 1, $reportid),
+                        get_string('reviewnoterequired', 'local_upgradeassistant')
+                    );
                 }
                 report_builder::review_plugin_finding($reportid, $findingid, $auditnote);
                 if (!empty($params['ajaxreview'])) {
                     self::review_response(true, get_string('findingreviewed', 'local_upgradeassistant'));
                 }
-                self::success(self::return_url($baseurl, 'reports', 1, $reportid),
-                    get_string('findingreviewed', 'local_upgradeassistant'));
+                self::success(
+                    self::return_url($baseurl, 'reports', 1, $reportid),
+                    get_string('findingreviewed', 'local_upgradeassistant')
+                );
                 break;
 
             case 'completeauditstep':
@@ -181,26 +205,36 @@ class action_controller {
                     (string)($params['auditnote'] ?? ''),
                     $reportid
                 );
-                self::success(self::return_url($baseurl, 'reports', 1, $reportid),
-                    get_string('auditstepcompleted', 'local_upgradeassistant'));
+                self::success(
+                    self::return_url($baseurl, 'reports', 1, $reportid),
+                    get_string('auditstepcompleted', 'local_upgradeassistant')
+                );
                 break;
 
             case 'settarget':
                 $targetpath = (string)($params['targetpath'] ?? '');
                 if ($targetpath === '' || !detector::is_allowed_path($targetpath, $allowedroots)) {
-                    self::error(self::return_url($baseurl, 'wizard', 2),
-                        get_string('accessdeniedpath', 'local_upgradeassistant'));
+                    self::error(
+                        self::return_url($baseurl, 'wizard', 2),
+                        get_string('accessdeniedpath', 'local_upgradeassistant')
+                    );
                 }
                 $info = detector::read_moodle_version($targetpath);
                 if ($info === null) {
-                    self::error(self::return_url($baseurl, 'wizard', 2),
-                        get_string('targetnotfound', 'local_upgradeassistant'));
+                    self::error(
+                        self::return_url($baseurl, 'wizard', 2),
+                        get_string('targetnotfound', 'local_upgradeassistant')
+                    );
                 }
                 $canonicaltargetpath = realpath((string)($info['approot'] ?? $info['path'] ?? $targetpath));
-                if ($canonicaltargetpath === false
-                    || !detector::is_allowed_path($canonicaltargetpath, $allowedroots)) {
-                    self::error(self::return_url($baseurl, 'wizard', 2),
-                        get_string('accessdeniedpath', 'local_upgradeassistant'));
+                if (
+                    $canonicaltargetpath === false
+                    || !detector::is_allowed_path($canonicaltargetpath, $allowedroots)
+                ) {
+                    self::error(
+                        self::return_url($baseurl, 'wizard', 2),
+                        get_string('accessdeniedpath', 'local_upgradeassistant')
+                    );
                 }
                 state::set_target($canonicaltargetpath, $info);
                 state::complete_step('confirmtarget');
@@ -208,29 +242,39 @@ class action_controller {
                     'context' => $context,
                     'other' => ['branch' => $info['branch'] ?? ''],
                 ])->trigger();
-                self::success(self::return_url($baseurl, 'wizard', 3),
-                    get_string('targetselected', 'local_upgradeassistant'));
+                self::success(
+                    self::return_url($baseurl, 'wizard', 3),
+                    get_string('targetselected', 'local_upgradeassistant')
+                );
                 break;
 
             case 'setscanpath':
             case 'rescan':
                 $scanpath = (string)($params['scanpath'] ?? '');
                 if ($scanpath === '' || !detector::is_allowed_path($scanpath, $allowedroots)) {
-                    self::error(self::return_url($baseurl, 'wizard', 2),
-                        get_string('accessdeniedpath', 'local_upgradeassistant'));
+                    self::error(
+                        self::return_url($baseurl, 'wizard', 2),
+                        get_string('accessdeniedpath', 'local_upgradeassistant')
+                    );
                 }
                 $realpath = realpath($scanpath) ?: $scanpath;
                 state::set_scanpath($realpath);
                 $cache = \cache::make('local_upgradeassistant', 'scanresults');
                 $cache->delete(sha1($realpath));
-                self::success(self::return_url($baseurl, 'wizard', 2),
-                    get_string('scanrefreshed', 'local_upgradeassistant'));
+                self::success(
+                    self::return_url($baseurl, 'wizard', 2),
+                    get_string('scanrefreshed', 'local_upgradeassistant')
+                );
                 break;
 
             case 'synclifecycle':
                 if (get_config('local_upgradeassistant', 'enablelifecyclesync') === '0') {
-                    redirect($returnurl, get_string('lifecyclesyncdisabled', 'local_upgradeassistant'), null,
-                        \core\output\notification::NOTIFY_WARNING);
+                    redirect(
+                        $returnurl,
+                        get_string('lifecyclesyncdisabled', 'local_upgradeassistant'),
+                        null,
+                        \core\output\notification::NOTIFY_WARNING
+                    );
                 }
                 lifecycle_manager::refresh_dataset();
                 \local_upgradeassistant\event\lifecycle_synced::create(['context' => $context])->trigger();
@@ -242,7 +286,11 @@ class action_controller {
         }
     }
 
-    /** @return void */
+    /**
+     * Ensure the action is permitted for the current user.
+     *
+     * @return void
+     */
     private static function require_capabilities(string $action, \context_system $context): void {
         switch ($action) {
             case 'maintenanceon':
@@ -277,7 +325,11 @@ class action_controller {
         }
     }
 
-    /** @return \moodle_url */
+    /**
+     * Build the URL to return to after an action.
+     *
+     * @return \moodle_url
+     */
     private static function return_url(
         \moodle_url $baseurl,
         string $view,
@@ -296,7 +348,11 @@ class action_controller {
         return new \moodle_url($baseurl, $params);
     }
 
-    /** @return void */
+    /**
+     * Resolve the finding about the active theme.
+     *
+     * @return void
+     */
     private static function resolve_theme_finding(string $note): void {
         $latestreport = report_builder::latest_report_for_template();
         if (!empty($latestreport['available'])) {
@@ -305,12 +361,20 @@ class action_controller {
         }
     }
 
-    /** @return void */
+    /**
+     * Redirect with a success notification.
+     *
+     * @return void
+     */
     private static function success(\moodle_url $url, string $message): void {
         redirect($url, $message, null, \core\output\notification::NOTIFY_SUCCESS);
     }
 
-    /** @return void */
+    /**
+     * Redirect with an error notification.
+     *
+     * @return void
+     */
     private static function error(\moodle_url $url, string $message): void {
         redirect($url, $message, null, \core\output\notification::NOTIFY_ERROR);
     }

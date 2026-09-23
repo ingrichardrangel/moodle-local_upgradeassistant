@@ -17,7 +17,7 @@
 namespace local_upgradeassistant\local;
 
 /**
- * Writes audit records for Pro report actions.
+ * Writes audit records for report actions.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -25,7 +25,7 @@ namespace local_upgradeassistant\local;
  */
 class audit_logger {
     /** Audit table name. */
-    private const TABLE = 'local_ua_audit';
+    private const TABLE = 'local_upgradeassistant_audit';
 
     /**
      * Add an audit entry.

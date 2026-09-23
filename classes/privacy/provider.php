@@ -35,11 +35,10 @@ use local_upgradeassistant\local\state;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-        \core_privacy\local\metadata\provider,
-        \core_privacy\local\request\plugin\provider,
-        \core_privacy\local\request\core_userlist_provider,
-        user_preference_provider {
-
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider,
+    user_preference_provider {
     /**
      * Describe stored user preferences and database data.
      *
@@ -48,109 +47,109 @@ class provider implements
      */
     public static function get_metadata(collection $collection): collection {
         $collection->add_database_table(
-            'local_ua_reports',
+            'local_upgradeassistant_rep',
             [
-                'userid' => 'privacy:metadata:local_ua_reports:userid',
-                'currentrelease' => 'privacy:metadata:local_ua_reports:currentrelease',
-                'currentbranch' => 'privacy:metadata:local_ua_reports:currentbranch',
-                'targetrelease' => 'privacy:metadata:local_ua_reports:targetrelease',
-                'targetbranch' => 'privacy:metadata:local_ua_reports:targetbranch',
-                'targetpath' => 'privacy:metadata:local_ua_reports:targetpath',
-                'phpversion' => 'privacy:metadata:local_ua_reports:phpversion',
-                'dbtype' => 'privacy:metadata:local_ua_reports:dbtype',
-                'dbversion' => 'privacy:metadata:local_ua_reports:dbversion',
-                'serverprofile' => 'privacy:metadata:local_ua_reports:serverprofile',
-                'summary' => 'privacy:metadata:local_ua_reports:summary',
-                'timecreated' => 'privacy:metadata:local_ua_reports:timecreated',
+                'userid' => 'privacy:metadata:local_upgradeassistant_rep:userid',
+                'currentrelease' => 'privacy:metadata:local_upgradeassistant_rep:currentrelease',
+                'currentbranch' => 'privacy:metadata:local_upgradeassistant_rep:currentbranch',
+                'targetrelease' => 'privacy:metadata:local_upgradeassistant_rep:targetrelease',
+                'targetbranch' => 'privacy:metadata:local_upgradeassistant_rep:targetbranch',
+                'targetpath' => 'privacy:metadata:local_upgradeassistant_rep:targetpath',
+                'phpversion' => 'privacy:metadata:local_upgradeassistant_rep:phpversion',
+                'dbtype' => 'privacy:metadata:local_upgradeassistant_rep:dbtype',
+                'dbversion' => 'privacy:metadata:local_upgradeassistant_rep:dbversion',
+                'serverprofile' => 'privacy:metadata:local_upgradeassistant_rep:serverprofile',
+                'summary' => 'privacy:metadata:local_upgradeassistant_rep:summary',
+                'timecreated' => 'privacy:metadata:local_upgradeassistant_rep:timecreated',
             ],
-            'privacy:metadata:local_ua_reports'
+            'privacy:metadata:local_upgradeassistant_rep'
         );
         $collection->add_database_table(
-            'local_ua_checklist',
+            'local_upgradeassistant_check',
             [
-                'completedby' => 'privacy:metadata:local_ua_checklist:completedby',
-                'completedat' => 'privacy:metadata:local_ua_checklist:completedat',
-                'note' => 'privacy:metadata:local_ua_checklist:note',
+                'completedby' => 'privacy:metadata:local_upgradeassistant_check:completedby',
+                'completedat' => 'privacy:metadata:local_upgradeassistant_check:completedat',
+                'note' => 'privacy:metadata:local_upgradeassistant_check:note',
             ],
-            'privacy:metadata:local_ua_checklist'
+            'privacy:metadata:local_upgradeassistant_check'
         );
         $collection->add_database_table(
-            'local_ua_items',
+            'local_upgradeassistant_item',
             [
-                'reportid' => 'privacy:metadata:local_ua_items:reportid',
-                'category' => 'privacy:metadata:local_ua_items:category',
-                'code' => 'privacy:metadata:local_ua_items:code',
-                'title' => 'privacy:metadata:local_ua_items:title',
-                'description' => 'privacy:metadata:local_ua_items:description',
-                'severity' => 'privacy:metadata:local_ua_items:severity',
-                'status' => 'privacy:metadata:local_ua_items:status',
-                'recommendation' => 'privacy:metadata:local_ua_items:recommendation',
-                'evidence' => 'privacy:metadata:local_ua_items:evidence',
-                'timecreated' => 'privacy:metadata:local_ua_items:timecreated',
+                'reportid' => 'privacy:metadata:local_upgradeassistant_item:reportid',
+                'category' => 'privacy:metadata:local_upgradeassistant_item:category',
+                'code' => 'privacy:metadata:local_upgradeassistant_item:code',
+                'title' => 'privacy:metadata:local_upgradeassistant_item:title',
+                'description' => 'privacy:metadata:local_upgradeassistant_item:description',
+                'severity' => 'privacy:metadata:local_upgradeassistant_item:severity',
+                'status' => 'privacy:metadata:local_upgradeassistant_item:status',
+                'recommendation' => 'privacy:metadata:local_upgradeassistant_item:recommendation',
+                'evidence' => 'privacy:metadata:local_upgradeassistant_item:evidence',
+                'timecreated' => 'privacy:metadata:local_upgradeassistant_item:timecreated',
             ],
-            'privacy:metadata:local_ua_items'
+            'privacy:metadata:local_upgradeassistant_item'
         );
         $collection->add_database_table(
-            'local_ua_audit',
+            'local_upgradeassistant_audit',
             [
-                'userid' => 'privacy:metadata:local_ua_audit:userid',
-                'action' => 'privacy:metadata:local_ua_audit:action',
-                'targettype' => 'privacy:metadata:local_ua_audit:targettype',
-                'targetid' => 'privacy:metadata:local_ua_audit:targetid',
-                'oldvalue' => 'privacy:metadata:local_ua_audit:oldvalue',
-                'newvalue' => 'privacy:metadata:local_ua_audit:newvalue',
-                'note' => 'privacy:metadata:local_ua_audit:note',
-                'ip' => 'privacy:metadata:local_ua_audit:ip',
-                'useragent' => 'privacy:metadata:local_ua_audit:useragent',
-                'timecreated' => 'privacy:metadata:local_ua_audit:timecreated',
+                'userid' => 'privacy:metadata:local_upgradeassistant_audit:userid',
+                'action' => 'privacy:metadata:local_upgradeassistant_audit:action',
+                'targettype' => 'privacy:metadata:local_upgradeassistant_audit:targettype',
+                'targetid' => 'privacy:metadata:local_upgradeassistant_audit:targetid',
+                'oldvalue' => 'privacy:metadata:local_upgradeassistant_audit:oldvalue',
+                'newvalue' => 'privacy:metadata:local_upgradeassistant_audit:newvalue',
+                'note' => 'privacy:metadata:local_upgradeassistant_audit:note',
+                'ip' => 'privacy:metadata:local_upgradeassistant_audit:ip',
+                'useragent' => 'privacy:metadata:local_upgradeassistant_audit:useragent',
+                'timecreated' => 'privacy:metadata:local_upgradeassistant_audit:timecreated',
             ],
-            'privacy:metadata:local_ua_audit'
+            'privacy:metadata:local_upgradeassistant_audit'
         );
         $collection->add_database_table(
-            'local_ua_plugins',
+            'local_upgradeassistant_plug',
             [
-                'reportid' => 'privacy:metadata:local_ua_plugins:reportid',
-                'component' => 'privacy:metadata:local_ua_plugins:component',
-                'plugintype' => 'privacy:metadata:local_ua_plugins:plugintype',
-                'pluginname' => 'privacy:metadata:local_ua_plugins:pluginname',
-                'version' => 'privacy:metadata:local_ua_plugins:version',
-                'releaseinfo' => 'privacy:metadata:local_ua_plugins:releaseinfo',
-                'requires' => 'privacy:metadata:local_ua_plugins:requires',
-                'targetversion' => 'privacy:metadata:local_ua_plugins:targetversion',
-                'compatibility' => 'privacy:metadata:local_ua_plugins:compatibility',
-                'statuslabel' => 'privacy:metadata:local_ua_plugins:statuslabel',
-                'dependencyjson' => 'privacy:metadata:local_ua_plugins:dependencyjson',
-                'evidence' => 'privacy:metadata:local_ua_plugins:evidence',
-                'timecreated' => 'privacy:metadata:local_ua_plugins:timecreated',
+                'reportid' => 'privacy:metadata:local_upgradeassistant_plug:reportid',
+                'component' => 'privacy:metadata:local_upgradeassistant_plug:component',
+                'plugintype' => 'privacy:metadata:local_upgradeassistant_plug:plugintype',
+                'pluginname' => 'privacy:metadata:local_upgradeassistant_plug:pluginname',
+                'version' => 'privacy:metadata:local_upgradeassistant_plug:version',
+                'releaseinfo' => 'privacy:metadata:local_upgradeassistant_plug:releaseinfo',
+                'requires' => 'privacy:metadata:local_upgradeassistant_plug:requires',
+                'targetversion' => 'privacy:metadata:local_upgradeassistant_plug:targetversion',
+                'compatibility' => 'privacy:metadata:local_upgradeassistant_plug:compatibility',
+                'statuslabel' => 'privacy:metadata:local_upgradeassistant_plug:statuslabel',
+                'dependencyjson' => 'privacy:metadata:local_upgradeassistant_plug:dependencyjson',
+                'evidence' => 'privacy:metadata:local_upgradeassistant_plug:evidence',
+                'timecreated' => 'privacy:metadata:local_upgradeassistant_plug:timecreated',
             ],
-            'privacy:metadata:local_ua_plugins'
+            'privacy:metadata:local_upgradeassistant_plug'
         );
         $collection->add_database_table(
-            'local_ua_rules',
+            'local_upgradeassistant_rules',
             [
-                'rulesetversion' => 'privacy:metadata:local_ua_rules:rulesetversion',
-                'source' => 'privacy:metadata:local_ua_rules:source',
-                'moodlebranch' => 'privacy:metadata:local_ua_rules:moodlebranch',
-                'targetbranch' => 'privacy:metadata:local_ua_rules:targetbranch',
-                'ruletype' => 'privacy:metadata:local_ua_rules:ruletype',
-                'rulekey' => 'privacy:metadata:local_ua_rules:rulekey',
-                'severity' => 'privacy:metadata:local_ua_rules:severity',
-                'rulesjson' => 'privacy:metadata:local_ua_rules:rulesjson',
-                'recommendation' => 'privacy:metadata:local_ua_rules:recommendation',
-                'enabled' => 'privacy:metadata:local_ua_rules:enabled',
+                'rulesetversion' => 'privacy:metadata:local_upgradeassistant_rules:rulesetversion',
+                'source' => 'privacy:metadata:local_upgradeassistant_rules:source',
+                'moodlebranch' => 'privacy:metadata:local_upgradeassistant_rules:moodlebranch',
+                'targetbranch' => 'privacy:metadata:local_upgradeassistant_rules:targetbranch',
+                'ruletype' => 'privacy:metadata:local_upgradeassistant_rules:ruletype',
+                'rulekey' => 'privacy:metadata:local_upgradeassistant_rules:rulekey',
+                'severity' => 'privacy:metadata:local_upgradeassistant_rules:severity',
+                'rulesjson' => 'privacy:metadata:local_upgradeassistant_rules:rulesjson',
+                'recommendation' => 'privacy:metadata:local_upgradeassistant_rules:recommendation',
+                'enabled' => 'privacy:metadata:local_upgradeassistant_rules:enabled',
             ],
-            'privacy:metadata:local_ua_rules'
+            'privacy:metadata:local_upgradeassistant_rules'
         );
         $collection->add_database_table(
-            'local_ua_exports',
+            'local_upgradeassistant_expt',
             [
-                'userid' => 'privacy:metadata:local_ua_exports:userid',
-                'reportid' => 'privacy:metadata:local_ua_exports:reportid',
-                'exporttype' => 'privacy:metadata:local_ua_exports:exporttype',
-                'contenthash' => 'privacy:metadata:local_ua_exports:contenthash',
-                'timecreated' => 'privacy:metadata:local_ua_exports:timecreated',
+                'userid' => 'privacy:metadata:local_upgradeassistant_expt:userid',
+                'reportid' => 'privacy:metadata:local_upgradeassistant_expt:reportid',
+                'exporttype' => 'privacy:metadata:local_upgradeassistant_expt:exporttype',
+                'contenthash' => 'privacy:metadata:local_upgradeassistant_expt:contenthash',
+                'timecreated' => 'privacy:metadata:local_upgradeassistant_expt:timecreated',
             ],
-            'privacy:metadata:local_ua_exports'
+            'privacy:metadata:local_upgradeassistant_expt'
         );
         $collection->add_user_preference(state::PREF, 'privacy:metadata:preference:state');
 
@@ -168,10 +167,10 @@ class provider implements
         $sql = "SELECT ctx.id
                   FROM {context} ctx
                  WHERE ctx.contextlevel = :contextlevel
-                   AND (EXISTS (SELECT 1 FROM {local_ua_reports} r WHERE r.userid = :reportuserid)
-                    OR EXISTS (SELECT 1 FROM {local_ua_checklist} c WHERE c.completedby = :checkuserid)
-                    OR EXISTS (SELECT 1 FROM {local_ua_audit} a WHERE a.userid = :audituserid)
-                    OR EXISTS (SELECT 1 FROM {local_ua_exports} e WHERE e.userid = :exportuserid))";
+                   AND (EXISTS (SELECT 1 FROM {local_upgradeassistant_rep} r WHERE r.userid = :reportuserid)
+                    OR EXISTS (SELECT 1 FROM {local_upgradeassistant_check} c WHERE c.completedby = :checkuserid)
+                    OR EXISTS (SELECT 1 FROM {local_upgradeassistant_audit} a WHERE a.userid = :audituserid)
+                    OR EXISTS (SELECT 1 FROM {local_upgradeassistant_expt} e WHERE e.userid = :exportuserid))";
         $contextlist->add_from_sql($sql, [
             'contextlevel' => CONTEXT_SYSTEM,
             'reportuserid' => $userid,
@@ -197,17 +196,17 @@ class provider implements
 
         $userid = $contextlist->get_user()->id;
         $context = context_system::instance();
-        $reports = $DB->get_records('local_ua_reports', ['userid' => $userid]);
-        $checklist = $DB->get_records('local_ua_checklist', ['completedby' => $userid]);
-        $audit = $DB->get_records('local_ua_audit', ['userid' => $userid]);
-        $exports = $DB->get_records('local_ua_exports', ['userid' => $userid]);
+        $reports = $DB->get_records('local_upgradeassistant_rep', ['userid' => $userid]);
+        $checklist = $DB->get_records('local_upgradeassistant_check', ['completedby' => $userid]);
+        $audit = $DB->get_records('local_upgradeassistant_audit', ['userid' => $userid]);
+        $exports = $DB->get_records('local_upgradeassistant_expt', ['userid' => $userid]);
         $items = [];
         $plugins = [];
         $reportids = array_keys($reports);
         if (!empty($reportids)) {
-            list($insql, $params) = $DB->get_in_or_equal($reportids, SQL_PARAMS_NAMED);
-            $items = $DB->get_records_select('local_ua_items', "reportid $insql", $params);
-            $plugins = $DB->get_records_select('local_ua_plugins', "reportid $insql", $params);
+            [$insql, $params] = $DB->get_in_or_equal($reportids, SQL_PARAMS_NAMED);
+            $items = $DB->get_records_select('local_upgradeassistant_item', "reportid $insql", $params);
+            $plugins = $DB->get_records_select('local_upgradeassistant_plug', "reportid $insql", $params);
         }
 
         writer::with_context($context)->export_data([
@@ -234,7 +233,10 @@ class provider implements
         if ($context->contextlevel !== CONTEXT_SYSTEM) {
             return;
         }
-        foreach (['local_ua_exports', 'local_ua_plugins', 'local_ua_audit', 'local_ua_checklist', 'local_ua_items', 'local_ua_reports'] as $table) {
+        foreach (
+            ['local_upgradeassistant_expt', 'local_upgradeassistant_plug', 'local_upgradeassistant_audit',
+            'local_upgradeassistant_check', 'local_upgradeassistant_item', 'local_upgradeassistant_rep'] as $table
+        ) {
             if ($DB->get_manager()->table_exists($table)) {
                 $DB->delete_records($table);
             }
@@ -256,17 +258,17 @@ class provider implements
         $userid = $contextlist->get_user()->id;
         // Reports are institutional upgrade evidence. Anonymise ownership instead of deleting
         // the report and its technical evidence when a user is removed for privacy purposes.
-        $DB->set_field('local_ua_reports', 'userid', 0, ['userid' => $userid]);
+        $DB->set_field('local_upgradeassistant_rep', 'userid', 0, ['userid' => $userid]);
         $DB->execute(
-            "UPDATE {local_ua_checklist}
+            "UPDATE {local_upgradeassistant_check}
                 SET completedby = 0,
                     completedat = 0,
                     note = ''
               WHERE completedby = :userid",
             ['userid' => $userid]
         );
-        $DB->delete_records('local_ua_audit', ['userid' => $userid]);
-        $DB->delete_records('local_ua_exports', ['userid' => $userid]);
+        $DB->delete_records('local_upgradeassistant_audit', ['userid' => $userid]);
+        $DB->delete_records('local_upgradeassistant_expt', ['userid' => $userid]);
         unset_user_preference(state::PREF, $userid);
     }
 
@@ -283,10 +285,14 @@ class provider implements
             return;
         }
 
-        $userlist->add_from_sql('userid', 'SELECT userid FROM {local_ua_reports} WHERE userid > 0', []);
-        $userlist->add_from_sql('userid', 'SELECT completedby AS userid FROM {local_ua_checklist} WHERE completedby > 0', []);
-        $userlist->add_from_sql('userid', 'SELECT userid FROM {local_ua_audit} WHERE userid > 0', []);
-        $userlist->add_from_sql('userid', 'SELECT userid FROM {local_ua_exports} WHERE userid > 0', []);
+        $userlist->add_from_sql('userid', 'SELECT userid FROM {local_upgradeassistant_rep} WHERE userid > 0', []);
+        $userlist->add_from_sql(
+            'userid',
+            'SELECT completedby AS userid FROM {local_upgradeassistant_check} WHERE completedby > 0',
+            []
+        );
+        $userlist->add_from_sql('userid', 'SELECT userid FROM {local_upgradeassistant_audit} WHERE userid > 0', []);
+        $userlist->add_from_sql('userid', 'SELECT userid FROM {local_upgradeassistant_expt} WHERE userid > 0', []);
     }
 
     /**
@@ -308,25 +314,25 @@ class provider implements
             return;
         }
 
-        list($insql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         // Preserve institutional upgrade evidence while removing the personal link.
         $DB->execute(
-            "UPDATE {local_ua_reports}
+            "UPDATE {local_upgradeassistant_rep}
                 SET userid = 0
               WHERE userid $insql",
             $params
         );
 
         $DB->execute(
-            "UPDATE {local_ua_checklist}
+            "UPDATE {local_upgradeassistant_check}
                 SET completedby = 0,
                     completedat = 0,
                     note = ''
               WHERE completedby $insql",
             $params
         );
-        $DB->delete_records_select('local_ua_audit', "userid $insql", $params);
-        $DB->delete_records_select('local_ua_exports', "userid $insql", $params);
+        $DB->delete_records_select('local_upgradeassistant_audit', "userid $insql", $params);
+        $DB->delete_records_select('local_upgradeassistant_expt', "userid $insql", $params);
         foreach ($userids as $userid) {
             unset_user_preference(state::PREF, $userid);
         }

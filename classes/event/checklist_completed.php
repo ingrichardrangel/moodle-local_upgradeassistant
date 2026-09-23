@@ -16,7 +16,6 @@
 
 namespace local_upgradeassistant\event;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Checklist Completed event.
@@ -34,7 +33,7 @@ class checklist_completed extends \core\event\base {
     protected function init(): void {
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_OTHER;
-        $this->data['objecttable'] = 'local_ua_checklist';
+        $this->data['objecttable'] = 'local_upgradeassistant_check';
     }
 
     /**

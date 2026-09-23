@@ -34,7 +34,7 @@ final class detector_test extends \advanced_testcase {
     public function test_read_moodle_version_detects_classic_root(): void {
         $this->resetAfterTest();
 
-        $root = $this->make_temp_directory('local_upgradeassistant_classic');
+        $root = \make_temp_directory('local_upgradeassistant_classic');
         file_put_contents($root . '/version.php', "<?php\n\$release = '5.2.1';\n\$branch = '502';\n\$version = 2026042000;\n");
 
         $info = detector::read_moodle_version($root);
@@ -53,7 +53,7 @@ final class detector_test extends \advanced_testcase {
     public function test_read_moodle_version_accepts_selected_public_directory(): void {
         $this->resetAfterTest();
 
-        $root = $this->make_temp_directory('local_upgradeassistant_public_root');
+        $root = \make_temp_directory('local_upgradeassistant_public_root');
         mkdir($root . '/public');
         file_put_contents($root . '/config.php', '<?php // Config placeholder.');
         file_put_contents($root . '/version.php', "<?php\n\$release = '5.1';\n\$branch = '501';\n\$version = 2025100600;\n");
@@ -75,7 +75,7 @@ final class detector_test extends \advanced_testcase {
     public function test_read_moodle_version_accepts_selected_public_directory_with_public_version_file(): void {
         $this->resetAfterTest();
 
-        $root = $this->make_temp_directory('local_upgradeassistant_public_selected');
+        $root = \make_temp_directory('local_upgradeassistant_public_selected');
         mkdir($root . '/public');
         file_put_contents($root . '/config.php', '<?php // Config placeholder outside public.');
         file_put_contents(
@@ -103,7 +103,7 @@ final class detector_test extends \advanced_testcase {
     public function test_read_moodle_version_detects_public_child_version_file_from_app_root(): void {
         $this->resetAfterTest();
 
-        $root = $this->make_temp_directory('local_upgradeassistant_public_child_version');
+        $root = \make_temp_directory('local_upgradeassistant_public_child_version');
         mkdir($root . '/public');
         file_put_contents($root . '/config.php', '<?php // Config placeholder outside public.');
         file_put_contents(
@@ -121,5 +121,4 @@ final class detector_test extends \advanced_testcase {
         $this->assertSame('502', $info['branch']);
         $this->assertTrue($info['haspublic']);
     }
-
 }

@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Smart Upgrade Assistant main controller.
@@ -99,8 +107,10 @@ if ($action !== '') {
 $currentstate = state::get();
 $env = detector::environment();
 $selectedtarget = null;
-if (!empty($currentstate['targetpath'])
-    && detector::is_allowed_path($currentstate['targetpath'], $allowedroots)) {
+if (
+    !empty($currentstate['targetpath'])
+    && detector::is_allowed_path($currentstate['targetpath'], $allowedroots)
+) {
     $selectedtarget = detector::read_moodle_version($currentstate['targetpath']);
 }
 
@@ -132,7 +142,7 @@ $dbdesc = is_array($env['dbinfo'])
     ? ($env['dbinfo']['description'] ?? json_encode($env['dbinfo']))
     : (string)$env['dbinfo'];
 
-$sensitivevalue = static function(?string $value) use ($canviewsensitive): string {
+$sensitivevalue = static function (?string $value) use ($canviewsensitive): string {
     return $canviewsensitive ? (string)$value : get_string('sensitivehidden', 'local_upgradeassistant');
 };
 
@@ -180,8 +190,11 @@ if ($analysis !== null && $selectedtarget !== null) {
         'directallowed' => !empty($analysis['directallowed']),
         'nextlabel' => $analysis['nextrelease'] ?? (!empty($analysis['next']) ? upgrade_path::label((int)$analysis['next']) : ''),
         'notnextwarning' => !empty($analysis['next'])
-            ? get_string('notnextwarning', 'local_upgradeassistant',
-                $analysis['nextrelease'] ?? upgrade_path::label((int)$analysis['next']))
+            ? get_string(
+                'notnextwarning',
+                'local_upgradeassistant',
+                $analysis['nextrelease'] ?? upgrade_path::label((int)$analysis['next'])
+            )
             : '',
     ];
 }
@@ -189,13 +202,13 @@ if ($analysis !== null && $selectedtarget !== null) {
 $validationrows = $selectedtarget !== null
     ? requirements_validator::rows_for_template($selectedtarget['branch'] ?? '', $env, $selectedtarget)
     : [];
-$validationpasses = count(array_filter($validationrows, static function(array $row): bool {
+$validationpasses = count(array_filter($validationrows, static function (array $row): bool {
     return ($row['status'] ?? '') === 'pass';
 }));
-$validationwarnings = count(array_filter($validationrows, static function(array $row): bool {
+$validationwarnings = count(array_filter($validationrows, static function (array $row): bool {
     return ($row['status'] ?? '') === 'warning';
 }));
-$validationfailures = count(array_filter($validationrows, static function(array $row): bool {
+$validationfailures = count(array_filter($validationrows, static function (array $row): bool {
     return ($row['status'] ?? '') === 'fail';
 }));
 
@@ -227,7 +240,7 @@ foreach ($reporthistoryrows as $key => $row) {
     ]))->out(false);
 }
 
-$displayplugins = array_map(static function(array $plugin) use ($canviewsensitive): array {
+$displayplugins = array_map(static function (array $plugin) use ($canviewsensitive): array {
     if (!$canviewsensitive) {
         $plugin['source'] = get_string('sensitivehidden', 'local_upgradeassistant');
         $plugin['destination'] = get_string('sensitivehidden', 'local_upgradeassistant');
@@ -302,7 +315,7 @@ $data = [
         'haspublic' => !empty($env['haspublic']),
     ],
     'scan' => [
-        'roots' => $canviewsensitive ? array_map(static function(string $root) use ($scanroot): array {
+        'roots' => $canviewsensitive ? array_map(static function (string $root) use ($scanroot): array {
             return ['path' => $root, 'selected' => $root === $scanroot];
         }, $allowedroots) : [],
         'installations' => $canviewsensitive ? $installationrows : [],
@@ -327,7 +340,7 @@ $data = [
         'hascustomplugins' => !empty($customplugins),
         'rows' => $displayplugins,
         'hastarget' => $selectedtarget !== null,
-        'reviewcount' => count(array_filter($customplugins, static function(array $plugin): bool {
+        'reviewcount' => count(array_filter($customplugins, static function (array $plugin): bool {
             return !in_array(($plugin['compatibility'] ?? ''), ['compatible', 'core_removed'], true);
         })),
         'totalcount' => count($customplugins),

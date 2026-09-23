@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Upgrade local_upgradeassistant database.
@@ -131,8 +130,6 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2026061600, 'local', 'upgradeassistant');
     }
 
-
-
     if ($oldversion < 2026061604) {
         $table = new xmldb_table('local_ua_rules');
         if (!$dbman->table_exists($table)) {
@@ -196,7 +193,6 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2026061604, 'local', 'upgradeassistant');
     }
 
-
     if ($oldversion < 2026061605) {
         $table = new xmldb_table('local_ua_support');
         if ($dbman->table_exists($table)) {
@@ -206,11 +202,9 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2026061605, 'local', 'upgradeassistant');
     }
 
-
     if ($oldversion < 2026061607) {
         upgrade_plugin_savepoint(true, 2026061607, 'local', 'upgradeassistant');
     }
-
 
     if ($oldversion < 2026061608) {
         $table = new xmldb_table('local_ua_checklist');
@@ -246,14 +240,11 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2026061608, 'local', 'upgradeassistant');
     }
 
-
-
     if ($oldversion < 2026061609) {
         // No schema changes. This step documents the review-hardening release that
         // tightened capability-aware UI, redacted exports, privacy metadata and user lookup performance.
         upgrade_plugin_savepoint(true, 2026061609, 'local', 'upgradeassistant');
     }
-
 
     if ($oldversion < 2026061610) {
         foreach (['local_ua_items', 'local_ua_checklist', 'local_ua_audit', 'local_ua_plugins', 'local_ua_exports'] as $tablename) {
@@ -310,6 +301,27 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
         // No schema changes. Public-directory targets now use a production cutover flow:
         // preserve the old root, rename the prepared root and update the web DocumentRoot.
         upgrade_plugin_savepoint(true, 2026071004, 'local', 'upgradeassistant');
+    }
+
+    if ($oldversion < 2026092306) {
+        // Preserve reports and audit history while adopting the Moodle plugin table prefix.
+        $tablemap = [
+            'local_ua_reports' => 'local_upgradeassistant_rep',
+            'local_ua_items' => 'local_upgradeassistant_item',
+            'local_ua_checklist' => 'local_upgradeassistant_check',
+            'local_ua_audit' => 'local_upgradeassistant_audit',
+            'local_ua_rules' => 'local_upgradeassistant_rules',
+            'local_ua_plugins' => 'local_upgradeassistant_plug',
+            'local_ua_exports' => 'local_upgradeassistant_expt',
+        ];
+        foreach ($tablemap as $oldname => $newname) {
+            $oldtable = new xmldb_table($oldname);
+            $newtable = new xmldb_table($newname);
+            if ($dbman->table_exists($oldtable) && !$dbman->table_exists($newtable)) {
+                $dbman->rename_table($oldtable, $newname);
+            }
+        }
+        upgrade_plugin_savepoint(true, 2026092306, 'local', 'upgradeassistant');
     }
 
     return true;

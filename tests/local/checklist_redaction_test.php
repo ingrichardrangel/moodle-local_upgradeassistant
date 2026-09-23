@@ -37,7 +37,7 @@ final class checklist_redaction_test extends \advanced_testcase {
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        $reportid = $DB->insert_record('local_ua_reports', (object)[
+        $reportid = $DB->insert_record('local_upgradeassistant_rep', (object)[
             'uuid' => 'checklist-redaction-test',
             'userid' => 0,
             'currentrelease' => '4.5',
@@ -57,7 +57,7 @@ final class checklist_redaction_test extends \advanced_testcase {
             'timemodified' => time(),
         ]);
 
-        $DB->insert_record('local_ua_checklist', (object)[
+        $DB->insert_record('local_upgradeassistant_check', (object)[
             'reportid' => $reportid,
             'stepkey' => 'redaction_paths',
             'title' => 'Redaction paths',

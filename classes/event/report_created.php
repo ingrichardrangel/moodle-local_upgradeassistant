@@ -16,7 +16,6 @@
 
 namespace local_upgradeassistant\event;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Report Created event.
@@ -34,7 +33,7 @@ class report_created extends \core\event\base {
     protected function init(): void {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_OTHER;
-        $this->data['objecttable'] = 'local_ua_reports';
+        $this->data['objecttable'] = 'local_upgradeassistant_rep';
     }
 
     /**

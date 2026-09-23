@@ -102,7 +102,7 @@ class detector {
         $visited = 0;
         self::scan_recursive($root, 0, $maxdepth, $limit, $found, $visited);
 
-        usort($found, static function(array $a, array $b): int {
+        usort($found, static function (array $a, array $b): int {
             return strnatcasecmp($a['path'], $b['path']);
         });
 

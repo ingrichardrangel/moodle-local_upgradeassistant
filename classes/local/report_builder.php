@@ -17,7 +17,7 @@
 namespace local_upgradeassistant\local;
 
 /**
- * Builds and persists Pro pre-upgrade reports.
+ * Builds and persists pre-upgrade reports.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -25,10 +25,10 @@ namespace local_upgradeassistant\local;
  */
 class report_builder {
     /** Reports table. */
-    private const REPORTS_TABLE = 'local_ua_reports';
+    private const REPORTS_TABLE = 'local_upgradeassistant_rep';
 
     /** Items table. */
-    private const ITEMS_TABLE = 'local_ua_items';
+    private const ITEMS_TABLE = 'local_upgradeassistant_item';
 
 
     /**
@@ -65,13 +65,15 @@ class report_builder {
             ],
             'risk' => $risk,
             'plugins' => [
-                'reviewcount' => count(array_filter($customplugins, static function(array $plugin): bool {
+                'reviewcount' => count(array_filter($customplugins, static function (array $plugin): bool {
                     return !in_array(($plugin['compatibility'] ?? ''), ['compatible', 'core_removed'], true);
                 })),
                 'inventorycount' => count($customplugins),
             ],
             'rules' => rule_engine::get_rule($targetinfo['branch'] ?? '', $targetinfo),
-            'serverrecommendations' => server_recommendation_engine::recommendations(server_recommendation_engine::detect_profile()),
+            'serverrecommendations' => server_recommendation_engine::recommendations(
+                server_recommendation_engine::detect_profile()
+            ),
             'analysis' => $analysis,
             'lifecycle' => lifecycle_manager::report_snapshot($env['branch'], $targetinfo['branch'] ?? ''),
             'theme' => $env['theme'] ?? '',
@@ -158,13 +160,15 @@ class report_builder {
         }
 
         $transaction = $DB->start_delegated_transaction();
-        foreach ([
-            'local_ua_exports',
-            'local_ua_plugins',
-            'local_ua_audit',
-            'local_ua_checklist',
+        foreach (
+            [
+            'local_upgradeassistant_expt',
+            'local_upgradeassistant_plug',
+            'local_upgradeassistant_audit',
+            'local_upgradeassistant_check',
             self::ITEMS_TABLE,
-        ] as $table) {
+            ] as $table
+        ) {
             $DB->delete_records_list($table, 'reportid', $reportids);
         }
         $DB->delete_records_list(self::REPORTS_TABLE, 'id', $reportids);
@@ -195,43 +199,68 @@ class report_builder {
         $targetbranch = upgrade_path::branch_to_int($targetinfo['branch'] ?? '');
 
         if ($analysis === null) {
-            $findings[] = self::finding('path', 'path_unknown', 'high',
+            $findings[] = self::finding(
+                'path',
+                'path_unknown',
+                'high',
                 get_string('findingpathunknown', 'local_upgradeassistant'),
                 get_string('findingpathunknowndesc', 'local_upgradeassistant'),
-                get_string('findingpathunknownrec', 'local_upgradeassistant'));
+                get_string('findingpathunknownrec', 'local_upgradeassistant')
+            );
         } else if (($analysis['status'] ?? '') === 'error') {
-            $findings[] = self::finding('path', 'path_blocked', 'critical',
+            $findings[] = self::finding(
+                'path',
+                'path_blocked',
+                'critical',
                 get_string('findingpathblocked', 'local_upgradeassistant'),
                 $analysis['message'],
-                get_string('findingpathblockedrec', 'local_upgradeassistant'));
+                get_string('findingpathblockedrec', 'local_upgradeassistant')
+            );
         } else if (($analysis['status'] ?? '') === 'warning') {
             $pathrule = rule_engine::get_rule($targetbranch, $targetinfo);
             $pathrecommendation = empty($pathrule['minimumfrombranch'])
                 ? get_string('findingpathunverifiedrec', 'local_upgradeassistant')
                 : get_string('findingpathreviewrec', 'local_upgradeassistant');
-            $findings[] = self::finding('path', 'path_review', 'medium',
+            $findings[] = self::finding(
+                'path',
+                'path_review',
+                'medium',
                 get_string('findingpathreview', 'local_upgradeassistant'),
                 $analysis['message'],
-                $pathrecommendation);
+                $pathrecommendation
+            );
         } else {
-            $findings[] = self::finding('path', 'path_ok', 'info',
+            $findings[] = self::finding(
+                'path',
+                'path_ok',
+                'info',
                 get_string('findingpathok', 'local_upgradeassistant'),
                 $analysis['message'],
-                get_string('findingpathokrec', 'local_upgradeassistant'), ['currentbranch' => $currentbranch, 'targetbranch' => $targetbranch]);
+                get_string('findingpathokrec', 'local_upgradeassistant'),
+                ['currentbranch' => $currentbranch, 'targetbranch' => $targetbranch]
+            );
         }
 
         $findings = array_merge($findings, self::validation_findings($targetbranch, $env, $targetinfo));
         if (preg_match('/(?:alpha|beta|rc|dev|preview)/i', (string)($targetinfo['release'] ?? ''))) {
-            $findings[] = self::finding('path', 'target_prerelease', 'medium',
+            $findings[] = self::finding(
+                'path',
+                'target_prerelease',
+                'medium',
                 get_string('findingtargetprerelease', 'local_upgradeassistant'),
                 get_string('findingtargetprereleasedesc', 'local_upgradeassistant'),
-                get_string('findingtargetprereleaserec', 'local_upgradeassistant'));
+                get_string('findingtargetprereleaserec', 'local_upgradeassistant')
+            );
         }
         if (!empty($targetinfo['haspublic'])) {
-            $findings[] = self::finding('server', 'target_public_structure', 'info',
+            $findings[] = self::finding(
+                'server',
+                'target_public_structure',
+                'info',
                 get_string('findingtargetpublicstructure', 'local_upgradeassistant'),
                 get_string('findingtargetpublicstructuredesc', 'local_upgradeassistant', $targetinfo['publicpath'] ?? ''),
-                get_string('findingtargetpublicstructurerec', 'local_upgradeassistant'));
+                get_string('findingtargetpublicstructurerec', 'local_upgradeassistant')
+            );
         }
         $findings = array_merge($findings, self::plugin_findings($customplugins));
         $findings = array_merge($findings, self::theme_findings($env));
@@ -239,10 +268,14 @@ class report_builder {
         $findings = array_merge($findings, lifecycle_manager::findings($env['branch'] ?? '', $targetinfo['branch'] ?? ''));
 
         if (empty($customplugins)) {
-            $findings[] = self::finding('plugins', 'plugins_no_missing', 'info',
+            $findings[] = self::finding(
+                'plugins',
+                'plugins_no_missing',
+                'info',
                 get_string('findingpluginsok', 'local_upgradeassistant'),
                 get_string('findingpluginsokdesc', 'local_upgradeassistant'),
-                get_string('findingpluginsokrec', 'local_upgradeassistant'));
+                get_string('findingpluginsokrec', 'local_upgradeassistant')
+            );
         }
 
         return $findings;
@@ -268,10 +301,14 @@ class report_builder {
                     'current' => $check['current'],
                     'required' => $check['required'],
                 ]);
-            $findings[] = self::finding('requirements', $check['key'], $check['severity'],
+            $findings[] = self::finding(
+                'requirements',
+                $check['key'],
+                $check['severity'],
                 $check['label'],
                 $description,
-                get_string('validationfindingrec', 'local_upgradeassistant'));
+                get_string('validationfindingrec', 'local_upgradeassistant')
+            );
         }
         return $findings;
     }
@@ -285,16 +322,29 @@ class report_builder {
     private static function theme_findings(array $env): array {
         $theme = (string)($env['theme'] ?? '');
         if ($theme === 'boost') {
-            return [self::finding('theme', 'theme_boost_active', 'info',
+            return [self::finding(
+                'theme',
+                'theme_boost_active',
+                'info',
                 get_string('findingboostthemeok', 'local_upgradeassistant'),
                 get_string('findingboostthemeokdesc', 'local_upgradeassistant'),
-                get_string('findingboostthemeokrec', 'local_upgradeassistant'), ['theme' => $theme])];
+                get_string('findingboostthemeokrec', 'local_upgradeassistant'),
+                ['theme' => $theme]
+            )];
         }
 
-        return [self::finding('theme', 'theme_not_boost', 'medium',
+        return [self::finding(
+            'theme',
+            'theme_not_boost',
+            'medium',
             get_string('findingboostthemepending', 'local_upgradeassistant'),
-            get_string('findingboostthemependingdesc', 'local_upgradeassistant', $theme ?: get_string('notdetected', 'local_upgradeassistant')),
-            get_string('findingboostthemependingrec', 'local_upgradeassistant'), ['theme' => $theme])];
+            get_string('findingboostthemependingdesc', 'local_upgradeassistant', $theme ?: get_string(
+                'notdetected',
+                'local_upgradeassistant'
+            )),
+            get_string('findingboostthemependingrec', 'local_upgradeassistant'),
+            ['theme' => $theme]
+        )];
     }
 
     /**
@@ -423,27 +473,44 @@ class report_builder {
         $criticalsteps = ['backupdb', 'backupcode', 'backupdata'];
         foreach ($criticalsteps as $step) {
             if (empty($wizardstate['completed'][$step])) {
-                $findings[] = self::finding('checklist', 'checklist_' . $step, 'high',
-                    get_string('findingchecklistpending', 'local_upgradeassistant', get_string('check' . $step, 'local_upgradeassistant')),
+                $findings[] = self::finding(
+                    'checklist',
+                    'checklist_' . $step,
+                    'high',
+                    get_string('findingchecklistpending', 'local_upgradeassistant', get_string(
+                        'check' . $step,
+                        'local_upgradeassistant'
+                    )),
                     get_string('findingchecklistpendingdesc', 'local_upgradeassistant'),
-                    get_string('findingchecklistpendingrec', 'local_upgradeassistant'));
+                    get_string('findingchecklistpendingrec', 'local_upgradeassistant')
+                );
             }
         }
 
-        if (empty($wizardstate['completed']['maintenance'])
-                && !checklist_manager::is_maintenance_mode_active()) {
-            $findings[] = self::finding('checklist', 'checklist_maintenance', 'medium',
+        if (
+            empty($wizardstate['completed']['maintenance'])
+                && !checklist_manager::is_maintenance_mode_active()
+        ) {
+            $findings[] = self::finding(
+                'checklist',
+                'checklist_maintenance',
+                'medium',
                 get_string('findingmaintenancepending', 'local_upgradeassistant'),
                 get_string('findingmaintenancependingdesc', 'local_upgradeassistant'),
-                get_string('findingmaintenancependingrec', 'local_upgradeassistant'));
+                get_string('findingmaintenancependingrec', 'local_upgradeassistant')
+            );
         }
 
         $boostactive = (($env['theme'] ?? '') === 'boost');
         if (empty($wizardstate['completed']['boosttheme']) && !$boostactive) {
-            $findings[] = self::finding('checklist', 'checklist_boosttheme', 'medium',
+            $findings[] = self::finding(
+                'checklist',
+                'checklist_boosttheme',
+                'medium',
                 get_string('findingboostthemecheckpending', 'local_upgradeassistant'),
                 get_string('findingboostthemecheckpendingdesc', 'local_upgradeassistant'),
-                get_string('findingboostthemecheckpendingrec', 'local_upgradeassistant'));
+                get_string('findingboostthemecheckpendingrec', 'local_upgradeassistant')
+            );
         }
 
         return $findings;
@@ -506,10 +573,10 @@ class report_builder {
             }
         }
 
-        $values = array_filter(array_unique($values), static function(string $value): bool {
+        $values = array_filter(array_unique($values), static function (string $value): bool {
             return $value !== '' && strlen($value) > 2;
         });
-        usort($values, static function(string $a, string $b): int {
+        usort($values, static function (string $a, string $b): int {
             return strlen($b) <=> strlen($a);
         });
 
@@ -560,9 +627,13 @@ class report_builder {
         self::synchronise_plugin_context($report);
         $report = $DB->get_record(self::REPORTS_TABLE, ['id' => $reportid], '*', MUST_EXIST);
         $items = $DB->get_records(self::ITEMS_TABLE, ['reportid' => $reportid], 'sortorder ASC, id ASC');
-        $user = $DB->get_record('user', ['id' => $report->userid], 'id, firstname, lastname, firstnamephonetic, lastnamephonetic, middlename, alternatename');
+        $user = $DB->get_record(
+            'user',
+            ['id' => $report->userid],
+            'id, firstname, lastname, firstnamephonetic, lastnamephonetic, middlename, alternatename'
+        );
 
-        $reviewaudits = $DB->get_records('local_ua_audit', [
+        $reviewaudits = $DB->get_records('local_upgradeassistant_audit', [
             'reportid' => (int)$report->id,
             'action' => 'finding_reviewed',
         ], 'timecreated DESC, id DESC');
@@ -758,8 +829,14 @@ class report_builder {
 
         if ($changed) {
             self::refresh_score((int)$report->id);
-            audit_logger::log((int)$report->id, 'lifecycle_context_reconciled', 'report',
-                (int)$report->id, null, ['currentbranch' => $report->currentbranch, 'targetbranch' => $report->targetbranch]);
+            audit_logger::log(
+                (int)$report->id,
+                'lifecycle_context_reconciled',
+                'report',
+                (int)$report->id,
+                null,
+                ['currentbranch' => $report->currentbranch, 'targetbranch' => $report->targetbranch]
+            );
         }
     }
 
@@ -860,8 +937,14 @@ class report_builder {
 
         if ($changed) {
             self::refresh_score((int)$report->id);
-            audit_logger::log((int)$report->id, 'plugin_context_reconciled', 'report',
-                (int)$report->id, null, ['targetbranch' => $report->targetbranch]);
+            audit_logger::log(
+                (int)$report->id,
+                'plugin_context_reconciled',
+                'report',
+                (int)$report->id,
+                null,
+                ['targetbranch' => $report->targetbranch]
+            );
         }
     }
 
@@ -882,7 +965,7 @@ class report_builder {
     ): void {
         global $DB;
 
-        $record = $DB->get_record('local_ua_plugins', [
+        $record = $DB->get_record('local_upgradeassistant_plug', [
             'reportid' => $reportid,
             'component' => $component,
         ]);
@@ -891,7 +974,7 @@ class report_builder {
         }
         $record->compatibility = substr($compatibility, 0, 40);
         $record->statuslabel = substr($statuslabel, 0, 255);
-        $DB->update_record('local_ua_plugins', $record);
+        $DB->update_record('local_upgradeassistant_plug', $record);
     }
 
     /**
@@ -931,8 +1014,15 @@ class report_builder {
         $record->status = 'reviewed';
         $record->evidence = self::json($evidence);
         $DB->update_record(self::ITEMS_TABLE, $record);
-        audit_logger::log($reportid, 'finding_reviewed', 'finding', (int)$record->id,
-            $oldvalue, $record, $note);
+        audit_logger::log(
+            $reportid,
+            'finding_reviewed',
+            'finding',
+            (int)$record->id,
+            $oldvalue,
+            $record,
+            $note
+        );
         self::refresh_score($reportid);
         $transaction->allow_commit();
     }

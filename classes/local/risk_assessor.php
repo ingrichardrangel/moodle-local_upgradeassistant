@@ -17,7 +17,7 @@
 namespace local_upgradeassistant\local;
 
 /**
- * Calculates the Pro pre-upgrade risk score.
+ * Calculates the pre-upgrade risk score.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel

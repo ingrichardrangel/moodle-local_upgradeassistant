@@ -42,7 +42,7 @@ final class privacy_provider_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $context = context_system::instance();
 
-        $reportid = $DB->insert_record('local_ua_reports', (object)[
+        $reportid = $DB->insert_record('local_upgradeassistant_rep', (object)[
             'uuid' => 'privacy-test-report',
             'userid' => $user->id,
             'currentrelease' => '4.5',
@@ -61,7 +61,7 @@ final class privacy_provider_test extends \advanced_testcase {
             'timemodified' => time(),
         ]);
 
-        $checklistid = $DB->insert_record('local_ua_checklist', (object)[
+        $checklistid = $DB->insert_record('local_upgradeassistant_check', (object)[
             'reportid' => $reportid,
             'stepkey' => 'privacy_note',
             'title' => 'Privacy note',
@@ -82,8 +82,8 @@ final class privacy_provider_test extends \advanced_testcase {
         );
         provider::delete_data_for_user($approved);
 
-        $report = $DB->get_record('local_ua_reports', ['id' => $reportid], '*', MUST_EXIST);
-        $checklist = $DB->get_record('local_ua_checklist', ['id' => $checklistid], '*', MUST_EXIST);
+        $report = $DB->get_record('local_upgradeassistant_rep', ['id' => $reportid], '*', MUST_EXIST);
+        $checklist = $DB->get_record('local_upgradeassistant_check', ['id' => $checklistid], '*', MUST_EXIST);
 
         $this->assertSame(0, (int)$report->userid);
         $this->assertSame(0, (int)$checklist->completedby);

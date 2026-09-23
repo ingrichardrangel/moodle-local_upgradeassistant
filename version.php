@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_upgradeassistant';
-$plugin->version   = 2026092305;
+$plugin->version   = 2026092306;
 $plugin->requires  = 2022112800; // Moodle 4.1+.
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '1.6.0-beta-moodle-41-to-53';
+$plugin->release   = '1.6.0-beta2-ci-free';

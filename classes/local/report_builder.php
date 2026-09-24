@@ -191,7 +191,10 @@ class report_builder {
         $changes = self::reconcile_findings(
             $reportid,
             $findings,
-            (string)$report->targetrelease === (string)($targetinfo['release'] ?? '')
+            (string)$report->targetrelease === (string)($targetinfo['release'] ?? ''),
+            $customplugins,
+            !empty($targetinfo['haspublic']) && !empty($targetinfo['publicpath'])
+                ? (string)$targetinfo['publicpath'] : (string)$targetinfo['path']
         );
 
         $DB->delete_records('local_upgradeassistant_plug', ['reportid' => $reportid]);
@@ -228,9 +231,17 @@ class report_builder {
      * @param int $reportid Existing report ID.
      * @param array $findings Newly detected findings.
      * @param bool $samerelease Whether the target release is unchanged.
+     * @param array $pluginrows Fresh comparison of installed plugin code.
+     * @param string $targetroot Target Moodle code directory.
      * @return array Counts of added, resolved and reopened findings.
      */
-    private static function reconcile_findings(int $reportid, array $findings, bool $samerelease): array {
+    private static function reconcile_findings(
+        int $reportid,
+        array $findings,
+        bool $samerelease,
+        array $pluginrows = [],
+        string $targetroot = ''
+    ): array {
         global $DB;
 
         $records = $DB->get_records(self::ITEMS_TABLE, ['reportid' => $reportid], 'sortorder ASC, id ASC');
@@ -238,6 +249,11 @@ class report_builder {
         foreach ($records as $record) {
             $existing[$record->category . ':' . $record->code] = $record;
         }
+        $pluginsbycomponent = [];
+        foreach ($pluginrows as $row) {
+            $pluginsbycomponent[(string)$row['component']] = $row;
+        }
+        $targetcomponents = null;
         $changes = ['added' => 0, 'resolved' => 0, 'reopened' => 0];
         $now = time();
         $sort = 10;
@@ -292,12 +308,74 @@ class report_builder {
             }
             $record = clone($old);
             $record->status = 'closed';
+            $verification = self::resolution_reason($old, $pluginsbycomponent, $targetroot, $targetcomponents);
+            $evidence = json_decode((string)$record->evidence, true);
+            if (!is_array($evidence)) {
+                $evidence = [];
+            }
+            $evidence['verifiedresolution'] = $verification;
+            $record->evidence = self::json($evidence);
             $DB->update_record(self::ITEMS_TABLE, $record);
-            audit_logger::log($reportid, 'finding_verified_resolved', 'finding', (int)$record->id, $old, $record);
+            $reasontext = get_string(
+                'findingresolution' . $verification['reason'],
+                'local_upgradeassistant',
+                $verification['component']
+            );
+            audit_logger::log(
+                $reportid,
+                'finding_verified_resolved',
+                'finding',
+                (int)$record->id,
+                $old,
+                $record,
+                $reasontext
+            );
             $changes['resolved']++;
         }
 
         return $changes;
+    }
+
+    /**
+     * Explain an absent finding using the fresh plugin code inventories.
+     *
+     * @param object $old Finding recorded before the new check.
+     * @param array $pluginrows New comparison, keyed by component.
+     * @param string $targetroot Directory containing the target Moodle plugins.
+     * @param array|null $targetcomponents Cached target-only inventory.
+     * @return array Safe reason code and plugin component.
+     */
+    private static function resolution_reason(
+        object $old,
+        array $pluginrows,
+        string $targetroot,
+        ?array &$targetcomponents
+    ): array {
+        $previous = json_decode((string)$old->evidence, true);
+        $component = is_array($previous) ? (string)($previous['component'] ?? '') : '';
+        if ($old->category !== 'plugins' || $component === '') {
+            return ['reason' => 'notdetected', 'component' => ''];
+        }
+
+        if (isset($pluginrows[$component])) {
+            $row = $pluginrows[$component];
+            $reason = !empty($row['existsintarget'])
+                ? (empty($previous['existsintarget']) ? 'targetadded' : 'targetcompatible') : 'notdetected';
+            return ['reason' => $reason, 'component' => $component];
+        }
+
+        if ($targetroot !== '') {
+            if ($targetcomponents === null) {
+                $targetcomponents = [];
+                foreach (plugin_analyser::inventory($targetroot) as $plugin) {
+                    $targetcomponents[$plugin['component']] = true;
+                }
+            }
+            if (isset($targetcomponents[$component]) && empty($previous['existsintarget'])) {
+                return ['reason' => 'sourceabsenttargetadded', 'component' => $component];
+            }
+        }
+        return ['reason' => 'sourceabsent', 'component' => $component];
     }
 
 
@@ -424,7 +502,7 @@ class report_builder {
                 'info',
                 get_string('findingtargetpublicstructure', 'local_upgradeassistant'),
                 get_string('findingtargetpublicstructuredesc', 'local_upgradeassistant', $targetinfo['publicpath'] ?? ''),
-                get_string('findingtargetpublicstructurerec', 'local_upgradeassistant')
+                server_recommendation_engine::target_public_recommendation()
             );
         }
         $findings = array_merge($findings, self::plugin_findings($customplugins));
@@ -845,6 +923,15 @@ class report_builder {
             $isresolved = in_array($item->status, ['closed', 'resolved'], true);
             $ismitigatedlifecycle = $item->code === 'lifecycle_current_unsupported' && $item->status === 'closed';
             $isofficialremoval = ($evidence['compatibility'] ?? '') === 'core_removed' && $item->status === 'closed';
+            $verified = $item->status === 'closed' ? ($evidence['verifiedresolution'] ?? []) : [];
+            $reason = is_array($verified) ? ($verified['reason'] ?? '') : '';
+            $reasontext = in_array($reason, [
+                'notdetected', 'sourceabsent', 'sourceabsenttargetadded', 'targetadded', 'targetcompatible',
+            ], true) ? get_string(
+                'findingresolution' . $reason,
+                'local_upgradeassistant',
+                (string)($verified['component'] ?? '')
+            ) : '';
 
             if ($item->status === 'reviewed') {
                 $statuslabel = get_string(
@@ -870,6 +957,8 @@ class report_builder {
                 'status' => $statuslabel,
                 'statusclass' => $isresolved ? 'ua-badge-ok' : 'ua-badge-warn',
                 'recommendation' => $recommendation,
+                'verificationreason' => $reasontext,
+                'hasverificationreason' => $reasontext !== '',
                 'canreview' => $item->status === 'open'
                     && (($item->category === 'plugins' && !empty($evidence['reviewable']))
                         || in_array($item->category, ['path', 'requirements'], true)

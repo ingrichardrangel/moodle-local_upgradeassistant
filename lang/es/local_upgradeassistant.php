@@ -307,6 +307,16 @@ $string['findingpublicstructure'] = 'El sitio actual usa una estructura /public'
 $string['findingpublicstructuredesc'] = 'El asistente detectó un directorio public dentro del árbol de código Moodle actual.';
 $string['findingpublicstructurerec'] = 'Confirma que el DocumentRoot del servidor web apunte al ' .
     'directorio public correcto después de la actualización.';
+$string['findingresolutionlabel'] = 'Resultado de la nueva comprobación';
+$string['findingresolutionnotdetected'] = 'Esta incidencia ya no se detecta en la nueva comprobación.';
+$string['findingresolutionsourceabsent'] = 'El plugin {$a} ya no se detecta en el código de la ' .
+    'plataforma base. Comprueba si se desinstaló correctamente en Moodle y revisa sus dependencias.';
+$string['findingresolutionsourceabsenttargetadded'] = 'El plugin {$a} ya no se detecta en el ' .
+    'código de la plataforma base y ahora está presente en el código destino.';
+$string['findingresolutiontargetadded'] = 'El plugin {$a}, ausente antes del código destino, ' .
+    'ahora está presente allí y la comparación ya no detecta la incidencia.';
+$string['findingresolutiontargetcompatible'] = 'El plugin {$a} ya estaba en el código ' .
+    'destino y ahora la comparación lo considera compatible.';
 $string['findingreviewed'] = 'Se documentó la decisión administrativa. El riesgo detectado permanece en este informe.';
 $string['findingreviewerror'] = 'No se pudo confirmar la revisión. Comprueba la conexión y vuelve a intentarlo.';
 $string['findingreviewsavedrefresh'] = 'La revisión se guardó, pero no se pudo actualizar esta tarjeta. ' .
@@ -329,8 +339,7 @@ $string['findingtargetpublicstructure'] = 'La plataforma destino usa estructura 
 $string['findingtargetpublicstructuredesc'] = 'El asistente detectó el directorio public en la ' .
     'plataforma destino: {$a}. Este hallazgo no aumenta el riesgo; cambia el procedimiento de reemplazo.';
 $string['findingtargetpublicstructurerec'] = 'Renombra la raíz antigua como respaldo, coloca la raíz ' .
-    'preparada con el nombre de producción y configura el Document Root del dominio para servir el ' .
-    'directorio public. Conserva config.php en la raíz superior.';
+    'preparada con el nombre de producción y conserva config.php en la raíz superior.';
 $string['generatedby'] = 'Generado por';
 $string['generatedon'] = 'Generado el';
 $string['generatepreparationreport'] = 'Generar informe';
@@ -368,6 +377,16 @@ $string['instructionpublicdevnote'] = 'La carpeta preparada {$a->targetfolder} s
     'después con otra instalación independiente si deseas conservarlo.';
 $string['instructionpublicdocumentroot'] = 'En cPanel o en la configuración del servidor, cambia el ' .
     'Document Root del dominio de producción para que apunte exactamente al directorio public final.';
+$string['instructionpublicdocumentrootcpanel'] = 'En cPanel, cambia el Document Root del dominio o subdominio ' .
+    'para que apunte al directorio /public final. Verifica que el proveedor permita editar esa ruta.';
+$string['instructionpublicdocumentrootserver'] = 'En el servidor web, configura la raíz del dominio para ' .
+    'servir el directorio /public final: DocumentRoot y <Directory> en Apache, o root en Nginx; ' .
+    'recarga el servicio después de verificar su configuración.';
+$string['instructionpublicdocumentrootwindows'] = 'En el servidor Windows, configura la raíz del sitio ' .
+    'para servir el directorio /public final en Apache o IIS y comprueba los permisos del directorio.';
+$string['instructionpublicdocumentrootxampp'] = 'En XAMPP, ajusta en Apache httpd.conf (o en el VirtualHost ' .
+    'activo) tanto DocumentRoot como el bloque <Directory> para que apunten al directorio /public final. ' .
+    'Comprueba la configuración y reinicia Apache.';
 $string['instructionpubliceditroots'] = 'Verifica que config.php conserve la URL, la base de datos y ' .
     'moodledata de producción. No establezcas $CFG->dirroot manualmente.';
 $string['instructionpublicfinalroot'] = 'Comprueba la estructura final. La primera ruta es la raíz ' .

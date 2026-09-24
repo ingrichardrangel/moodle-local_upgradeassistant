@@ -200,6 +200,13 @@
     line-height: 1.45;
 }
 
+.local-upgradeassistant .ua-verification-reason {
+    border-left: 3px solid #16885d;
+    color: #176a4c;
+    margin: .65rem 0;
+    padding: .25rem .65rem;
+}
+
 .local-upgradeassistant .ua-risk-explanation {
     margin: .4rem 0 1rem;
 }

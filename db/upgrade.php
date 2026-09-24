@@ -370,5 +370,10 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2026092401, 'local', 'upgradeassistant');
     }
 
+    if ($oldversion < 2026092402) {
+        // No schema changes. Rechecked findings now explain verified resolution.
+        upgrade_plugin_savepoint(true, 2026092402, 'local', 'upgradeassistant');
+    }
+
     return true;
 }

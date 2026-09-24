@@ -129,4 +129,34 @@ class server_recommendation_engine {
             get_string('reclinux3', 'local_upgradeassistant'),
         ];
     }
+
+    /**
+     * Tell administrators where the web root for a /public target is configured.
+     *
+     * @param string|null $profile Detected server profile, or an explicit one for a stored report.
+     * @return string Profile-specific instruction.
+     */
+    public static function public_document_root_instruction(?string $profile = null): string {
+        $profile = $profile ?? self::detect_profile();
+        $key = [
+            'xampp' => 'instructionpublicdocumentrootxampp',
+            'cpanel' => 'instructionpublicdocumentrootcpanel',
+            'windows' => 'instructionpublicdocumentrootwindows',
+            'vpslinux' => 'instructionpublicdocumentrootserver',
+            'linux' => 'instructionpublicdocumentrootserver',
+        ][$profile] ?? 'instructionpublicdocumentrootserver';
+
+        return get_string($key, 'local_upgradeassistant');
+    }
+
+    /**
+     * Combine the cutover instructions with the detected web-server configuration.
+     *
+     * @param string|null $profile Server profile.
+     * @return string Report recommendation.
+     */
+    public static function target_public_recommendation(?string $profile = null): string {
+        return get_string('findingtargetpublicstructurerec', 'local_upgradeassistant') . ' '
+            . self::public_document_root_instruction($profile);
+    }
 }

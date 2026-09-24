@@ -212,6 +212,48 @@ final class evaluation_fixes_test extends \advanced_testcase {
     }
 
     /**
+     * Explain separately a plugin newly added to the target and one removed from source code.
+     *
+     * @return void
+     */
+    public function test_recheck_records_why_plugin_findings_disappeared(): void {
+        global $DB, $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $reportid = $this->create_report((int)$USER->id, 'plugin-reasons');
+        $ids = [];
+        foreach (['local_targetadded', 'local_sourceabsent'] as $component) {
+            $ids[$component] = (int)$DB->insert_record('local_upgradeassistant_item', (object)[
+                'reportid' => $reportid,
+                'category' => 'plugins',
+                'code' => 'plugin_review_' . $component,
+                'title' => 'Missing ' . $component,
+                'description' => 'Missing plugin on target',
+                'severity' => 'high',
+                'status' => 'open',
+                'recommendation' => 'Review plugin',
+                'evidence' => json_encode(['component' => $component, 'existsintarget' => false]),
+                'sortorder' => count($ids) * 10 + 10,
+                'timecreated' => time(),
+            ]);
+        }
+
+        $reconcile = new \ReflectionMethod(report_builder::class, 'reconcile_findings');
+        $reconcile->setAccessible(true);
+        $reconcile->invoke(null, $reportid, [], true, [
+            ['component' => 'local_targetadded', 'existsintarget' => true, 'compatibility' => 'compatible'],
+        ]);
+
+        $targetitem = $DB->get_record('local_upgradeassistant_item', ['id' => $ids['local_targetadded']], '*', MUST_EXIST);
+        $sourceitem = $DB->get_record('local_upgradeassistant_item', ['id' => $ids['local_sourceabsent']], '*', MUST_EXIST);
+        $this->assertSame('closed', $targetitem->status);
+        $this->assertSame('targetadded', json_decode($targetitem->evidence, true)['verifiedresolution']['reason']);
+        $this->assertSame('sourceabsent', json_decode($sourceitem->evidence, true)['verifiedresolution']['reason']);
+        $this->assertSame(2, $DB->count_records('local_upgradeassistant_item', ['reportid' => $reportid]));
+    }
+
+    /**
      * Create the minimum valid report record used by these tests.
      *
      * @param int $userid Owner user ID.

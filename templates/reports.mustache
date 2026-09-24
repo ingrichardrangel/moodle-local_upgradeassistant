@@ -60,8 +60,9 @@
                         <span class="ua-badge {{statusclass}}">{{status}}</span>
                     </div>
                     <h4>{{title}}</h4>
-                    <p>{{description}}</p>
-                    <small><strong>{{#str}} recommendation, local_upgradeassistant {{/str}}:</strong> {{recommendation}}</small>
+                    {{^hasverificationreason}}<p>{{description}}</p>{{/hasverificationreason}}
+                    {{#hasverificationreason}}<p class="ua-verification-reason"><i class="fa fa-check-circle" aria-hidden="true"></i> <strong>{{#str}} findingresolutionlabel, local_upgradeassistant {{/str}}:</strong> {{verificationreason}}</p>{{/hasverificationreason}}
+                    {{^hasverificationreason}}<small><strong>{{#str}} recommendation, local_upgradeassistant {{/str}}:</strong> {{recommendation}}</small>{{/hasverificationreason}}
 
                     {{#hasreviewnote}}
                     <div class="ua-review-evidence">

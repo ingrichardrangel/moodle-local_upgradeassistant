@@ -277,7 +277,7 @@ class wizard_service {
                     ['value' => '$CFG->dataroot = \'' . $CFG->dataroot . '\';'],
                     ['value' => "require_once(__DIR__ . '/lib/setup.php');"],
                 ]],
-                ['text' => get_string('instructionpublicdocumentroot', 'local_upgradeassistant'), 'codes' => [
+                ['text' => server_recommendation_engine::public_document_root_instruction(), 'codes' => [
                     ['value' => $newpublicpath],
                 ]],
                 ['text' => get_string('instructionpublicrouting', 'local_upgradeassistant'), 'codes' => []],

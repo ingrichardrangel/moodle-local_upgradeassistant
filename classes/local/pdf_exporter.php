@@ -589,6 +589,15 @@ class pdf_exporter {
             }
             $isofficialremoval = ($evidence['compatibility'] ?? '') === 'core_removed'
                 && $item->status === 'closed';
+            $verified = $item->status === 'closed' ? ($evidence['verifiedresolution'] ?? []) : [];
+            $reason = is_array($verified) ? ($verified['reason'] ?? '') : '';
+            $reasontext = in_array($reason, [
+                'notdetected', 'sourceabsent', 'sourceabsenttargetadded', 'targetadded', 'targetcompatible',
+            ], true) ? get_string(
+                'findingresolution' . $reason,
+                'local_upgradeassistant',
+                (string)($verified['component'] ?? '')
+            ) : '';
             if ($item->status === 'reviewed') {
                 $statuslabel = get_string(
                     $item->severity === 'info' ? 'findingstatusreviewed' : 'findingstatusaccepted',
@@ -619,8 +628,13 @@ class pdf_exporter {
             }
 
             $html .= '<td>' . self::clean($statuslabel) . '</td>';
-            $html .= '<td><strong>' . self::clean($item->title) . '</strong><br /><span class="small muted">'
-                . self::clean($description) . '</span>';
+            $html .= '<td><strong>' . self::clean($item->title) . '</strong>';
+            if ($reasontext !== '') {
+                $html .= '<br /><strong>' . self::clean(get_string('findingresolutionlabel', 'local_upgradeassistant'))
+                    . ':</strong> ' . self::clean($reasontext);
+            } else {
+                $html .= '<br /><span class="small muted">' . self::clean($description) . '</span>';
+            }
             if ($reviewtext !== '') {
                 $html .= '<br /><br /><strong>' . self::clean(get_string(
                     'administratorcriterion',
@@ -631,7 +645,7 @@ class pdf_exporter {
                 }
             }
             $html .= '</td>';
-            $html .= '<td>' . self::clean($recommendation) . '</td>';
+            $html .= '<td>' . ($reasontext !== '' ? '' : self::clean($recommendation)) . '</td>';
             $html .= '</tr>';
         }
         $html .= '</table>';

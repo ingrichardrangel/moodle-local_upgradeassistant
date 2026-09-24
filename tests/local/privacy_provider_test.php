@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace local_upgradeassistant\privacy;
+namespace local_upgradeassistant\local;
 
 use context_system;
 use core_privacy\local\request\approved_contextlist;

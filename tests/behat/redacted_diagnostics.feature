@@ -1,5 +1,5 @@
 @local @local_upgradeassistant
-Feature: Smart Upgrade Assistant redacted diagnostics
+Feature: Upgrade Assistant redacted diagnostics
   In order to avoid accidental disclosure of server paths
   As a non-technical reviewer
   I need sensitive diagnostics to be redacted unless I have explicit permission
@@ -14,6 +14,6 @@ Feature: Smart Upgrade Assistant redacted diagnostics
 
   Scenario: Manager without sensitive diagnostics sees no full diagnostics notice
     Given I log in as "reviewer"
-    When I navigate to "Server > Smart Upgrade Assistant" in site administration
-    Then I should see "Smart Upgrade Assistant"
+    When I navigate to "Server > Upgrade Assistant" in site administration
+    Then I should see "Upgrade Assistant"
     And I should not see "This page is showing sensitive technical diagnostics"

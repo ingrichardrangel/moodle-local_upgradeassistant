@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * English language strings for Smart Upgrade Assistant.
+ * English language strings for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -26,11 +26,11 @@ $string['accessdeniedpath'] = 'The selected path is outside the allowed scan roo
 $string['action'] = 'Action';
 $string['administratorcriterion'] = 'Administrator documented rationale';
 $string['administratorcriterionhelp'] = 'Your decision is recorded with the user, date and time. ' .
-    'Reviewing a finding does not change Moodle requirements; the organisation must verify your ' .
-    'rationale before performing the upgrade.';
+    'Documenting a finding does not lower this report\'s detected risk. If you correct the target installation, ' .
+    'recheck this report to verify the change. The organisation must review your rationale before upgrading.';
 $string['administratorcriterionlabel'] = 'Administrative rationale, evidence or decision';
-$string['administratorcriterionplaceholder'] = 'Describe what you verified, the evidence consulted, and ' .
-    'why you consider this finding addressed or accepted.';
+$string['administratorcriterionplaceholder'] = 'Describe the evidence and your decision to proceed. ' .
+    'If you corrected the target, use Recheck report to verify it.';
 $string['advancedpluginmatrix'] = 'Advanced plugin matrix';
 $string['analysecompatibility'] = 'Analyse compatibility';
 $string['analysisdowngrade'] = 'Downgrade is not allowed. The selected installation is older than the current Moodle version.';
@@ -61,9 +61,9 @@ $string['blockersremaining'] = '{$a} blocker(s) must be resolved before it is sa
 $string['boostthemeactive'] = 'Boost active';
 $string['boostthemenotactive'] = 'The active theme is {$a}. Change the site theme to Boost before marking this step as verified.';
 $string['boostthemeswitched'] = 'The site theme was changed to Boost and the checklist step was marked as completed.';
-$string['boostthemeswitchednote'] = 'The site theme was changed to Boost from Smart Upgrade Assistant.';
+$string['boostthemeswitchednote'] = 'The site theme was changed to Boost from Upgrade Assistant.';
 $string['boostthemeverified'] = 'Boost theme verified successfully.';
-$string['boostthemeverifiednote'] = 'The active theme was verified as Boost from Smart Upgrade Assistant.';
+$string['boostthemeverifiednote'] = 'The active theme was verified as Boost from Upgrade Assistant.';
 $string['branch'] = 'Branch';
 $string['cachespurged'] = 'All Moodle caches were purged.';
 $string['category'] = 'Category';
@@ -148,12 +148,12 @@ $string['enablemaintenance'] = 'Enable maintenance mode';
 $string['environmentdetected'] = 'Environment detected';
 $string['eventchecklistcompleted'] = 'Upgrade assistant checklist item completed';
 $string['eventlifecyclesynced'] = 'Moodle lifecycle data synchronised';
-$string['eventmaintenancedisabled'] = 'Maintenance mode disabled from Smart Upgrade Assistant';
-$string['eventmaintenanceenabled'] = 'Maintenance mode enabled from Smart Upgrade Assistant';
+$string['eventmaintenancedisabled'] = 'Maintenance mode disabled from Upgrade Assistant';
+$string['eventmaintenanceenabled'] = 'Maintenance mode enabled from Upgrade Assistant';
 $string['eventreportcreated'] = 'Upgrade assistant report created';
 $string['eventreportexported'] = 'Upgrade assistant report exported';
 $string['eventtargetselected'] = 'Upgrade assistant target selected';
-$string['eventthemeswitchedtoboost'] = 'Site theme switched to Boost from Smart Upgrade Assistant';
+$string['eventthemeswitchedtoboost'] = 'Site theme switched to Boost from Upgrade Assistant';
 $string['evidenceandtraceability'] = 'Evidence and traceability';
 $string['executionblocked'] = 'Execution still has blockers. Return to Preparation and resolve them before changing files.';
 $string['executionheading'] = 'Execution and evidence';
@@ -300,13 +300,24 @@ $string['findingpublicstructure'] = 'The current site uses a /public structure';
 $string['findingpublicstructuredesc'] = 'The assistant detected a public directory in the current Moodle code tree.';
 $string['findingpublicstructurerec'] = 'Confirm that the web server DocumentRoot points to the correct ' .
     'public directory after the upgrade.';
-$string['findingreviewed'] = 'The administrative review of the finding was completed and documented.';
+$string['findingresolutionlabel'] = 'Result of the new check';
+$string['findingresolutionnotdetected'] = 'This finding was no longer detected by the new check.';
+$string['findingresolutionsourceabsent'] = 'Plugin {$a} is no longer detected in the source site code. ' .
+    'Check whether it was properly uninstalled in Moodle and review its dependencies.';
+$string['findingresolutionsourceabsenttargetadded'] = 'Plugin {$a} is no longer detected in the ' .
+    'source site code and is now present in the target site code.';
+$string['findingresolutiontargetadded'] = 'Plugin {$a}, previously absent from the target site code, ' .
+    'is now present there and the comparison no longer detects the issue.';
+$string['findingresolutiontargetcompatible'] = 'Plugin {$a} was already present in the target ' .
+    'site code and the comparison now considers it compatible.';
+$string['findingreviewed'] = 'The administrative decision was documented. The detected risk remains in this report.';
 $string['findingreviewerror'] = 'The review could not be confirmed. Check the connection and try again.';
 $string['findingreviewsavedrefresh'] = 'The review was saved, but this finding could not be refreshed. ' .
     'Reload the page to see it; do not submit it again.';
 $string['findingsodiumcritical'] = 'PHP sodium extension is missing';
 $string['findingsodiumcriticaldesc'] = 'The target Moodle branch requires the sodium extension, but it is not loaded in PHP.';
 $string['findingsodiumcriticalrec'] = 'Enable the sodium extension before upgrading.';
+$string['findingstatusaccepted'] = 'Risk accepted by administrator';
 $string['findingstatusclosed'] = 'Resolved';
 $string['findingstatusmitigated'] = 'Mitigated by upgrade';
 $string['findingstatusofficialremoval'] = 'Handled by the upgrade';
@@ -321,8 +332,7 @@ $string['findingtargetpublicstructure'] = 'The target platform uses a /public st
 $string['findingtargetpublicstructuredesc'] = 'The assistant detected the public directory in the target ' .
     'platform: {$a}. This finding does not increase risk; it changes the replacement procedure.';
 $string['findingtargetpublicstructurerec'] = 'Rename the old application root as a backup, place the ' .
-    'prepared root under the production folder name, and configure the domain DocumentRoot to serve its ' .
-    'public directory. Keep config.php in the parent application root.';
+    'prepared root under the production folder name, and keep config.php in the parent application root.';
 $string['generatedby'] = 'Generated by';
 $string['generatedon'] = 'Generated on';
 $string['generatepreparationreport'] = 'Generate report';
@@ -360,6 +370,15 @@ $string['instructionpublicdevnote'] = 'The prepared {$a->targetfolder} folder be
     'installation if you want to keep it.';
 $string['instructionpublicdocumentroot'] = 'In cPanel or the web server configuration, change the ' .
     'production domain DocumentRoot so it points exactly to the final public directory.';
+$string['instructionpublicdocumentrootcpanel'] = 'In cPanel, set the domain or subdomain Document Root to ' .
+    'the final /public directory. Check that your hosting provider allows that path to be changed.';
+$string['instructionpublicdocumentrootserver'] = 'Configure the domain to serve the final /public directory: ' .
+    'set DocumentRoot and <Directory> in Apache, or root in Nginx; check the configuration and reload the service.';
+$string['instructionpublicdocumentrootwindows'] = 'On a Windows server, set the Apache or IIS site root ' .
+    'to the final /public directory and check directory permissions.';
+$string['instructionpublicdocumentrootxampp'] = 'In XAMPP, update both DocumentRoot and the matching ' .
+    '<Directory> block in Apache httpd.conf (or the active VirtualHost) to point to the final /public directory. ' .
+    'Check the configuration and restart Apache.';
 $string['instructionpubliceditroots'] = 'Verify that config.php keeps the production URL, database and ' .
     'moodledata values. Do not set $CFG->dirroot manually.';
 $string['instructionpublicfinalroot'] = 'Confirm the final structure. The first path is Moodle private ' .
@@ -438,14 +457,14 @@ $string['lifecyclestatusunsupported'] = 'Unsupported';
 $string['lifecyclesyncdisabled'] = 'Moodle lifecycle synchronisation is disabled in plugin settings.';
 $string['lifecycletimeline'] = 'Support timeline';
 $string['lifecycletitle'] = 'Moodle lifecycle';
-$string['local/upgradeassistant:configure'] = 'Configure Smart Upgrade Assistant';
-$string['local/upgradeassistant:export'] = 'Export Smart Upgrade Assistant reports';
-$string['local/upgradeassistant:generatereport'] = 'Generate Smart Upgrade Assistant reports';
-$string['local/upgradeassistant:manage'] = 'Manage Smart Upgrade Assistant';
-$string['local/upgradeassistant:view'] = 'View Smart Upgrade Assistant';
-$string['local/upgradeassistant:viewreports'] = 'View Smart Upgrade Assistant reports';
-$string['local/upgradeassistant:viewsensitive'] = 'View sensitive Smart Upgrade Assistant diagnostic data';
-$string['mainnavigation'] = 'Smart Upgrade Assistant main navigation';
+$string['local/upgradeassistant:configure'] = 'Configure Upgrade Assistant';
+$string['local/upgradeassistant:export'] = 'Export Upgrade Assistant reports';
+$string['local/upgradeassistant:generatereport'] = 'Generate Upgrade Assistant reports';
+$string['local/upgradeassistant:manage'] = 'Manage Upgrade Assistant';
+$string['local/upgradeassistant:view'] = 'View Upgrade Assistant';
+$string['local/upgradeassistant:viewreports'] = 'View Upgrade Assistant reports';
+$string['local/upgradeassistant:viewsensitive'] = 'View sensitive Upgrade Assistant diagnostic data';
+$string['mainnavigation'] = 'Upgrade Assistant main navigation';
 $string['maintenanceactive'] = 'Maintenance mode active';
 $string['maintenancemodeoff'] = 'Maintenance mode was disabled.';
 $string['maintenancemodeon'] = 'Maintenance mode was enabled.';
@@ -540,7 +559,7 @@ $string['plugindependenciesverified'] = 'Dependencies verified in the target ins
 $string['plugindifferencesdesc'] = 'The following plugin folders exist in the current installation but ' .
     'are missing in the target installation, or require additional compatibility review.';
 $string['pluginmissingintarget'] = 'Missing in target';
-$string['pluginname'] = 'Smart Upgrade Assistant';
+$string['pluginname'] = 'Upgrade Assistant';
 $string['pluginofficiallyremoved'] = '{$a->component} was officially removed starting with Moodle {$a->version}';
 $string['pluginpresentintarget'] = 'Present in target version';
 $string['pluginrequiresfuturemoodle'] = 'Requires a Moodle version higher than the selected target';
@@ -581,8 +600,8 @@ $string['privacy:metadata:local_upgradeassistant_expt:exporttype'] = 'The export
 $string['privacy:metadata:local_upgradeassistant_expt:reportid'] = 'The exported report identifier.';
 $string['privacy:metadata:local_upgradeassistant_expt:timecreated'] = 'The time the export was downloaded.';
 $string['privacy:metadata:local_upgradeassistant_expt:userid'] = 'The user who downloaded an export.';
-$string['privacy:metadata:local_upgradeassistant_item'] = 'Report findings generated by Smart Upgrade ' .
-    'Assistant. They may include technical evidence and recommendations for the upgrade process.';
+$string['privacy:metadata:local_upgradeassistant_item'] = 'Report findings generated by Upgrade Assistant. ' .
+    'They may include technical evidence and recommendations for the upgrade process.';
 $string['privacy:metadata:local_upgradeassistant_item:category'] = 'Finding category.';
 $string['privacy:metadata:local_upgradeassistant_item:code'] = 'Internal finding code.';
 $string['privacy:metadata:local_upgradeassistant_item:description'] = 'Finding description, which may ' .
@@ -655,6 +674,7 @@ $string['reccpanel1'] = 'Verify the PHP version in MultiPHP Manager before movin
 $string['reccpanel2'] = 'Confirm that DocumentRoot points to the correct folder, especially if Moodle uses /public.';
 $string['reccpanel3'] = 'Schedule cron from cPanel Cron Jobs pointing to the correct PHP CLI.';
 $string['reccpanel4'] = 'Replace folders during a maintenance window and keep the previous folder as a backup.';
+$string['recheckreport'] = 'Recheck report';
 $string['reclinux1'] = 'Confirm ownership and permissions for source code and moodledata before the change.';
 $string['reclinux2'] = 'Validate that PHP CLI and web PHP use the same version and required extensions.';
 $string['reclinux3'] = 'Run the upgrade in a staging copy before touching production.';
@@ -691,11 +711,15 @@ $string['reporthistorydesc'] = 'History of generated reports to compare diagnost
 $string['reporthistorydescnew'] = 'Open an earlier report to compare risk levels and preserve process traceability.';
 $string['reporthistorytitle'] = 'Report history';
 $string['reportid'] = 'Report ID';
+$string['reportlastchecked'] = 'Last checked';
+$string['reportnotactive'] = 'Only the active report for this assistant can be rechecked.';
+$string['reportrechecked'] = 'Report #{$a} updated after a fresh check.';
 $string['reportspageheading'] = 'Preparation reports';
 $string['reportspageintro'] = 'Review the current diagnosis, auditable checklist and previous reports ' .
     'without interrupting the assistant flow.';
 $string['reportstab'] = 'Reports';
 $string['reporttarget'] = 'Report target';
+$string['reporttargetchanged'] = 'The source, target or branch changed. Select the correct target before rechecking this report.';
 $string['required'] = 'Required';
 $string['requiredvalue'] = 'Required value';
 $string['requires'] = 'Requires';
@@ -711,6 +735,11 @@ $string['risklevellow'] = 'Low risk';
 $string['risklevelmedium'] = 'Medium risk';
 $string['risknotcalculated'] = 'Not calculated';
 $string['riskscore'] = 'Risk level';
+$string['riskscoreexplanation'] = 'This score describes findings from the latest check. ' .
+    'A written review records an administrator\'s decision without removing the finding or reducing its score. ' .
+    'After correcting the target installation, use Recheck report: if the finding is gone, ' .
+    'it is marked resolved and the risk decreases in this same report.';
+$string['riskscoresummary'] = 'Based on this report; review does not lower the score.';
 $string['route'] = 'Route';
 $string['ruleoptional'] = 'Optional';
 $string['rulerecommended'] = 'Recommended';
@@ -740,7 +769,7 @@ $string['server'] = 'Server';
 $string['serverprofile'] = 'Server profile';
 $string['serverrecommendationsdesc'] = 'Specific recommendations based on the detected environment type.';
 $string['serverrecommendationstitle'] = 'Recommendations by server type';
-$string['settingspage'] = 'Smart Upgrade Assistant';
+$string['settingspage'] = 'Upgrade Assistant';
 $string['severity'] = 'Severity';
 $string['severitycritical'] = 'Critical';
 $string['severityhigh'] = 'High';

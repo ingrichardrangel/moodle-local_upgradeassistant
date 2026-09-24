@@ -50,7 +50,7 @@ class theme_switched_to_boost extends \core\event\base {
      * @return string
      */
     public function get_description(): string {
-        return "The user with id '{$this->userid}' switched the site theme to Boost from Smart Upgrade Assistant.";
+        return "The user with id '{$this->userid}' switched the site theme to Boost from Upgrade Assistant.";
     }
 
     /**

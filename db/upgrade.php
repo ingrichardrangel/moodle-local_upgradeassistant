@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Upgrade script for Smart Upgrade Assistant.
+ * Upgrade script for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -322,6 +322,62 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
             }
         }
         upgrade_plugin_savepoint(true, 2026092306, 'local', 'upgradeassistant');
+    }
+
+    if ($oldversion < 2026092400) {
+        // Recalculate stored risk without treating an administrator's review as remediation.
+        $offset = 0;
+        do {
+            $reports = $DB->get_records(
+                'local_upgradeassistant_rep',
+                null,
+                'id ASC',
+                'id, riskscore, risklevel, summary',
+                $offset,
+                100
+            );
+            foreach ($reports as $report) {
+                $items = $DB->get_records(
+                    'local_upgradeassistant_item',
+                    ['reportid' => $report->id],
+                    '',
+                    'id, severity, status'
+                );
+                $findings = [];
+                foreach ($items as $item) {
+                    $findings[] = ['severity' => $item->severity, 'status' => $item->status];
+                }
+                $risk = \local_upgradeassistant\local\risk_assessor::assess($findings);
+                $summary = json_decode((string)$report->summary, true);
+                $changed = (int)$report->riskscore !== $risk['score'] || $report->risklevel !== $risk['level'];
+                $update = (object)['id' => $report->id, 'riskscore' => $risk['score'], 'risklevel' => $risk['level']];
+                if (is_array($summary) && isset($summary['risk']) && $summary['risk'] !== $risk) {
+                    $summary['risk'] = $risk;
+                    $update->summary = json_encode($summary, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                    $changed = true;
+                }
+                if ($changed) {
+                    $DB->update_record('local_upgradeassistant_rep', $update);
+                }
+            }
+            $offset += count($reports);
+        } while (count($reports) === 100);
+        upgrade_plugin_savepoint(true, 2026092400, 'local', 'upgradeassistant');
+    }
+
+    if ($oldversion < 2026092401) {
+        // No schema changes. Existing reports can now be rechecked in place.
+        upgrade_plugin_savepoint(true, 2026092401, 'local', 'upgradeassistant');
+    }
+
+    if ($oldversion < 2026092402) {
+        // No schema changes. Rechecked findings now explain verified resolution.
+        upgrade_plugin_savepoint(true, 2026092402, 'local', 'upgradeassistant');
+    }
+
+    if ($oldversion < 2026092403) {
+        // Update the visible product name while retaining the existing component and data.
+        upgrade_plugin_savepoint(true, 2026092403, 'local', 'upgradeassistant');
     }
 
     return true;

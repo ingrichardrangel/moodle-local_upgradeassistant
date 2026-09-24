@@ -24,6 +24,7 @@ namespace local_upgradeassistant\local;
  * @copyright  2026 Richard Rangel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_upgradeassistant\local\wizard_service
+ * @covers     \local_upgradeassistant\local\server_recommendation_engine
  */
 final class production_cutover_test extends \advanced_testcase {
     /**
@@ -78,5 +79,23 @@ final class production_cutover_test extends \advanced_testcase {
         $this->assertStringContainsString("require_once(__DIR__ . '/lib/setup.php');", $output);
         $this->assertStringNotContainsString('$CFG->dirroot =', $output);
         $this->assertStringNotContainsString('/public/lib/setup.php', $output);
+    }
+
+    /**
+     * Apache on XAMPP and a hosted domain require different configuration steps.
+     *
+     * @return void
+     */
+    public function test_public_document_root_recommendation_uses_server_profile(): void {
+        $xampp = server_recommendation_engine::target_public_recommendation('xampp');
+        $cpanel = server_recommendation_engine::target_public_recommendation('cpanel');
+        $vps = server_recommendation_engine::target_public_recommendation('vpslinux');
+
+        $this->assertStringContainsString('httpd.conf', $xampp);
+        $this->assertStringContainsString('<Directory>', $xampp);
+        $this->assertStringContainsString('cPanel', $cpanel);
+        $this->assertStringContainsString('Document Root', $cpanel);
+        $this->assertStringContainsString('Nginx', $vps);
+        $this->assertNotSame($xampp, $cpanel);
     }
 }

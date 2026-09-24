@@ -1,5 +1,5 @@
 @local @local_upgradeassistant
-Feature: Smart Upgrade Assistant export permissions
+Feature: Upgrade Assistant export permissions
   In order to protect sensitive technical diagnostics
   As a site administrator
   I need report export buttons to respect export capabilities
@@ -14,7 +14,7 @@ Feature: Smart Upgrade Assistant export permissions
 
   Scenario: Manager without sensitive diagnostics cannot see complete export actions
     Given I log in as "reviewer"
-    When I navigate to "Server > Smart Upgrade Assistant" in site administration
-    Then I should see "Smart Upgrade Assistant"
+    When I navigate to "Server > Upgrade Assistant" in site administration
+    Then I should see "Upgrade Assistant"
     And I should not see "Complete PDF"
     And I should not see "Complete HTML"

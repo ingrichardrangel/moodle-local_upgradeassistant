@@ -21,7 +21,7 @@ use core_privacy\local\request\approved_contextlist;
 use local_upgradeassistant\privacy\provider;
 
 /**
- * Tests for the Smart Upgrade Assistant privacy provider.
+ * Tests for the Upgrade Assistant privacy provider.
  *
  * @package    local_upgradeassistant
  * @category   test

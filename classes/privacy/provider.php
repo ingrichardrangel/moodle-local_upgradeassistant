@@ -28,7 +28,7 @@ use core_privacy\local\request\writer;
 use local_upgradeassistant\local\state;
 
 /**
- * Privacy provider for Smart Upgrade Assistant.
+ * Privacy provider for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel

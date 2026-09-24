@@ -41,7 +41,7 @@ class action_controller {
         array $allowedroots,
         array $params
     ): void {
-        global $CFG, $USER;
+        global $CFG, $DB, $USER;
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             throw new \moodle_exception('invalidrequest', 'error');
@@ -139,6 +139,7 @@ class action_controller {
                 break;
 
             case 'generatereport':
+            case 'recheckreport':
                 $currentstate = state::get();
                 if (
                     empty($currentstate['targetpath'])
@@ -161,6 +162,33 @@ class action_controller {
                 $targetcoderoot = !empty($targetinfo['haspublic']) && !empty($targetinfo['publicpath'])
                     ? $targetinfo['publicpath'] : $targetinfo['path'];
                 $plugins = plugin_analyser::compare($CFG->dirroot, $targetcoderoot, $targetinfo['branch']);
+                $activereportid = state::get_active_reportid();
+                $requestedreportid = (int)($params['reportid'] ?? 0);
+                if ($action === 'recheckreport' && ($requestedreportid <= 0 || $requestedreportid !== $activereportid)) {
+                    throw new \moodle_exception('reportnotactive', 'local_upgradeassistant');
+                }
+                $reportid = $action === 'recheckreport' ? $requestedreportid : $activereportid;
+                $existing = $reportid > 0 ? $DB->get_record('local_upgradeassistant_rep', ['id' => $reportid]) : false;
+                $samepath = $existing && (int)$existing->userid === (int)$USER->id
+                    && realpath((string)$existing->targetpath) !== false
+                    && realpath((string)$existing->targetpath) === realpath((string)$targetinfo['path']);
+                $samebranches = $existing && (string)$existing->currentbranch === (string)$env['branch']
+                    && (string)$existing->targetbranch === (string)$targetinfo['branch'];
+                if ($action === 'recheckreport' && (!$samepath || !$samebranches)) {
+                    throw new \moodle_exception('reporttargetchanged', 'local_upgradeassistant');
+                }
+                if ($samepath && $samebranches) {
+                    require_capability('local/upgradeassistant:manage', $context);
+                    report_builder::recheck_report((int)$reportid, $targetinfo, $analysis, $plugins, $currentstate);
+                    $return = $action === 'recheckreport' && ($params['returnview'] ?? '') === 'reports'
+                        ? new \moodle_url($baseurl, [
+                            'view' => 'reports', 'report' => $reportid, 'rechecked' => 1,
+                        ]) : self::return_url($baseurl, 'wizard', 4);
+                    self::success(
+                        $return,
+                        get_string('reportrechecked', 'local_upgradeassistant', $reportid)
+                    );
+                }
                 $reportid = report_builder::create_report($targetinfo, $analysis, $plugins, $currentstate);
                 self::success(
                     self::return_url($baseurl, 'wizard', 4),
@@ -317,8 +345,12 @@ class action_controller {
                 require_capability('local/upgradeassistant:viewsensitive', $context);
                 break;
             case 'generatereport':
+            case 'recheckreport':
                 require_capability('local/upgradeassistant:generatereport', $context);
                 require_capability('local/upgradeassistant:viewsensitive', $context);
+                if ($action === 'recheckreport') {
+                    require_capability('local/upgradeassistant:manage', $context);
+                }
                 break;
             default:
                 throw new \moodle_exception('invalidaction', 'local_upgradeassistant');

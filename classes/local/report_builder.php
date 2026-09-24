@@ -49,35 +49,7 @@ class report_builder {
         $dbdescription = self::database_description($env['dbinfo']);
         $now = time();
 
-        $summary = [
-            'current' => [
-                'release' => $env['release'],
-                'branch' => $env['branch'],
-                'path' => $CFG->dirroot,
-            ],
-            'target' => [
-                'release' => $targetinfo['release'] ?? '',
-                'branch' => $targetinfo['branch'] ?? '',
-                'path' => $targetinfo['path'] ?? '',
-                'haspublic' => !empty($targetinfo['haspublic']),
-                'publicpath' => $targetinfo['publicpath'] ?? '',
-                'configpath' => $targetinfo['configpath'] ?? '',
-            ],
-            'risk' => $risk,
-            'plugins' => [
-                'reviewcount' => count(array_filter($customplugins, static function (array $plugin): bool {
-                    return !in_array(($plugin['compatibility'] ?? ''), ['compatible', 'core_removed'], true);
-                })),
-                'inventorycount' => count($customplugins),
-            ],
-            'rules' => rule_engine::get_rule($targetinfo['branch'] ?? '', $targetinfo),
-            'serverrecommendations' => server_recommendation_engine::recommendations(
-                server_recommendation_engine::detect_profile()
-            ),
-            'analysis' => $analysis,
-            'lifecycle' => lifecycle_manager::report_snapshot($env['branch'], $targetinfo['branch'] ?? ''),
-            'theme' => $env['theme'] ?? '',
-        ];
+        $summary = self::build_summary($env, $targetinfo, $analysis, $customplugins, $risk);
 
         $report = (object)[
             'uuid' => self::uuid(),
@@ -133,6 +105,277 @@ class report_builder {
         state::set_active_reportid($reportid);
 
         return $reportid;
+    }
+
+    /**
+     * Build the report's environment snapshot.
+     *
+     * @param array $env Source environment.
+     * @param array $targetinfo Target installation.
+     * @param array|null $analysis Upgrade path analysis.
+     * @param array $customplugins Plugin comparison.
+     * @param array $risk Calculated risk.
+     * @return array
+     */
+    private static function build_summary(
+        array $env,
+        array $targetinfo,
+        ?array $analysis,
+        array $customplugins,
+        array $risk
+    ): array {
+        global $CFG;
+
+        return [
+            'current' => [
+                'release' => $env['release'],
+                'branch' => $env['branch'],
+                'path' => $CFG->dirroot,
+            ],
+            'target' => [
+                'release' => $targetinfo['release'] ?? '',
+                'branch' => $targetinfo['branch'] ?? '',
+                'path' => $targetinfo['path'] ?? '',
+                'haspublic' => !empty($targetinfo['haspublic']),
+                'publicpath' => $targetinfo['publicpath'] ?? '',
+                'configpath' => $targetinfo['configpath'] ?? '',
+            ],
+            'risk' => $risk,
+            'plugins' => [
+                'reviewcount' => count(array_filter($customplugins, static function (array $plugin): bool {
+                    return !in_array(($plugin['compatibility'] ?? ''), ['compatible', 'core_removed'], true);
+                })),
+                'inventorycount' => count($customplugins),
+            ],
+            'rules' => rule_engine::get_rule($targetinfo['branch'] ?? '', $targetinfo),
+            'serverrecommendations' => server_recommendation_engine::recommendations(
+                server_recommendation_engine::detect_profile()
+            ),
+            'analysis' => $analysis,
+            'lifecycle' => lifecycle_manager::report_snapshot($env['branch'], $targetinfo['branch'] ?? ''),
+            'theme' => $env['theme'] ?? '',
+        ];
+    }
+
+    /**
+     * Recheck the active report against the current source and target installations.
+     *
+     * @param int $reportid Existing report ID.
+     * @param array $targetinfo Freshly detected target installation.
+     * @param array|null $analysis Fresh upgrade path analysis.
+     * @param array $customplugins Fresh plugin comparison.
+     * @param array $wizardstate Current wizard state.
+     * @return array Updated risk assessment.
+     */
+    public static function recheck_report(
+        int $reportid,
+        array $targetinfo,
+        ?array $analysis,
+        array $customplugins,
+        array $wizardstate
+    ): array {
+        global $DB;
+
+        $report = $DB->get_record(self::REPORTS_TABLE, ['id' => $reportid], '*', MUST_EXIST);
+        $env = detector::environment();
+        if (
+            (string)$report->currentbranch !== (string)$env['branch']
+            || (string)$report->targetbranch !== (string)$targetinfo['branch']
+        ) {
+            throw new \moodle_exception('reporttargetchanged', 'local_upgradeassistant');
+        }
+
+        $findings = self::build_findings($env, $targetinfo, $analysis, $customplugins, $wizardstate);
+        $transaction = $DB->start_delegated_transaction();
+        $previousrisk = ['score' => (int)$report->riskscore, 'level' => $report->risklevel];
+        $changes = self::reconcile_findings(
+            $reportid,
+            $findings,
+            (string)$report->targetrelease === (string)($targetinfo['release'] ?? ''),
+            $customplugins,
+            !empty($targetinfo['haspublic']) && !empty($targetinfo['publicpath'])
+                ? (string)$targetinfo['publicpath'] : (string)$targetinfo['path']
+        );
+
+        $DB->delete_records('local_upgradeassistant_plug', ['reportid' => $reportid]);
+        plugin_analyser::persist_for_report($reportid, $customplugins);
+
+        $items = $DB->get_records(self::ITEMS_TABLE, ['reportid' => $reportid], '', 'id, severity, status');
+        $risk = risk_assessor::assess(array_map(static function ($item): array {
+            return ['severity' => $item->severity, 'status' => $item->status];
+        }, array_values($items)));
+        $summary = self::build_summary($env, $targetinfo, $analysis, $customplugins, $risk);
+        $summary['lastcheckedat'] = time();
+        $report->currentrelease = (string)($env['release'] ?? '');
+        $report->targetrelease = (string)($targetinfo['release'] ?? '');
+        $report->phpversion = PHP_VERSION;
+        $report->dbversion = self::database_description($env['dbinfo']);
+        $report->serverprofile = server_recommendation_engine::profile_label();
+        $report->riskscore = $risk['score'];
+        $report->risklevel = $risk['level'];
+        $report->summary = self::json($summary);
+        $report->timemodified = time();
+        $DB->update_record(self::REPORTS_TABLE, $report);
+        audit_logger::log($reportid, 'report_rechecked', 'report', $reportid, $previousrisk, [
+            'risk' => ['score' => $risk['score'], 'level' => $risk['level']],
+            'changes' => $changes,
+        ]);
+        $transaction->allow_commit();
+
+        return $risk;
+    }
+
+    /**
+     * Keep finding identities and accepted decisions across repeat checks.
+     *
+     * @param int $reportid Existing report ID.
+     * @param array $findings Newly detected findings.
+     * @param bool $samerelease Whether the target release is unchanged.
+     * @param array $pluginrows Fresh comparison of installed plugin code.
+     * @param string $targetroot Target Moodle code directory.
+     * @return array Counts of added, resolved and reopened findings.
+     */
+    private static function reconcile_findings(
+        int $reportid,
+        array $findings,
+        bool $samerelease,
+        array $pluginrows = [],
+        string $targetroot = ''
+    ): array {
+        global $DB;
+
+        $records = $DB->get_records(self::ITEMS_TABLE, ['reportid' => $reportid], 'sortorder ASC, id ASC');
+        $existing = [];
+        foreach ($records as $record) {
+            $existing[$record->category . ':' . $record->code] = $record;
+        }
+        $pluginsbycomponent = [];
+        foreach ($pluginrows as $row) {
+            $pluginsbycomponent[(string)$row['component']] = $row;
+        }
+        $targetcomponents = null;
+        $changes = ['added' => 0, 'resolved' => 0, 'reopened' => 0];
+        $now = time();
+        $sort = 10;
+        foreach ($findings as $finding) {
+            $key = $finding['category'] . ':' . $finding['code'];
+            $old = $existing[$key] ?? null;
+            unset($existing[$key]);
+            $status = $finding['status'] ?? 'open';
+            if (
+                $old && $old->status === 'reviewed' && $status === 'open' && $samerelease
+                && $old->severity === $finding['severity']
+                && $old->title === $finding['title']
+                && $old->description === $finding['description']
+            ) {
+                $status = 'reviewed';
+            }
+            $values = [
+                'title' => $finding['title'],
+                'description' => $finding['description'],
+                'severity' => $finding['severity'],
+                'status' => $status,
+                'recommendation' => $finding['recommendation'] ?? '',
+                'evidence' => self::json($finding['evidence'] ?? []),
+                'sortorder' => $sort,
+            ];
+            $sort += 10;
+            if ($old) {
+                $record = clone($old);
+                foreach ($values as $field => $value) {
+                    $record->{$field} = $value;
+                }
+                if ($record != $old) {
+                    $DB->update_record(self::ITEMS_TABLE, $record);
+                    if ($old->status === 'closed' && $status === 'open') {
+                        $changes['reopened']++;
+                    }
+                    audit_logger::log($reportid, 'finding_rechecked', 'finding', (int)$record->id, $old, $record);
+                }
+                continue;
+            }
+            $record = (object)(['reportid' => $reportid, 'timecreated' => $now] + $values + [
+                'category' => $finding['category'],
+                'code' => $finding['code'],
+            ]);
+            $id = (int)$DB->insert_record(self::ITEMS_TABLE, $record);
+            audit_logger::log($reportid, 'finding_detected', 'finding', $id, null, $record);
+            $changes['added']++;
+        }
+        foreach ($existing as $old) {
+            if (in_array($old->status, ['closed', 'resolved', 'mitigated'], true)) {
+                continue;
+            }
+            $record = clone($old);
+            $record->status = 'closed';
+            $verification = self::resolution_reason($old, $pluginsbycomponent, $targetroot, $targetcomponents);
+            $evidence = json_decode((string)$record->evidence, true);
+            if (!is_array($evidence)) {
+                $evidence = [];
+            }
+            $evidence['verifiedresolution'] = $verification;
+            $record->evidence = self::json($evidence);
+            $DB->update_record(self::ITEMS_TABLE, $record);
+            $reasontext = get_string(
+                'findingresolution' . $verification['reason'],
+                'local_upgradeassistant',
+                $verification['component']
+            );
+            audit_logger::log(
+                $reportid,
+                'finding_verified_resolved',
+                'finding',
+                (int)$record->id,
+                $old,
+                $record,
+                $reasontext
+            );
+            $changes['resolved']++;
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Explain an absent finding using the fresh plugin code inventories.
+     *
+     * @param object $old Finding recorded before the new check.
+     * @param array $pluginrows New comparison, keyed by component.
+     * @param string $targetroot Directory containing the target Moodle plugins.
+     * @param array|null $targetcomponents Cached target-only inventory.
+     * @return array Safe reason code and plugin component.
+     */
+    private static function resolution_reason(
+        object $old,
+        array $pluginrows,
+        string $targetroot,
+        ?array &$targetcomponents
+    ): array {
+        $previous = json_decode((string)$old->evidence, true);
+        $component = is_array($previous) ? (string)($previous['component'] ?? '') : '';
+        if ($old->category !== 'plugins' || $component === '') {
+            return ['reason' => 'notdetected', 'component' => ''];
+        }
+
+        if (isset($pluginrows[$component])) {
+            $row = $pluginrows[$component];
+            $reason = !empty($row['existsintarget'])
+                ? (empty($previous['existsintarget']) ? 'targetadded' : 'targetcompatible') : 'notdetected';
+            return ['reason' => $reason, 'component' => $component];
+        }
+
+        if ($targetroot !== '') {
+            if ($targetcomponents === null) {
+                $targetcomponents = [];
+                foreach (plugin_analyser::inventory($targetroot) as $plugin) {
+                    $targetcomponents[$plugin['component']] = true;
+                }
+            }
+            if (isset($targetcomponents[$component]) && empty($previous['existsintarget'])) {
+                return ['reason' => 'sourceabsenttargetadded', 'component' => $component];
+            }
+        }
+        return ['reason' => 'sourceabsent', 'component' => $component];
     }
 
 
@@ -259,7 +502,7 @@ class report_builder {
                 'info',
                 get_string('findingtargetpublicstructure', 'local_upgradeassistant'),
                 get_string('findingtargetpublicstructuredesc', 'local_upgradeassistant', $targetinfo['publicpath'] ?? ''),
-                get_string('findingtargetpublicstructurerec', 'local_upgradeassistant')
+                server_recommendation_engine::target_public_recommendation()
             );
         }
         $findings = array_merge($findings, self::plugin_findings($customplugins));
@@ -627,6 +870,7 @@ class report_builder {
         self::synchronise_plugin_context($report);
         $report = $DB->get_record(self::REPORTS_TABLE, ['id' => $reportid], '*', MUST_EXIST);
         $items = $DB->get_records(self::ITEMS_TABLE, ['reportid' => $reportid], 'sortorder ASC, id ASC');
+        $summary = json_decode((string)$report->summary, true);
         $user = $DB->get_record(
             'user',
             ['id' => $report->userid],
@@ -665,7 +909,7 @@ class report_builder {
                 $evidence = [];
             }
 
-            $reviewaudit = $reviewauditbyfinding[(int)$item->id] ?? null;
+            $reviewaudit = $item->status === 'reviewed' ? ($reviewauditbyfinding[(int)$item->id] ?? null) : null;
             $reviewnote = $reviewaudit !== null ? (string)$reviewaudit->note : '';
             $reviewer = $reviewaudit !== null && isset($reviewers[(int)$reviewaudit->userid])
                 ? $reviewers[(int)$reviewaudit->userid] : null;
@@ -676,12 +920,24 @@ class report_builder {
                 $reviewnote = self::redact_sensitive_text($reviewnote, $report);
             }
 
-            $isresolved = in_array($item->status, ['closed', 'resolved', 'reviewed'], true);
+            $isresolved = in_array($item->status, ['closed', 'resolved'], true);
             $ismitigatedlifecycle = $item->code === 'lifecycle_current_unsupported' && $item->status === 'closed';
             $isofficialremoval = ($evidence['compatibility'] ?? '') === 'core_removed' && $item->status === 'closed';
+            $verified = $item->status === 'closed' ? ($evidence['verifiedresolution'] ?? []) : [];
+            $reason = is_array($verified) ? ($verified['reason'] ?? '') : '';
+            $reasontext = in_array($reason, [
+                'notdetected', 'sourceabsent', 'sourceabsenttargetadded', 'targetadded', 'targetcompatible',
+            ], true) ? get_string(
+                'findingresolution' . $reason,
+                'local_upgradeassistant',
+                (string)($verified['component'] ?? '')
+            ) : '';
 
             if ($item->status === 'reviewed') {
-                $statuslabel = get_string('findingstatusreviewed', 'local_upgradeassistant');
+                $statuslabel = get_string(
+                    $item->severity === 'info' ? 'findingstatusreviewed' : 'findingstatusaccepted',
+                    'local_upgradeassistant'
+                );
             } else if ($ismitigatedlifecycle) {
                 $statuslabel = get_string('findingstatusmitigated', 'local_upgradeassistant');
             } else if ($isofficialremoval) {
@@ -701,6 +957,8 @@ class report_builder {
                 'status' => $statuslabel,
                 'statusclass' => $isresolved ? 'ua-badge-ok' : 'ua-badge-warn',
                 'recommendation' => $recommendation,
+                'verificationreason' => $reasontext,
+                'hasverificationreason' => $reasontext !== '',
                 'canreview' => $item->status === 'open'
                     && (($item->category === 'plugins' && !empty($evidence['reviewable']))
                         || in_array($item->category, ['path', 'requirements'], true)
@@ -733,6 +991,7 @@ class report_builder {
             'riskclass' => self::risk_class($report->risklevel),
             'status' => s($report->status),
             'timecreated' => userdate($report->timecreated),
+            'lastchecked' => !empty($summary['lastcheckedat']) ? userdate((int)$summary['lastcheckedat']) : '',
             'generatedby' => $user ? fullname($user) : '',
             'pdfurl' => '',
             'htmlurl' => '',
@@ -1088,6 +1347,11 @@ class report_builder {
         $oldvalue = clone($report);
         $report->riskscore = $risk['score'];
         $report->risklevel = $risk['level'];
+        $summary = json_decode((string)$report->summary, true);
+        if (is_array($summary)) {
+            $summary['risk'] = $risk;
+            $report->summary = self::json($summary);
+        }
         $report->timemodified = time();
         $DB->update_record(self::REPORTS_TABLE, $report);
         audit_logger::log($reportid, 'risk_recalculated', 'report', $reportid, $oldvalue, $report);

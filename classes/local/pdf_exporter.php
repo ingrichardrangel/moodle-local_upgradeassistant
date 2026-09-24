@@ -49,11 +49,11 @@ class pdf_exporter {
 
         $data = self::get_report_data($reportid, $redacted);
         $title = get_string('pdfreporttitle', 'local_upgradeassistant');
-        $filename = clean_filename('smart-upgrade-assistant-pre-upgrade-report-' . $data['report']->id
+        $filename = clean_filename('upgrade-assistant-pre-upgrade-report-' . $data['report']->id
             . ($redacted ? '-redacted' : '') . '.pdf');
 
         $pdf = new \pdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->SetCreator('Smart Upgrade Assistant');
+        $pdf->SetCreator('Upgrade Assistant');
         $pdf->SetAuthor($data['generatedby']);
         $pdf->SetTitle($title . ' #' . $data['report']->id);
         $pdf->SetSubject(get_string('pdfsubject', 'local_upgradeassistant'));
@@ -88,7 +88,7 @@ class pdf_exporter {
      */
     public static function download_html(int $reportid, bool $redacted = false): void {
         $data = self::get_report_data($reportid, $redacted);
-        $filename = clean_filename('smart-upgrade-assistant-pre-upgrade-report-' . $data['report']->id
+        $filename = clean_filename('upgrade-assistant-pre-upgrade-report-' . $data['report']->id
             . ($redacted ? '-redacted' : '') . '.html');
         $html = '<!doctype html><html><head><meta charset="utf-8"><title>' .
             s(get_string('pdfreporttitle', 'local_upgradeassistant')) . '</title>' .
@@ -264,7 +264,7 @@ class pdf_exporter {
 
         $report = $data['report'];
         $html = '<div class="cover">';
-        $html .= '<div class="brand">SMART UPGRADE ASSISTANT</div>';
+        $html .= '<div class="brand">UPGRADE ASSISTANT</div>';
         $html .= '<h1>' . self::clean(get_string('pdfreporttitle', 'local_upgradeassistant')) . '</h1>';
         $html .= '<p class="muted">' . self::clean(get_string('pdfreportintro', 'local_upgradeassistant')) . '</p>';
         $html .= '<br />';
@@ -344,6 +344,12 @@ class pdf_exporter {
 
         $html = '<h2>' . self::clean(get_string('pdfexecutivesummary', 'local_upgradeassistant')) . '</h2>';
         $html .= '<p>' . self::clean($summary) . '</p>';
+        $html .= '<p class="muted">' . self::clean(get_string('riskscoreexplanation', 'local_upgradeassistant')) . '</p>';
+        $snapshot = json_decode((string)$report->summary, true);
+        if (!empty($snapshot['lastcheckedat'])) {
+            $html .= '<p class="muted">' . self::clean(get_string('reportlastchecked', 'local_upgradeassistant')) . ': '
+                . self::clean(userdate((int)$snapshot['lastcheckedat'])) . '</p>';
+        }
         $html .= '<table cellpadding="5">';
         $html .= '<tr><th width="35%">' . self::clean(get_string('indicator', 'local_upgradeassistant'))
             . '</th><th width="65%">' . self::clean(get_string('result', 'local_upgradeassistant')) . '</th></tr>';
@@ -552,7 +558,10 @@ class pdf_exporter {
 
         $reviewauditbyfinding = [];
         foreach (array_reverse($audit, true) as $entry) {
-            if ($entry->action === 'finding_reviewed' && (int)$entry->targetid > 0) {
+            if (
+                $entry->action === 'finding_reviewed' && (int)$entry->targetid > 0
+                && !isset($reviewauditbyfinding[(int)$entry->targetid])
+            ) {
                 $reviewauditbyfinding[(int)$entry->targetid] = $entry;
             }
         }
@@ -580,8 +589,20 @@ class pdf_exporter {
             }
             $isofficialremoval = ($evidence['compatibility'] ?? '') === 'core_removed'
                 && $item->status === 'closed';
+            $verified = $item->status === 'closed' ? ($evidence['verifiedresolution'] ?? []) : [];
+            $reason = is_array($verified) ? ($verified['reason'] ?? '') : '';
+            $reasontext = in_array($reason, [
+                'notdetected', 'sourceabsent', 'sourceabsenttargetadded', 'targetadded', 'targetcompatible',
+            ], true) ? get_string(
+                'findingresolution' . $reason,
+                'local_upgradeassistant',
+                (string)($verified['component'] ?? '')
+            ) : '';
             if ($item->status === 'reviewed') {
-                $statuslabel = get_string('findingstatusreviewed', 'local_upgradeassistant');
+                $statuslabel = get_string(
+                    $item->severity === 'info' ? 'findingstatusreviewed' : 'findingstatusaccepted',
+                    'local_upgradeassistant'
+                );
             } else if ($item->code === 'lifecycle_current_unsupported' && $item->status === 'closed') {
                 $statuslabel = get_string('findingstatusmitigated', 'local_upgradeassistant');
             } else if ($isofficialremoval) {
@@ -592,7 +613,7 @@ class pdf_exporter {
 
             $reviewtext = '';
             $reviewmeta = '';
-            $reviewaudit = $reviewauditbyfinding[(int)$item->id] ?? null;
+            $reviewaudit = $item->status === 'reviewed' ? ($reviewauditbyfinding[(int)$item->id] ?? null) : null;
             if ($reviewaudit !== null && trim((string)$reviewaudit->note) !== '') {
                 $reviewtext = (string)$reviewaudit->note;
                 if ($redacted) {
@@ -607,8 +628,13 @@ class pdf_exporter {
             }
 
             $html .= '<td>' . self::clean($statuslabel) . '</td>';
-            $html .= '<td><strong>' . self::clean($item->title) . '</strong><br /><span class="small muted">'
-                . self::clean($description) . '</span>';
+            $html .= '<td><strong>' . self::clean($item->title) . '</strong>';
+            if ($reasontext !== '') {
+                $html .= '<br /><strong>' . self::clean(get_string('findingresolutionlabel', 'local_upgradeassistant'))
+                    . ':</strong> ' . self::clean($reasontext);
+            } else {
+                $html .= '<br /><span class="small muted">' . self::clean($description) . '</span>';
+            }
             if ($reviewtext !== '') {
                 $html .= '<br /><br /><strong>' . self::clean(get_string(
                     'administratorcriterion',
@@ -619,7 +645,7 @@ class pdf_exporter {
                 }
             }
             $html .= '</td>';
-            $html .= '<td>' . self::clean($recommendation) . '</td>';
+            $html .= '<td>' . ($reasontext !== '' ? '' : self::clean($recommendation)) . '</td>';
             $html .= '</tr>';
         }
         $html .= '</table>';

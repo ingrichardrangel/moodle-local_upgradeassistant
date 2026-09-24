@@ -81,6 +81,7 @@ final class future_finding_review_test extends \advanced_testcase {
 
         $finding = $DB->get_record('local_upgradeassistant_item', ['id' => $findingid], '*', MUST_EXIST);
         $this->assertSame('reviewed', $finding->status);
+        $this->assertSame(50, (int)$DB->get_field('local_upgradeassistant_rep', 'riskscore', ['id' => $reportid]));
         $this->assertTrue($DB->record_exists('local_upgradeassistant_audit', [
             'reportid' => $reportid,
             'action' => 'finding_reviewed',

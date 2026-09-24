@@ -65,16 +65,18 @@ final class plugin_analyser_review_test extends \advanced_testcase {
     }
 
     /**
-     * Reviewed findings no longer contribute to the risk score.
+     * Documenting a finding leaves the original risk in place until a new scan.
      *
      * @return void
      */
-    public function test_reviewed_findings_do_not_add_risk(): void {
+    public function test_reviewed_findings_still_add_risk(): void {
         $risk = risk_assessor::assess([
             ['severity' => 'high', 'status' => 'reviewed'],
             ['severity' => 'medium', 'status' => 'open'],
         ]);
 
-        $this->assertSame(12, $risk['score']);
+        $this->assertSame(50, $risk['score']);
+        $this->assertSame('high', $risk['level']);
+        $this->assertSame(0, risk_assessor::assess([])['score']);
     }
 }

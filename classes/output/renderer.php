@@ -19,7 +19,7 @@ namespace local_upgradeassistant\output;
 use plugin_renderer_base;
 
 /**
- * Renderer for Smart Upgrade Assistant.
+ * Renderer for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel

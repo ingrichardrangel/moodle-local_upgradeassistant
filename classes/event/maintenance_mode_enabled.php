@@ -50,7 +50,7 @@ class maintenance_mode_enabled extends \core\event\base {
      * @return string
      */
     public function get_description(): string {
-        return "The user with id '{$this->userid}' enabled Moodle maintenance mode from Smart Upgrade Assistant.";
+        return "The user with id '{$this->userid}' enabled Moodle maintenance mode from Upgrade Assistant.";
     }
 
     /**

@@ -35,19 +35,31 @@
         {{#capabilities.cangeneratecompletereport}}{{#selectedtarget.available}}
         <form method="post" action="{{actionurl}}">
             <input type="hidden" name="sesskey" value="{{sesskey}}">
+            {{#proreport.canrefresh}}
+            <input type="hidden" name="action" value="recheckreport">
+            <input type="hidden" name="reportid" value="{{proreport.id}}">
+            {{/proreport.canrefresh}}
+            {{^proreport.canrefresh}}
             <input type="hidden" name="action" value="generatereport">
+            {{/proreport.canrefresh}}
             <input type="hidden" name="returnview" value="wizard">
             <input type="hidden" name="returnstep" value="4">
+            {{#proreport.canrefresh}}
+            <button type="submit" class="btn btn-primary"><i class="fa fa-refresh" aria-hidden="true"></i> {{#str}} recheckreport, local_upgradeassistant {{/str}}</button>
+            {{/proreport.canrefresh}}
+            {{^proreport.canrefresh}}
             <button type="submit" class="btn btn-primary"><i class="fa fa-file-text" aria-hidden="true"></i> {{#str}} generatepreparationreport, local_upgradeassistant {{/str}}</button>
+            {{/proreport.canrefresh}}
         </form>
         {{/selectedtarget.available}}{{/capabilities.cangeneratecompletereport}}
     </article>
 
     {{#proreport.available}}
     <div class="ua-latest-report {{proreport.riskclass}}">
-        <div><span>{{#str}} latestreport, local_upgradeassistant {{/str}} #{{proreport.id}}</span><strong>{{proreport.riskscore}}/100 · {{proreport.risklevel}}</strong><small>{{proreport.timecreated}}</small></div>
+        <div><span>{{#str}} latestreport, local_upgradeassistant {{/str}} #{{proreport.id}}</span><strong>{{proreport.riskscore}}/100 · {{proreport.risklevel}}</strong><small>{{proreport.timecreated}}{{#proreport.lastchecked}} · {{#str}} reportlastchecked, local_upgradeassistant {{/str}}: {{proreport.lastchecked}}{{/proreport.lastchecked}}</small></div>
         <a class="btn btn-outline-primary" href="{{reportsurl}}">{{#str}} viewfullreport, local_upgradeassistant {{/str}}</a>
     </div>
+    <p class="ua-risk-explanation">{{#str}} riskscoresummary, local_upgradeassistant {{/str}}</p>
     {{/proreport.available}}
 
     <div class="ua-critical-panel">

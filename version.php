@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for Smart Upgrade Assistant.
+ * Version information for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_upgradeassistant';
-$plugin->version   = 2026092306;
+$plugin->version   = 2026092403;
 $plugin->requires  = 2022112800; // Moodle 4.1+.
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '1.6.0-beta2-ci-free';
+$plugin->release   = '1.6.0-beta6';

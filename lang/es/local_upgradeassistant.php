@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Spanish language strings for Smart Upgrade Assistant.
+ * Spanish language strings for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -26,11 +26,11 @@ $string['accessdeniedpath'] = 'La ruta seleccionada está fuera de los directori
 $string['action'] = 'Acción';
 $string['administratorcriterion'] = 'Criterio documentado por el administrador';
 $string['administratorcriterionhelp'] = 'Tu decisión quedará registrada con el usuario, fecha y hora. ' .
-    'Revisar el hallazgo no cambia los requisitos de Moodle; la organización debe verificar tu ' .
-    'justificación antes de ejecutar la actualización.';
+    'Documentar un hallazgo no disminuye el riesgo detectado en este informe. Si corriges la instalación destino, ' .
+    'vuelve a comprobar este informe para verificarlo. La organización debe revisar tu justificación antes de actualizar.';
 $string['administratorcriterionlabel'] = 'Criterio, evidencia o decisión administrativa';
-$string['administratorcriterionplaceholder'] = 'Describe qué verificaste, qué evidencia consultaste y ' .
-    'por qué consideras atendido o aceptado este hallazgo.';
+$string['administratorcriterionplaceholder'] = 'Describe la evidencia y tu decisión de continuar. ' .
+    'Si corregiste el destino, usa Volver a comprobar para verificarlo.';
 $string['advancedpluginmatrix'] = 'Matriz avanzada de plugins';
 $string['analysecompatibility'] = 'Analizar compatibilidad';
 $string['analysisdowngrade'] = 'No se puede hacer downgrade. La instalación seleccionada es menor que la versión actual de Moodle.';
@@ -62,9 +62,9 @@ $string['boostthemeactive'] = 'Boost activo';
 $string['boostthemenotactive'] = 'El tema activo es {$a}. Cambia el tema del sitio a Boost antes de ' .
     'marcar este paso como verificado.';
 $string['boostthemeswitched'] = 'El tema del sitio fue cambiado a Boost y el paso del checklist quedó completado.';
-$string['boostthemeswitchednote'] = 'El tema del sitio fue cambiado a Boost desde Smart Upgrade Assistant.';
+$string['boostthemeswitchednote'] = 'El tema del sitio fue cambiado a Boost desde Upgrade Assistant.';
 $string['boostthemeverified'] = 'Tema Boost verificado correctamente.';
-$string['boostthemeverifiednote'] = 'El tema activo fue verificado como Boost desde Smart Upgrade Assistant.';
+$string['boostthemeverifiednote'] = 'El tema activo fue verificado como Boost desde Upgrade Assistant.';
 $string['branch'] = 'Rama';
 $string['cachespurged'] = 'Todas las cachés de Moodle fueron purgadas.';
 $string['category'] = 'Categoría';
@@ -150,12 +150,12 @@ $string['enablemaintenance'] = 'Activar modo mantenimiento';
 $string['environmentdetected'] = 'Entorno detectado';
 $string['eventchecklistcompleted'] = 'Elemento del checklist del asistente completado';
 $string['eventlifecyclesynced'] = 'Datos del ciclo de vida Moodle sincronizados';
-$string['eventmaintenancedisabled'] = 'Modo mantenimiento desactivado desde Smart Upgrade Assistant';
-$string['eventmaintenanceenabled'] = 'Modo mantenimiento activado desde Smart Upgrade Assistant';
+$string['eventmaintenancedisabled'] = 'Modo mantenimiento desactivado desde Upgrade Assistant';
+$string['eventmaintenanceenabled'] = 'Modo mantenimiento activado desde Upgrade Assistant';
 $string['eventreportcreated'] = 'Reporte del asistente de actualización creado';
 $string['eventreportexported'] = 'Reporte del asistente de actualización exportado';
 $string['eventtargetselected'] = 'Destino del asistente de actualización seleccionado';
-$string['eventthemeswitchedtoboost'] = 'Tema del sitio cambiado a Boost desde Smart Upgrade Assistant';
+$string['eventthemeswitchedtoboost'] = 'Tema del sitio cambiado a Boost desde Upgrade Assistant';
 $string['evidenceandtraceability'] = 'Evidencia y trazabilidad';
 $string['executionblocked'] = 'La ejecución todavía presenta bloqueos. Regresa a Preparación y ' .
     'resuélvelos antes de modificar archivos.';
@@ -307,13 +307,24 @@ $string['findingpublicstructure'] = 'El sitio actual usa una estructura /public'
 $string['findingpublicstructuredesc'] = 'El asistente detectó un directorio public dentro del árbol de código Moodle actual.';
 $string['findingpublicstructurerec'] = 'Confirma que el DocumentRoot del servidor web apunte al ' .
     'directorio public correcto después de la actualización.';
-$string['findingreviewed'] = 'La revisión administrativa del hallazgo quedó completada y documentada.';
+$string['findingresolutionlabel'] = 'Resultado de la nueva comprobación';
+$string['findingresolutionnotdetected'] = 'Esta incidencia ya no se detecta en la nueva comprobación.';
+$string['findingresolutionsourceabsent'] = 'El plugin {$a} ya no se detecta en el código de la ' .
+    'plataforma base. Comprueba si se desinstaló correctamente en Moodle y revisa sus dependencias.';
+$string['findingresolutionsourceabsenttargetadded'] = 'El plugin {$a} ya no se detecta en el ' .
+    'código de la plataforma base y ahora está presente en el código destino.';
+$string['findingresolutiontargetadded'] = 'El plugin {$a}, ausente antes del código destino, ' .
+    'ahora está presente allí y la comparación ya no detecta la incidencia.';
+$string['findingresolutiontargetcompatible'] = 'El plugin {$a} ya estaba en el código ' .
+    'destino y ahora la comparación lo considera compatible.';
+$string['findingreviewed'] = 'Se documentó la decisión administrativa. El riesgo detectado permanece en este informe.';
 $string['findingreviewerror'] = 'No se pudo confirmar la revisión. Comprueba la conexión y vuelve a intentarlo.';
 $string['findingreviewsavedrefresh'] = 'La revisión se guardó, pero no se pudo actualizar esta tarjeta. ' .
     'Recarga la página para verla; no es necesario volver a enviarla.';
 $string['findingsodiumcritical'] = 'Falta la extensión PHP sodium';
 $string['findingsodiumcriticaldesc'] = 'La rama Moodle destino requiere la extensión sodium, pero no está cargada en PHP.';
 $string['findingsodiumcriticalrec'] = 'Activa la extensión sodium antes de actualizar.';
+$string['findingstatusaccepted'] = 'Riesgo aceptado por el administrador';
 $string['findingstatusclosed'] = 'Resuelto';
 $string['findingstatusmitigated'] = 'Mitigado por la actualización';
 $string['findingstatusofficialremoval'] = 'Gestionado por la actualización';
@@ -328,8 +339,7 @@ $string['findingtargetpublicstructure'] = 'La plataforma destino usa estructura 
 $string['findingtargetpublicstructuredesc'] = 'El asistente detectó el directorio public en la ' .
     'plataforma destino: {$a}. Este hallazgo no aumenta el riesgo; cambia el procedimiento de reemplazo.';
 $string['findingtargetpublicstructurerec'] = 'Renombra la raíz antigua como respaldo, coloca la raíz ' .
-    'preparada con el nombre de producción y configura el Document Root del dominio para servir el ' .
-    'directorio public. Conserva config.php en la raíz superior.';
+    'preparada con el nombre de producción y conserva config.php en la raíz superior.';
 $string['generatedby'] = 'Generado por';
 $string['generatedon'] = 'Generado el';
 $string['generatepreparationreport'] = 'Generar informe';
@@ -367,6 +377,16 @@ $string['instructionpublicdevnote'] = 'La carpeta preparada {$a->targetfolder} s
     'después con otra instalación independiente si deseas conservarlo.';
 $string['instructionpublicdocumentroot'] = 'En cPanel o en la configuración del servidor, cambia el ' .
     'Document Root del dominio de producción para que apunte exactamente al directorio public final.';
+$string['instructionpublicdocumentrootcpanel'] = 'En cPanel, cambia el Document Root del dominio o subdominio ' .
+    'para que apunte al directorio /public final. Verifica que el proveedor permita editar esa ruta.';
+$string['instructionpublicdocumentrootserver'] = 'En el servidor web, configura la raíz del dominio para ' .
+    'servir el directorio /public final: DocumentRoot y <Directory> en Apache, o root en Nginx; ' .
+    'recarga el servicio después de verificar su configuración.';
+$string['instructionpublicdocumentrootwindows'] = 'En el servidor Windows, configura la raíz del sitio ' .
+    'para servir el directorio /public final en Apache o IIS y comprueba los permisos del directorio.';
+$string['instructionpublicdocumentrootxampp'] = 'En XAMPP, ajusta en Apache httpd.conf (o en el VirtualHost ' .
+    'activo) tanto DocumentRoot como el bloque <Directory> para que apunten al directorio /public final. ' .
+    'Comprueba la configuración y reinicia Apache.';
 $string['instructionpubliceditroots'] = 'Verifica que config.php conserve la URL, la base de datos y ' .
     'moodledata de producción. No establezcas $CFG->dirroot manualmente.';
 $string['instructionpublicfinalroot'] = 'Comprueba la estructura final. La primera ruta es la raíz ' .
@@ -448,14 +468,14 @@ $string['lifecyclestatusunsupported'] = 'Fuera de soporte';
 $string['lifecyclesyncdisabled'] = 'La sincronización del ciclo de vida Moodle está desactivada en la configuración del plugin.';
 $string['lifecycletimeline'] = 'Línea de tiempo de soporte';
 $string['lifecycletitle'] = 'Ciclo de vida Moodle';
-$string['local/upgradeassistant:configure'] = 'Configurar Smart Upgrade Assistant';
-$string['local/upgradeassistant:export'] = 'Exportar reportes de Smart Upgrade Assistant';
-$string['local/upgradeassistant:generatereport'] = 'Generar reportes de Smart Upgrade Assistant';
-$string['local/upgradeassistant:manage'] = 'Gestionar Smart Upgrade Assistant';
-$string['local/upgradeassistant:view'] = 'Ver Smart Upgrade Assistant';
-$string['local/upgradeassistant:viewreports'] = 'Ver reportes de Smart Upgrade Assistant';
-$string['local/upgradeassistant:viewsensitive'] = 'Ver datos sensibles de diagnósticos de Smart Upgrade Assistant';
-$string['mainnavigation'] = 'Navegación principal de Smart Upgrade Assistant';
+$string['local/upgradeassistant:configure'] = 'Configurar Upgrade Assistant';
+$string['local/upgradeassistant:export'] = 'Exportar reportes de Upgrade Assistant';
+$string['local/upgradeassistant:generatereport'] = 'Generar reportes de Upgrade Assistant';
+$string['local/upgradeassistant:manage'] = 'Gestionar Upgrade Assistant';
+$string['local/upgradeassistant:view'] = 'Ver Upgrade Assistant';
+$string['local/upgradeassistant:viewreports'] = 'Ver reportes de Upgrade Assistant';
+$string['local/upgradeassistant:viewsensitive'] = 'Ver datos sensibles de diagnósticos de Upgrade Assistant';
+$string['mainnavigation'] = 'Navegación principal de Upgrade Assistant';
 $string['maintenanceactive'] = 'Modo mantenimiento activo';
 $string['maintenancemodeoff'] = 'El modo mantenimiento fue desactivado.';
 $string['maintenancemodeon'] = 'El modo mantenimiento fue activado.';
@@ -551,7 +571,7 @@ $string['plugindependenciesverified'] = 'Dependencias verificadas en la instalac
 $string['plugindifferencesdesc'] = 'Las siguientes carpetas de plugins existen en la instalación actual ' .
     'pero no existen en la instalación destino, o requieren revisión adicional de compatibilidad.';
 $string['pluginmissingintarget'] = 'Ausente en destino';
-$string['pluginname'] = 'Smart Upgrade Assistant';
+$string['pluginname'] = 'Upgrade Assistant';
 $string['pluginofficiallyremoved'] = '{$a->component} fue retirado oficialmente desde Moodle {$a->version}';
 $string['pluginpresentintarget'] = 'Presente en la versión destino';
 $string['pluginrequiresfuturemoodle'] = 'Requiere una versión Moodle superior a la seleccionada';
@@ -597,8 +617,8 @@ $string['privacy:metadata:local_upgradeassistant_expt:exporttype'] = 'El formato
 $string['privacy:metadata:local_upgradeassistant_expt:reportid'] = 'El identificador del reporte exportado.';
 $string['privacy:metadata:local_upgradeassistant_expt:timecreated'] = 'La fecha en que se descargó la exportación.';
 $string['privacy:metadata:local_upgradeassistant_expt:userid'] = 'Usuario que descargó una exportación.';
-$string['privacy:metadata:local_upgradeassistant_item'] = 'Hallazgos del reporte generados por Smart ' .
-    'Upgrade Assistant. Pueden incluir evidencia técnica y recomendaciones para el proceso de actualización.';
+$string['privacy:metadata:local_upgradeassistant_item'] = 'Hallazgos del reporte generados por Upgrade Assistant. ' .
+    'Pueden incluir evidencia técnica y recomendaciones para el proceso de actualización.';
 $string['privacy:metadata:local_upgradeassistant_item:category'] = 'Categoría del hallazgo.';
 $string['privacy:metadata:local_upgradeassistant_item:code'] = 'Código interno del hallazgo.';
 $string['privacy:metadata:local_upgradeassistant_item:description'] = 'Descripción del hallazgo, que ' .
@@ -672,6 +692,7 @@ $string['reccpanel2'] = 'Confirma que el DocumentRoot apunta a la carpeta correc
 $string['reccpanel3'] = 'Programa cron desde cPanel Cron Jobs apuntando al PHP CLI correcto.';
 $string['reccpanel4'] = 'Realiza la sustitución de carpetas en una ventana de mantenimiento y conserva ' .
     'la carpeta anterior como respaldo.';
+$string['recheckreport'] = 'Volver a comprobar';
 $string['reclinux1'] = 'Confirma propietario y permisos de código fuente y moodledata antes del cambio.';
 $string['reclinux2'] = 'Valida que PHP CLI y PHP web usen la misma versión y extensiones necesarias.';
 $string['reclinux3'] = 'Ejecuta la actualización primero en una copia de pruebas antes de tocar producción.';
@@ -710,11 +731,15 @@ $string['reporthistorydescnew'] = 'Abre un informe anterior para comparar el niv
     'la trazabilidad del proceso.';
 $string['reporthistorytitle'] = 'Historial de reportes';
 $string['reportid'] = 'ID del reporte';
+$string['reportlastchecked'] = 'Última comprobación';
+$string['reportnotactive'] = 'Solo puedes actualizar el informe activo de este asistente.';
+$string['reportrechecked'] = 'Informe #{$a} actualizado con una nueva comprobación.';
 $string['reportspageheading'] = 'Informes de preparación';
 $string['reportspageintro'] = 'Consulta el diagnóstico actual, el checklist auditable y los informes ' .
     'anteriores sin interrumpir el flujo del asistente.';
 $string['reportstab'] = 'Informes';
 $string['reporttarget'] = 'Destino del reporte';
+$string['reporttargetchanged'] = 'El origen, el destino o la rama cambió. Selecciona el destino correcto antes de comprobar este informe.';
 $string['required'] = 'Requerido';
 $string['requiredvalue'] = 'Valor requerido';
 $string['requires'] = 'Requires';
@@ -730,6 +755,11 @@ $string['risklevellow'] = 'Riesgo bajo';
 $string['risklevelmedium'] = 'Riesgo medio';
 $string['risknotcalculated'] = 'Sin calcular';
 $string['riskscore'] = 'Nivel de riesgo';
+$string['riskscoreexplanation'] = 'La puntuación describe los hallazgos de la última comprobación. ' .
+    'La revisión escrita registra una decisión administrativa, pero no elimina el hallazgo ni reduce su puntuación. ' .
+    'Tras corregir la instalación destino, pulsa Volver a comprobar: ' .
+    'si el hallazgo desaparece, quedará resuelto y disminuirá el riesgo de este mismo informe.';
+$string['riskscoresummary'] = 'Basado en este informe; revisarlo no disminuye la puntuación.';
 $string['route'] = 'Ruta';
 $string['ruleoptional'] = 'Opcional';
 $string['rulerecommended'] = 'Recomendado';
@@ -759,7 +789,7 @@ $string['server'] = 'Servidor';
 $string['serverprofile'] = 'Perfil de servidor';
 $string['serverrecommendationsdesc'] = 'Recomendaciones específicas según el tipo de entorno detectado.';
 $string['serverrecommendationstitle'] = 'Recomendaciones por tipo de servidor';
-$string['settingspage'] = 'Smart Upgrade Assistant';
+$string['settingspage'] = 'Upgrade Assistant';
 $string['severity'] = 'Severidad';
 $string['severitycritical'] = 'Crítica';
 $string['severityhigh'] = 'Alta';

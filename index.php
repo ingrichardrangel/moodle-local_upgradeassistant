@@ -49,6 +49,7 @@ $view = optional_param('view', 'wizard', PARAM_ALPHA);
 $view = $view === 'reports' ? 'reports' : 'wizard';
 $requestedstep = optional_param('step', 0, PARAM_INT);
 $selectedreportid = optional_param('report', 0, PARAM_INT);
+$justrechecked = optional_param('rechecked', 0, PARAM_BOOL);
 
 $canviewsensitive = has_capability('local/upgradeassistant:viewsensitive', $context);
 $capabilities = [
@@ -232,6 +233,22 @@ $proreportdata = $view === 'reports' ? $lateststoredreport : $latestreport;
 if ($capabilities['canviewreports'] && $selectedreportid > 0) {
     $proreportdata = report_builder::report_for_template($selectedreportid);
 }
+$canrefresh = $capabilities['cangeneratecompletereport'] && $capabilities['canmanage']
+    && $selectedtarget !== null && !empty($currentstate['targetpath']);
+$activereportid = state::get_active_reportid();
+$activereport = $canrefresh && $activereportid > 0
+    ? $DB->get_record('local_upgradeassistant_rep', ['id' => $activereportid]) : false;
+$sameactiveinstallation = $activereport && (int)$activereport->userid === (int)$USER->id
+    && realpath((string)$activereport->targetpath) !== false
+    && realpath((string)$activereport->targetpath) === realpath((string)$selectedtarget['path'])
+    && (string)$activereport->targetbranch === (string)$selectedtarget['branch']
+    && (string)$activereport->currentbranch === (string)$env['branch'];
+$proreportdata['canrefresh'] = $sameactiveinstallation
+    && !empty($proreportdata['available']) && (int)$proreportdata['id'] === $activereportid;
+$proreportdata['justrechecked'] = $justrechecked && $view === 'reports'
+    && !empty($proreportdata['available']) && (int)$proreportdata['id'] === $selectedreportid;
+$latestreport['canrefresh'] = $sameactiveinstallation
+    && !empty($latestreport['available']) && (int)$latestreport['id'] === $activereportid;
 $reporthistoryrows = $capabilities['canviewreports'] ? report_builder::history_for_template() : [];
 foreach ($reporthistoryrows as $key => $row) {
     $reporthistoryrows[$key]['viewurl'] = (new moodle_url($baseurl, [

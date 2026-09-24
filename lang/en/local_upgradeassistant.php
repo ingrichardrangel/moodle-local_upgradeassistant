@@ -26,11 +26,11 @@ $string['accessdeniedpath'] = 'The selected path is outside the allowed scan roo
 $string['action'] = 'Action';
 $string['administratorcriterion'] = 'Administrator documented rationale';
 $string['administratorcriterionhelp'] = 'Your decision is recorded with the user, date and time. ' .
-    'Reviewing a finding does not change Moodle requirements; the organisation must verify your ' .
-    'rationale before performing the upgrade.';
+    'Documenting a finding does not lower this report\'s detected risk. If you correct the target installation, ' .
+    'recheck this report to verify the change. The organisation must review your rationale before upgrading.';
 $string['administratorcriterionlabel'] = 'Administrative rationale, evidence or decision';
-$string['administratorcriterionplaceholder'] = 'Describe what you verified, the evidence consulted, and ' .
-    'why you consider this finding addressed or accepted.';
+$string['administratorcriterionplaceholder'] = 'Describe the evidence and your decision to proceed. ' .
+    'If you corrected the target, use Recheck report to verify it.';
 $string['advancedpluginmatrix'] = 'Advanced plugin matrix';
 $string['analysecompatibility'] = 'Analyse compatibility';
 $string['analysisdowngrade'] = 'Downgrade is not allowed. The selected installation is older than the current Moodle version.';
@@ -300,13 +300,14 @@ $string['findingpublicstructure'] = 'The current site uses a /public structure';
 $string['findingpublicstructuredesc'] = 'The assistant detected a public directory in the current Moodle code tree.';
 $string['findingpublicstructurerec'] = 'Confirm that the web server DocumentRoot points to the correct ' .
     'public directory after the upgrade.';
-$string['findingreviewed'] = 'The administrative review of the finding was completed and documented.';
+$string['findingreviewed'] = 'The administrative decision was documented. The detected risk remains in this report.';
 $string['findingreviewerror'] = 'The review could not be confirmed. Check the connection and try again.';
 $string['findingreviewsavedrefresh'] = 'The review was saved, but this finding could not be refreshed. ' .
     'Reload the page to see it; do not submit it again.';
 $string['findingsodiumcritical'] = 'PHP sodium extension is missing';
 $string['findingsodiumcriticaldesc'] = 'The target Moodle branch requires the sodium extension, but it is not loaded in PHP.';
 $string['findingsodiumcriticalrec'] = 'Enable the sodium extension before upgrading.';
+$string['findingstatusaccepted'] = 'Risk accepted by administrator';
 $string['findingstatusclosed'] = 'Resolved';
 $string['findingstatusmitigated'] = 'Mitigated by upgrade';
 $string['findingstatusofficialremoval'] = 'Handled by the upgrade';
@@ -655,6 +656,7 @@ $string['reccpanel1'] = 'Verify the PHP version in MultiPHP Manager before movin
 $string['reccpanel2'] = 'Confirm that DocumentRoot points to the correct folder, especially if Moodle uses /public.';
 $string['reccpanel3'] = 'Schedule cron from cPanel Cron Jobs pointing to the correct PHP CLI.';
 $string['reccpanel4'] = 'Replace folders during a maintenance window and keep the previous folder as a backup.';
+$string['recheckreport'] = 'Recheck report';
 $string['reclinux1'] = 'Confirm ownership and permissions for source code and moodledata before the change.';
 $string['reclinux2'] = 'Validate that PHP CLI and web PHP use the same version and required extensions.';
 $string['reclinux3'] = 'Run the upgrade in a staging copy before touching production.';
@@ -691,11 +693,15 @@ $string['reporthistorydesc'] = 'History of generated reports to compare diagnost
 $string['reporthistorydescnew'] = 'Open an earlier report to compare risk levels and preserve process traceability.';
 $string['reporthistorytitle'] = 'Report history';
 $string['reportid'] = 'Report ID';
+$string['reportlastchecked'] = 'Last checked';
+$string['reportnotactive'] = 'Only the active report for this assistant can be rechecked.';
+$string['reportrechecked'] = 'Report #{$a} updated after a fresh check.';
 $string['reportspageheading'] = 'Preparation reports';
 $string['reportspageintro'] = 'Review the current diagnosis, auditable checklist and previous reports ' .
     'without interrupting the assistant flow.';
 $string['reportstab'] = 'Reports';
 $string['reporttarget'] = 'Report target';
+$string['reporttargetchanged'] = 'The source, target or branch changed. Select the correct target before rechecking this report.';
 $string['required'] = 'Required';
 $string['requiredvalue'] = 'Required value';
 $string['requires'] = 'Requires';
@@ -711,6 +717,11 @@ $string['risklevellow'] = 'Low risk';
 $string['risklevelmedium'] = 'Medium risk';
 $string['risknotcalculated'] = 'Not calculated';
 $string['riskscore'] = 'Risk level';
+$string['riskscoreexplanation'] = 'This score describes findings from the latest check. ' .
+    'A written review records an administrator\'s decision without removing the finding or reducing its score. ' .
+    'After correcting the target installation, use Recheck report: if the finding is gone, ' .
+    'it is marked resolved and the risk decreases in this same report.';
+$string['riskscoresummary'] = 'Based on this report; review does not lower the score.';
 $string['route'] = 'Route';
 $string['ruleoptional'] = 'Optional';
 $string['rulerecommended'] = 'Recommended';

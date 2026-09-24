@@ -36,6 +36,8 @@ class risk_assessor {
     public static function assess(array $findings): array {
         $score = 0;
         $criticalfound = false;
+        $highfound = false;
+        $mediumfound = false;
         $severitycounts = [
             'critical' => 0,
             'high' => 0,
@@ -46,7 +48,9 @@ class risk_assessor {
 
         foreach ($findings as $finding) {
             $status = $finding['status'] ?? 'open';
-            if (in_array($status, ['closed', 'resolved', 'reviewed', 'mitigated'], true)) {
+            // A written review records a decision; only a resolved or mitigated finding
+            // stops contributing to the risk observed when this report was generated.
+            if (in_array($status, ['closed', 'resolved', 'mitigated'], true)) {
                 continue;
             }
 
@@ -58,6 +62,10 @@ class risk_assessor {
 
             if ($severity === 'critical') {
                 $criticalfound = true;
+            } else if ($severity === 'high') {
+                $highfound = true;
+            } else if ($severity === 'medium') {
+                $mediumfound = true;
             }
 
             $score += self::severity_weight($severity);
@@ -66,6 +74,10 @@ class risk_assessor {
         $score = min(self::MAX_SCORE, $score);
         if ($criticalfound && $score < 75) {
             $score = 75;
+        } else if ($highfound && $score < 50) {
+            $score = 50;
+        } else if ($mediumfound && $score < 25) {
+            $score = 25;
         }
 
         $level = self::level_from_score($score);

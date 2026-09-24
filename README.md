@@ -1,4 +1,4 @@
-# Smart Upgrade Assistant 1.6.0-beta2-ci-free
+# Smart Upgrade Assistant 1.6.0-beta4-recheck
 
 Smart Upgrade Assistant is a local Moodle plugin that guides authorised administrators through safer manual Moodle upgrade preparation. It does **not** replace Moodle files automatically and it does **not** execute Moodle upgrades invisibly.
 
@@ -6,6 +6,7 @@ Smart Upgrade Assistant is a local Moodle plugin that guides authorised administ
 
 - Persistent pre-upgrade reports.
 - Risk score from 0 to 100.
+- A documented review retains the risk detected in that report. After correcting the target installation, recheck the active report to verify the change and update its risk score without creating another report. Verified resolved findings and earlier decisions remain in the audit history.
 - Moodle lifecycle intelligence based on official Moodle release information, with local fallback data.
 - Moodle-version rule engine with local built-in rules for every branch from 4.1 through 4.5 and 5.0 through 5.3.
 - Future targets can supply partial PHP and database rules through their own `admin/environment.xml`; the minimum upgrade path remains unverified until independently confirmed.

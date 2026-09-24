@@ -96,7 +96,7 @@ final class evaluation_fixes_test extends \advanced_testcase {
 
 
     /**
-     * A written plugin review closes the finding for scoring and preserves evidence.
+     * A written plugin review preserves evidence without reducing the detected risk.
      *
      * @return void
      */
@@ -138,7 +138,8 @@ final class evaluation_fixes_test extends \advanced_testcase {
         $updatedreport = $DB->get_record('local_upgradeassistant_rep', ['id' => $reportid], '*', MUST_EXIST);
 
         $this->assertSame('reviewed', $finding->status);
-        $this->assertSame(0, (int)$updatedreport->riskscore);
+        $this->assertSame(25, (int)$updatedreport->riskscore);
+        $this->assertSame('medium', $updatedreport->risklevel);
         $audit = $DB->get_record('local_upgradeassistant_audit', [
             'reportid' => $reportid,
             'action' => 'finding_reviewed',
@@ -148,6 +149,66 @@ final class evaluation_fixes_test extends \advanced_testcase {
             'Verified that the component is not used and is intentionally excluded from the target.',
             $audit->note
         );
+    }
+
+    /**
+     * Rechecking keeps the same report and its accepted risk until the finding disappears.
+     *
+     * @return void
+     */
+    public function test_recheck_preserves_review_and_verifies_resolution(): void {
+        global $DB, $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $reportid = $this->create_report((int)$USER->id, 'recheck-report');
+        $finding = [
+            'category' => 'plugins',
+            'code' => 'plugin_review_local_example',
+            'title' => 'Missing plugin',
+            'description' => 'Plugin is missing on the target',
+            'severity' => 'high',
+            'recommendation' => 'Install the missing plugin',
+            'evidence' => ['reviewable' => true],
+        ];
+        $findingid = (int)$DB->insert_record('local_upgradeassistant_item', (object)[
+            'reportid' => $reportid,
+            'category' => $finding['category'],
+            'code' => $finding['code'],
+            'title' => $finding['title'],
+            'description' => $finding['description'],
+            'severity' => $finding['severity'],
+            'status' => 'open',
+            'recommendation' => $finding['recommendation'],
+            'evidence' => json_encode($finding['evidence']),
+            'sortorder' => 10,
+            'timecreated' => time(),
+        ]);
+        report_builder::review_plugin_finding($reportid, $findingid, 'Approved for a controlled test');
+        $reconcile = new \ReflectionMethod(report_builder::class, 'reconcile_findings');
+        $reconcile->setAccessible(true);
+
+        $reconcile->invoke(null, $reportid, [$finding], true);
+        $this->assertSame('reviewed', $DB->get_field('local_upgradeassistant_item', 'status', ['id' => $findingid]));
+        $this->assertSame(1, $DB->count_records('local_upgradeassistant_item', ['reportid' => $reportid]));
+
+        $reconcile->invoke(null, $reportid, [$finding], false);
+        $this->assertSame('open', $DB->get_field('local_upgradeassistant_item', 'status', ['id' => $findingid]));
+        report_builder::review_plugin_finding($reportid, $findingid, 'Reassessed the new target release');
+
+        $reconcile->invoke(null, $reportid, [], true);
+        $this->assertSame('closed', $DB->get_field('local_upgradeassistant_item', 'status', ['id' => $findingid]));
+        $this->assertTrue($DB->record_exists('local_upgradeassistant_audit', [
+            'reportid' => $reportid, 'action' => 'finding_verified_resolved', 'targetid' => $findingid,
+        ]));
+
+        $reconcile->invoke(null, $reportid, [$finding], true);
+        $this->assertSame('open', $DB->get_field('local_upgradeassistant_item', 'status', ['id' => $findingid]));
+        $this->assertSame(1, $DB->count_records('local_upgradeassistant_rep', ['id' => $reportid]));
+        $this->assertSame(1, $DB->count_records('local_upgradeassistant_item', ['reportid' => $reportid]));
+        $this->assertTrue($DB->record_exists('local_upgradeassistant_audit', [
+            'reportid' => $reportid, 'action' => 'finding_reviewed', 'targetid' => $findingid,
+        ]));
     }
 
     /**

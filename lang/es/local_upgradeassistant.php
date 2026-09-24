@@ -26,11 +26,11 @@ $string['accessdeniedpath'] = 'La ruta seleccionada está fuera de los directori
 $string['action'] = 'Acción';
 $string['administratorcriterion'] = 'Criterio documentado por el administrador';
 $string['administratorcriterionhelp'] = 'Tu decisión quedará registrada con el usuario, fecha y hora. ' .
-    'Revisar el hallazgo no cambia los requisitos de Moodle; la organización debe verificar tu ' .
-    'justificación antes de ejecutar la actualización.';
+    'Documentar un hallazgo no disminuye el riesgo detectado en este informe. Si corriges la instalación destino, ' .
+    'vuelve a comprobar este informe para verificarlo. La organización debe revisar tu justificación antes de actualizar.';
 $string['administratorcriterionlabel'] = 'Criterio, evidencia o decisión administrativa';
-$string['administratorcriterionplaceholder'] = 'Describe qué verificaste, qué evidencia consultaste y ' .
-    'por qué consideras atendido o aceptado este hallazgo.';
+$string['administratorcriterionplaceholder'] = 'Describe la evidencia y tu decisión de continuar. ' .
+    'Si corregiste el destino, usa Volver a comprobar para verificarlo.';
 $string['advancedpluginmatrix'] = 'Matriz avanzada de plugins';
 $string['analysecompatibility'] = 'Analizar compatibilidad';
 $string['analysisdowngrade'] = 'No se puede hacer downgrade. La instalación seleccionada es menor que la versión actual de Moodle.';
@@ -307,13 +307,14 @@ $string['findingpublicstructure'] = 'El sitio actual usa una estructura /public'
 $string['findingpublicstructuredesc'] = 'El asistente detectó un directorio public dentro del árbol de código Moodle actual.';
 $string['findingpublicstructurerec'] = 'Confirma que el DocumentRoot del servidor web apunte al ' .
     'directorio public correcto después de la actualización.';
-$string['findingreviewed'] = 'La revisión administrativa del hallazgo quedó completada y documentada.';
+$string['findingreviewed'] = 'Se documentó la decisión administrativa. El riesgo detectado permanece en este informe.';
 $string['findingreviewerror'] = 'No se pudo confirmar la revisión. Comprueba la conexión y vuelve a intentarlo.';
 $string['findingreviewsavedrefresh'] = 'La revisión se guardó, pero no se pudo actualizar esta tarjeta. ' .
     'Recarga la página para verla; no es necesario volver a enviarla.';
 $string['findingsodiumcritical'] = 'Falta la extensión PHP sodium';
 $string['findingsodiumcriticaldesc'] = 'La rama Moodle destino requiere la extensión sodium, pero no está cargada en PHP.';
 $string['findingsodiumcriticalrec'] = 'Activa la extensión sodium antes de actualizar.';
+$string['findingstatusaccepted'] = 'Riesgo aceptado por el administrador';
 $string['findingstatusclosed'] = 'Resuelto';
 $string['findingstatusmitigated'] = 'Mitigado por la actualización';
 $string['findingstatusofficialremoval'] = 'Gestionado por la actualización';
@@ -672,6 +673,7 @@ $string['reccpanel2'] = 'Confirma que el DocumentRoot apunta a la carpeta correc
 $string['reccpanel3'] = 'Programa cron desde cPanel Cron Jobs apuntando al PHP CLI correcto.';
 $string['reccpanel4'] = 'Realiza la sustitución de carpetas en una ventana de mantenimiento y conserva ' .
     'la carpeta anterior como respaldo.';
+$string['recheckreport'] = 'Volver a comprobar';
 $string['reclinux1'] = 'Confirma propietario y permisos de código fuente y moodledata antes del cambio.';
 $string['reclinux2'] = 'Valida que PHP CLI y PHP web usen la misma versión y extensiones necesarias.';
 $string['reclinux3'] = 'Ejecuta la actualización primero en una copia de pruebas antes de tocar producción.';
@@ -710,11 +712,15 @@ $string['reporthistorydescnew'] = 'Abre un informe anterior para comparar el niv
     'la trazabilidad del proceso.';
 $string['reporthistorytitle'] = 'Historial de reportes';
 $string['reportid'] = 'ID del reporte';
+$string['reportlastchecked'] = 'Última comprobación';
+$string['reportnotactive'] = 'Solo puedes actualizar el informe activo de este asistente.';
+$string['reportrechecked'] = 'Informe #{$a} actualizado con una nueva comprobación.';
 $string['reportspageheading'] = 'Informes de preparación';
 $string['reportspageintro'] = 'Consulta el diagnóstico actual, el checklist auditable y los informes ' .
     'anteriores sin interrumpir el flujo del asistente.';
 $string['reportstab'] = 'Informes';
 $string['reporttarget'] = 'Destino del reporte';
+$string['reporttargetchanged'] = 'El origen, el destino o la rama cambió. Selecciona el destino correcto antes de comprobar este informe.';
 $string['required'] = 'Requerido';
 $string['requiredvalue'] = 'Valor requerido';
 $string['requires'] = 'Requires';
@@ -730,6 +736,11 @@ $string['risklevellow'] = 'Riesgo bajo';
 $string['risklevelmedium'] = 'Riesgo medio';
 $string['risknotcalculated'] = 'Sin calcular';
 $string['riskscore'] = 'Nivel de riesgo';
+$string['riskscoreexplanation'] = 'La puntuación describe los hallazgos de la última comprobación. ' .
+    'La revisión escrita registra una decisión administrativa, pero no elimina el hallazgo ni reduce su puntuación. ' .
+    'Tras corregir la instalación destino, pulsa Volver a comprobar: ' .
+    'si el hallazgo desaparece, quedará resuelto y disminuirá el riesgo de este mismo informe.';
+$string['riskscoresummary'] = 'Basado en este informe; revisarlo no disminuye la puntuación.';
 $string['route'] = 'Ruta';
 $string['ruleoptional'] = 'Opcional';
 $string['rulerecommended'] = 'Recomendado';

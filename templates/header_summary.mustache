@@ -89,6 +89,7 @@
             <span>{{#str}} risklevel, local_upgradeassistant {{/str}}</span>
             {{#dashboard.riskavailable}}<strong>{{dashboard.riskscore}}/100 · {{dashboard.risklevel}}</strong>{{/dashboard.riskavailable}}
             {{^dashboard.riskavailable}}<strong>{{dashboard.risklevel}}</strong>{{/dashboard.riskavailable}}
+            {{#dashboard.riskavailable}}<small>{{#str}} riskscoresummary, local_upgradeassistant {{/str}}</small>{{/dashboard.riskavailable}}
         </div>
     </div>
 </header>

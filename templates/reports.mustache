@@ -20,7 +20,7 @@
     {{#proreport.available}}
     <div class="ua-report-heading">
         <div class="ua-risk-score {{proreport.riskclass}}"><span>{{#str}} risklevel, local_upgradeassistant {{/str}}</span><strong>{{proreport.riskscore}}/100</strong><small>{{proreport.risklevel}}</small></div>
-        <div><span>{{#str}} preparationreport, local_upgradeassistant {{/str}} #{{proreport.id}}</span><h4>{{proreport.currentrelease}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{proreport.targetrelease}}</h4><p>{{#str}} generatedon, local_upgradeassistant {{/str}} {{proreport.timecreated}} · {{proreport.generatedby}}</p></div>
+        <div><span>{{#str}} preparationreport, local_upgradeassistant {{/str}} #{{proreport.id}}</span><h4>{{proreport.currentrelease}} <i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{proreport.targetrelease}}</h4><p>{{#str}} generatedon, local_upgradeassistant {{/str}} {{proreport.timecreated}} · {{proreport.generatedby}}{{#proreport.lastchecked}}<br>{{#str}} reportlastchecked, local_upgradeassistant {{/str}}: {{proreport.lastchecked}}{{/proreport.lastchecked}}</p></div>
         {{#capabilities.canexport}}
         <details class="ua-export-menu">
             <summary class="btn btn-primary"><i class="fa fa-download" aria-hidden="true"></i> {{#str}} exportmenu, local_upgradeassistant {{/str}}</summary>
@@ -37,8 +37,18 @@
         </details>
         {{/capabilities.canexport}}
     </div>
+    <p class="ua-risk-explanation">{{#str}} riskscoreexplanation, local_upgradeassistant {{/str}}</p>
+    {{#proreport.canrefresh}}
+    <form class="ua-recheck-actions" method="post" action="{{actionurl}}">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="action" value="recheckreport">
+        <input type="hidden" name="reportid" value="{{proreport.id}}">
+        <input type="hidden" name="returnview" value="reports">
+        <button type="submit" class="btn btn-outline-primary"><i class="fa fa-refresh" aria-hidden="true"></i> {{#str}} recheckreport, local_upgradeassistant {{/str}}</button>
+    </form>
+    {{/proreport.canrefresh}}
 
-    <details class="ua-details">
+    <details class="ua-details"{{#proreport.justrechecked}} open{{/proreport.justrechecked}}>
         <summary><i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{#str}} reportfindings, local_upgradeassistant {{/str}}</summary>
         <div class="ua-details-body">
             {{#proreport.hasitems}}

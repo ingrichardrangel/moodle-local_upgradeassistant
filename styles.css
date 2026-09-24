@@ -193,6 +193,17 @@
     border-right: 0;
 }
 
+.local-upgradeassistant .ua-header-metrics small,
+.local-upgradeassistant .ua-risk-explanation {
+    color: var(--ua-muted);
+    font-size: .8rem;
+    line-height: 1.45;
+}
+
+.local-upgradeassistant .ua-risk-explanation {
+    margin: .4rem 0 1rem;
+}
+
 .local-upgradeassistant .ua-header-metrics span,
 .local-upgradeassistant .ua-eyebrow,
 .local-upgradeassistant .ua-selection-summary span,
@@ -789,6 +800,12 @@
     grid-template-columns: auto minmax(0, 1fr) auto;
     margin-bottom: 1rem;
     padding: 1rem;
+}
+
+.local-upgradeassistant .ua-recheck-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 0 1rem;
 }
 
 .local-upgradeassistant .ua-risk-score {

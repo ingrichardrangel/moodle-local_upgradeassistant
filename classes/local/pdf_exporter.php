@@ -344,6 +344,12 @@ class pdf_exporter {
 
         $html = '<h2>' . self::clean(get_string('pdfexecutivesummary', 'local_upgradeassistant')) . '</h2>';
         $html .= '<p>' . self::clean($summary) . '</p>';
+        $html .= '<p class="muted">' . self::clean(get_string('riskscoreexplanation', 'local_upgradeassistant')) . '</p>';
+        $snapshot = json_decode((string)$report->summary, true);
+        if (!empty($snapshot['lastcheckedat'])) {
+            $html .= '<p class="muted">' . self::clean(get_string('reportlastchecked', 'local_upgradeassistant')) . ': '
+                . self::clean(userdate((int)$snapshot['lastcheckedat'])) . '</p>';
+        }
         $html .= '<table cellpadding="5">';
         $html .= '<tr><th width="35%">' . self::clean(get_string('indicator', 'local_upgradeassistant'))
             . '</th><th width="65%">' . self::clean(get_string('result', 'local_upgradeassistant')) . '</th></tr>';
@@ -552,7 +558,10 @@ class pdf_exporter {
 
         $reviewauditbyfinding = [];
         foreach (array_reverse($audit, true) as $entry) {
-            if ($entry->action === 'finding_reviewed' && (int)$entry->targetid > 0) {
+            if (
+                $entry->action === 'finding_reviewed' && (int)$entry->targetid > 0
+                && !isset($reviewauditbyfinding[(int)$entry->targetid])
+            ) {
                 $reviewauditbyfinding[(int)$entry->targetid] = $entry;
             }
         }
@@ -581,7 +590,10 @@ class pdf_exporter {
             $isofficialremoval = ($evidence['compatibility'] ?? '') === 'core_removed'
                 && $item->status === 'closed';
             if ($item->status === 'reviewed') {
-                $statuslabel = get_string('findingstatusreviewed', 'local_upgradeassistant');
+                $statuslabel = get_string(
+                    $item->severity === 'info' ? 'findingstatusreviewed' : 'findingstatusaccepted',
+                    'local_upgradeassistant'
+                );
             } else if ($item->code === 'lifecycle_current_unsupported' && $item->status === 'closed') {
                 $statuslabel = get_string('findingstatusmitigated', 'local_upgradeassistant');
             } else if ($isofficialremoval) {
@@ -592,7 +604,7 @@ class pdf_exporter {
 
             $reviewtext = '';
             $reviewmeta = '';
-            $reviewaudit = $reviewauditbyfinding[(int)$item->id] ?? null;
+            $reviewaudit = $item->status === 'reviewed' ? ($reviewauditbyfinding[(int)$item->id] ?? null) : null;
             if ($reviewaudit !== null && trim((string)$reviewaudit->note) !== '') {
                 $reviewtext = (string)$reviewaudit->note;
                 if ($redacted) {

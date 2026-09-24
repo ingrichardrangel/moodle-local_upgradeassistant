@@ -1,4 +1,4 @@
-# Upgrade Assistant 1.6 Beta
+# Upgrade Assistant 1.6
 
 Upgrade Assistant is a free local plugin for Moodle administrators preparing a manual upgrade. It examines the current site and a Moodle code tree prepared as the upgrade target, highlights potential problems, and records the checks and decisions made before the change. The plugin provides guidance and evidence; administrators remain in control of the upgrade.
 
@@ -38,7 +38,7 @@ The report offers **complete** and **redacted** PDF and HTML exports. Complete e
 2. Sign in as a site administrator and complete Moodle's plugin upgrade at `/admin/index.php`.
 3. Open **Site administration → Server → Upgrade Assistant**.
 
-This beta requires Moodle 4.1 or later. The bundled upgrade rules cover Moodle 4.1–4.5 and 5.0–5.3, including a preliminary target in the 5.3 branch. A newly released branch may be detected from its files, but its complete requirements and upgrade route still need verified rules; review unknown results against the official Moodle documentation.
+This release requires Moodle 4.1 or later. The bundled upgrade rules cover Moodle 4.1–4.5 and 5.0–5.3, including a preliminary target in the 5.3 branch. A newly released branch may be detected from its files, but its complete requirements and upgrade route still need verified rules; review unknown results against the official Moodle documentation.
 
 ## Access and data
 

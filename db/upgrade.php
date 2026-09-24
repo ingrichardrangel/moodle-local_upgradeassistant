@@ -380,5 +380,10 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2026092403, 'local', 'upgradeassistant');
     }
 
+    if ($oldversion < 2026092404) {
+        // No schema changes. Release the verified assistant as 1.6.0 stable.
+        upgrade_plugin_savepoint(true, 2026092404, 'local', 'upgradeassistant');
+    }
+
     return true;
 }

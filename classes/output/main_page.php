@@ -21,7 +21,7 @@ use renderer_base;
 use templatable;
 
 /**
- * Main page renderable for Smart Upgrade Assistant.
+ * Main page renderable for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel

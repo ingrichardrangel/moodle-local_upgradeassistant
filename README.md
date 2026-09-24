@@ -1,6 +1,6 @@
-# Smart Upgrade Assistant 1.6 Beta
+# Upgrade Assistant 1.6 Beta
 
-Smart Upgrade Assistant is a free local plugin for Moodle administrators preparing a manual upgrade. It examines the current site and a Moodle code tree prepared as the upgrade target, highlights potential problems, and records the checks and decisions made before the change. The plugin provides guidance and evidence; administrators remain in control of the upgrade.
+Upgrade Assistant is a free local plugin for Moodle administrators preparing a manual upgrade. It examines the current site and a Moodle code tree prepared as the upgrade target, highlights potential problems, and records the checks and decisions made before the change. The plugin provides guidance and evidence; administrators remain in control of the upgrade.
 
 ## What it does
 
@@ -36,7 +36,7 @@ The report offers **complete** and **redacted** PDF and HTML exports. Complete e
 
 1. Place the `upgradeassistant` directory at `local/upgradeassistant` in your Moodle installation, or install the distributable plugin ZIP through Moodle's plugin installer.
 2. Sign in as a site administrator and complete Moodle's plugin upgrade at `/admin/index.php`.
-3. Open **Site administration → Server → Smart Upgrade Assistant**.
+3. Open **Site administration → Server → Upgrade Assistant**.
 
 This beta requires Moodle 4.1 or later. The bundled upgrade rules cover Moodle 4.1–4.5 and 5.0–5.3, including a preliminary target in the 5.3 branch. A newly released branch may be detected from its files, but its complete requirements and upgrade route still need verified rules; review unknown results against the official Moodle documentation.
 
@@ -48,6 +48,6 @@ Reports store technical diagnostics, selected paths, plugin comparisons, checkli
 
 ## Scope
 
-Smart Upgrade Assistant does not install or remove plugins, copy Moodle code, perform database upgrades, create backups, or modify the web server's document root. It does not execute code from the selected target installation. Follow Moodle's official upgrade documentation, test in a staging environment, and keep restorable backups before changing a production site.
+Upgrade Assistant does not install or remove plugins, copy Moodle code, perform database upgrades, create backups, or modify the web server's document root. It does not execute code from the selected target installation. Follow Moodle's official upgrade documentation, test in a staging environment, and keep restorable backups before changing a production site.
 
 The plugin is distributed under the GNU General Public License, version 3 or later. See [LICENSE](LICENSE).

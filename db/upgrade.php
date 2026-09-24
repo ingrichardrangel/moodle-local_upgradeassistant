@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Upgrade script for Smart Upgrade Assistant.
+ * Upgrade script for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -373,6 +373,11 @@ function xmldb_local_upgradeassistant_upgrade(int $oldversion): bool {
     if ($oldversion < 2026092402) {
         // No schema changes. Rechecked findings now explain verified resolution.
         upgrade_plugin_savepoint(true, 2026092402, 'local', 'upgradeassistant');
+    }
+
+    if ($oldversion < 2026092403) {
+        // Update the visible product name while retaining the existing component and data.
+        upgrade_plugin_savepoint(true, 2026092403, 'local', 'upgradeassistant');
     }
 
     return true;

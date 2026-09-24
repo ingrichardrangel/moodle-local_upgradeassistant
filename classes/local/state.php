@@ -100,7 +100,7 @@ class state {
 
         $json = json_encode($state);
         if ($json === false || strlen($json) > self::MAX_STATE_LENGTH) {
-            throw new \coding_exception('Invalid Smart Upgrade Assistant state payload.');
+            throw new \coding_exception('Invalid Upgrade Assistant state payload.');
         }
 
         set_user_preference(self::PREF, $json);

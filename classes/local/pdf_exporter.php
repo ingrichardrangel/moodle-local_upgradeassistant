@@ -49,11 +49,11 @@ class pdf_exporter {
 
         $data = self::get_report_data($reportid, $redacted);
         $title = get_string('pdfreporttitle', 'local_upgradeassistant');
-        $filename = clean_filename('smart-upgrade-assistant-pre-upgrade-report-' . $data['report']->id
+        $filename = clean_filename('upgrade-assistant-pre-upgrade-report-' . $data['report']->id
             . ($redacted ? '-redacted' : '') . '.pdf');
 
         $pdf = new \pdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->SetCreator('Smart Upgrade Assistant');
+        $pdf->SetCreator('Upgrade Assistant');
         $pdf->SetAuthor($data['generatedby']);
         $pdf->SetTitle($title . ' #' . $data['report']->id);
         $pdf->SetSubject(get_string('pdfsubject', 'local_upgradeassistant'));
@@ -88,7 +88,7 @@ class pdf_exporter {
      */
     public static function download_html(int $reportid, bool $redacted = false): void {
         $data = self::get_report_data($reportid, $redacted);
-        $filename = clean_filename('smart-upgrade-assistant-pre-upgrade-report-' . $data['report']->id
+        $filename = clean_filename('upgrade-assistant-pre-upgrade-report-' . $data['report']->id
             . ($redacted ? '-redacted' : '') . '.html');
         $html = '<!doctype html><html><head><meta charset="utf-8"><title>' .
             s(get_string('pdfreporttitle', 'local_upgradeassistant')) . '</title>' .
@@ -264,7 +264,7 @@ class pdf_exporter {
 
         $report = $data['report'];
         $html = '<div class="cover">';
-        $html .= '<div class="brand">SMART UPGRADE ASSISTANT</div>';
+        $html .= '<div class="brand">UPGRADE ASSISTANT</div>';
         $html .= '<h1>' . self::clean(get_string('pdfreporttitle', 'local_upgradeassistant')) . '</h1>';
         $html .= '<p class="muted">' . self::clean(get_string('pdfreportintro', 'local_upgradeassistant')) . '</p>';
         $html .= '<br />';

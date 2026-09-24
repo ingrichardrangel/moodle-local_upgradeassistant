@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Scheduled tasks for Smart Upgrade Assistant.
+ * Scheduled tasks for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel

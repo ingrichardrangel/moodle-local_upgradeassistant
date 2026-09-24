@@ -340,7 +340,7 @@ class lifecycle_manager {
                 $options[CURLOPT_TIMEOUT] = 12;
             }
             if (defined('CURLOPT_USERAGENT')) {
-                $options[CURLOPT_USERAGENT] = 'Smart Upgrade Assistant Moodle lifecycle sync';
+                $options[CURLOPT_USERAGENT] = 'Upgrade Assistant Moodle lifecycle sync';
             }
             if (!empty($options)) {
                 $curl->setopt($options);

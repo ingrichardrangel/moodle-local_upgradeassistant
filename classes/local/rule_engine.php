@@ -17,7 +17,7 @@
 namespace local_upgradeassistant\local;
 
 /**
- * Local version-rule engine used by Smart Upgrade Assistant.
+ * Local version-rule engine used by Upgrade Assistant.
  *
  * The first release ships with local rules so the assistant remains useful
  * without an external SaaS API. Future paid plans can synchronise these rows

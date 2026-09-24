@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Smart Upgrade Assistant main controller.
+ * Upgrade Assistant main controller.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel

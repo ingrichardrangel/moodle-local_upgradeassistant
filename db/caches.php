@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Cache definitions for Smart Upgrade Assistant.
+ * Cache definitions for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel

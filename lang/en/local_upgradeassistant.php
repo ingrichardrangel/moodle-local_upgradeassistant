@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * English language strings for Smart Upgrade Assistant.
+ * English language strings for Upgrade Assistant.
  *
  * @package    local_upgradeassistant
  * @copyright  2026 Richard Rangel
@@ -61,9 +61,9 @@ $string['blockersremaining'] = '{$a} blocker(s) must be resolved before it is sa
 $string['boostthemeactive'] = 'Boost active';
 $string['boostthemenotactive'] = 'The active theme is {$a}. Change the site theme to Boost before marking this step as verified.';
 $string['boostthemeswitched'] = 'The site theme was changed to Boost and the checklist step was marked as completed.';
-$string['boostthemeswitchednote'] = 'The site theme was changed to Boost from Smart Upgrade Assistant.';
+$string['boostthemeswitchednote'] = 'The site theme was changed to Boost from Upgrade Assistant.';
 $string['boostthemeverified'] = 'Boost theme verified successfully.';
-$string['boostthemeverifiednote'] = 'The active theme was verified as Boost from Smart Upgrade Assistant.';
+$string['boostthemeverifiednote'] = 'The active theme was verified as Boost from Upgrade Assistant.';
 $string['branch'] = 'Branch';
 $string['cachespurged'] = 'All Moodle caches were purged.';
 $string['category'] = 'Category';
@@ -148,12 +148,12 @@ $string['enablemaintenance'] = 'Enable maintenance mode';
 $string['environmentdetected'] = 'Environment detected';
 $string['eventchecklistcompleted'] = 'Upgrade assistant checklist item completed';
 $string['eventlifecyclesynced'] = 'Moodle lifecycle data synchronised';
-$string['eventmaintenancedisabled'] = 'Maintenance mode disabled from Smart Upgrade Assistant';
-$string['eventmaintenanceenabled'] = 'Maintenance mode enabled from Smart Upgrade Assistant';
+$string['eventmaintenancedisabled'] = 'Maintenance mode disabled from Upgrade Assistant';
+$string['eventmaintenanceenabled'] = 'Maintenance mode enabled from Upgrade Assistant';
 $string['eventreportcreated'] = 'Upgrade assistant report created';
 $string['eventreportexported'] = 'Upgrade assistant report exported';
 $string['eventtargetselected'] = 'Upgrade assistant target selected';
-$string['eventthemeswitchedtoboost'] = 'Site theme switched to Boost from Smart Upgrade Assistant';
+$string['eventthemeswitchedtoboost'] = 'Site theme switched to Boost from Upgrade Assistant';
 $string['evidenceandtraceability'] = 'Evidence and traceability';
 $string['executionblocked'] = 'Execution still has blockers. Return to Preparation and resolve them before changing files.';
 $string['executionheading'] = 'Execution and evidence';
@@ -457,14 +457,14 @@ $string['lifecyclestatusunsupported'] = 'Unsupported';
 $string['lifecyclesyncdisabled'] = 'Moodle lifecycle synchronisation is disabled in plugin settings.';
 $string['lifecycletimeline'] = 'Support timeline';
 $string['lifecycletitle'] = 'Moodle lifecycle';
-$string['local/upgradeassistant:configure'] = 'Configure Smart Upgrade Assistant';
-$string['local/upgradeassistant:export'] = 'Export Smart Upgrade Assistant reports';
-$string['local/upgradeassistant:generatereport'] = 'Generate Smart Upgrade Assistant reports';
-$string['local/upgradeassistant:manage'] = 'Manage Smart Upgrade Assistant';
-$string['local/upgradeassistant:view'] = 'View Smart Upgrade Assistant';
-$string['local/upgradeassistant:viewreports'] = 'View Smart Upgrade Assistant reports';
-$string['local/upgradeassistant:viewsensitive'] = 'View sensitive Smart Upgrade Assistant diagnostic data';
-$string['mainnavigation'] = 'Smart Upgrade Assistant main navigation';
+$string['local/upgradeassistant:configure'] = 'Configure Upgrade Assistant';
+$string['local/upgradeassistant:export'] = 'Export Upgrade Assistant reports';
+$string['local/upgradeassistant:generatereport'] = 'Generate Upgrade Assistant reports';
+$string['local/upgradeassistant:manage'] = 'Manage Upgrade Assistant';
+$string['local/upgradeassistant:view'] = 'View Upgrade Assistant';
+$string['local/upgradeassistant:viewreports'] = 'View Upgrade Assistant reports';
+$string['local/upgradeassistant:viewsensitive'] = 'View sensitive Upgrade Assistant diagnostic data';
+$string['mainnavigation'] = 'Upgrade Assistant main navigation';
 $string['maintenanceactive'] = 'Maintenance mode active';
 $string['maintenancemodeoff'] = 'Maintenance mode was disabled.';
 $string['maintenancemodeon'] = 'Maintenance mode was enabled.';
@@ -559,7 +559,7 @@ $string['plugindependenciesverified'] = 'Dependencies verified in the target ins
 $string['plugindifferencesdesc'] = 'The following plugin folders exist in the current installation but ' .
     'are missing in the target installation, or require additional compatibility review.';
 $string['pluginmissingintarget'] = 'Missing in target';
-$string['pluginname'] = 'Smart Upgrade Assistant';
+$string['pluginname'] = 'Upgrade Assistant';
 $string['pluginofficiallyremoved'] = '{$a->component} was officially removed starting with Moodle {$a->version}';
 $string['pluginpresentintarget'] = 'Present in target version';
 $string['pluginrequiresfuturemoodle'] = 'Requires a Moodle version higher than the selected target';
@@ -600,8 +600,8 @@ $string['privacy:metadata:local_upgradeassistant_expt:exporttype'] = 'The export
 $string['privacy:metadata:local_upgradeassistant_expt:reportid'] = 'The exported report identifier.';
 $string['privacy:metadata:local_upgradeassistant_expt:timecreated'] = 'The time the export was downloaded.';
 $string['privacy:metadata:local_upgradeassistant_expt:userid'] = 'The user who downloaded an export.';
-$string['privacy:metadata:local_upgradeassistant_item'] = 'Report findings generated by Smart Upgrade ' .
-    'Assistant. They may include technical evidence and recommendations for the upgrade process.';
+$string['privacy:metadata:local_upgradeassistant_item'] = 'Report findings generated by Upgrade Assistant. ' .
+    'They may include technical evidence and recommendations for the upgrade process.';
 $string['privacy:metadata:local_upgradeassistant_item:category'] = 'Finding category.';
 $string['privacy:metadata:local_upgradeassistant_item:code'] = 'Internal finding code.';
 $string['privacy:metadata:local_upgradeassistant_item:description'] = 'Finding description, which may ' .
@@ -769,7 +769,7 @@ $string['server'] = 'Server';
 $string['serverprofile'] = 'Server profile';
 $string['serverrecommendationsdesc'] = 'Specific recommendations based on the detected environment type.';
 $string['serverrecommendationstitle'] = 'Recommendations by server type';
-$string['settingspage'] = 'Smart Upgrade Assistant';
+$string['settingspage'] = 'Upgrade Assistant';
 $string['severity'] = 'Severity';
 $string['severitycritical'] = 'Critical';
 $string['severityhigh'] = 'High';
